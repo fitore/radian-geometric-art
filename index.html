@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radian — Where Art and Mathematics Unite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&family=Cinzel:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- STYLES -->
+<style>
+  :root {
+    --bg:        #0d0c0a;
+    --surface:   #141310;
+    --card:      #1a1816;
+    --border:    #2a2722;
+    --border-hi: #3d3830;
+    --gold:      #c8a96e;
+    --gold-dim:  #7a6540;
+    --text:      #e2d9c8;
+    --text-dim:  #8a8070;
+    --text-faint:#4a4438;
+    --want:      #4a7fb5;
+    --tried:     #c8a96e;
+    --done:      #5a8a5a;
+    --header-bg: rgba(13,12,10,0.95);
+    --shadow:    rgba(0,0,0,0.5);
+  }
+
+  :root.light {
+    --bg:        #f5f0e8;
+    --surface:   #ede7d9;
+    --card:      #e4ddd0;
+    --border:    #cec4ae;
+    --border-hi: #b8ad96;
+    --gold:      #8a6520;
+    --gold-dim:  #a07830;
+    --text:      #1e1a14;
+    --text-dim:  #5a5040;
+    --text-faint:#9a8e78;
+    --want:      #2a5f95;
+    --tried:     #8a6520;
+    --done:      #3a6a3a;
+    --header-bg: rgba(245,240,232,0.95);
+    --shadow:    rgba(0,0,0,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  *, *::before, *::after {
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 16px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── SVG background geometry ─── */
+  .bg-geometry {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.025;
+  }
+
+  /* ─── App shell ─── */
+  .app {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    grid-template-rows: 64px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ─── Header ─── */
+  header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--header-bg);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .wordmark {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .wordmark-title {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+  }
+
+  .wordmark-sep {
+    width: 1px;
+    height: 16px;
+    background: var(--border-hi);
+    align-self: center;
+  }
+
+  .wordmark-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    padding: 7px 16px;
+    border: 1px solid var(--border-hi);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn:hover {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+  }
+
+  .btn-primary {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: rgba(200,169,110,0.06);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(200,169,110,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-primary:hover::before { opacity: 1; }
+
+  /* ─── Sidebar ─── */
+  aside {
+    padding: 28px 24px;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    background: var(--surface);
+    height: calc(100vh - 64px);
+    position: sticky;
+    top: 64px;
+  }
+
+  .filter-section {
+    margin-bottom: 24px;
+  }
+
+  .filter-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+    user-select: none;
+  }
+
+  .chip:hover {
+    border-color: var(--border-hi);
+    color: var(--text);
+  }
+
+  .chip.active {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: rgba(200,169,110,0.07);
+  }
+
+  .status-chip.want.active  { border-color: var(--want);  color: var(--want);  background: rgba(74,127,181,0.08); }
+  .status-chip.tried.active { border-color: var(--tried); color: var(--tried); background: rgba(200,169,110,0.08); }
+  .status-chip.done.active  { border-color: var(--done);  color: var(--done);  background: rgba(90,138,90,0.08); }
+
+  .filter-footer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-faint);
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .filter-footer span { color: var(--gold-dim); }
+
+  .clear-btn {
+    display: block;
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.15s;
+  }
+
+  .clear-btn:hover { color: var(--gold-dim); }
+
+  /* ─── Main gallery ─── */
+  main {
+    padding: 28px 32px;
+    overflow-y: auto;
+    height: calc(100vh - 64px);
+  }
+
+  .gallery-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 16px;
+  }
+
+  .gallery-header-left {
+    flex: 1;
+  }
+
+  .gallery-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .gallery-title {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text-dim);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  .gallery-title strong {
+    color: var(--text);
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  .legend {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+
+  .legend-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .search-input {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.04em;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 5px 10px;
+    outline: none;
+    width: 160px;
+    transition: border-color 0.15s;
+  }
+
+  .search-input::placeholder {
+    color: var(--text-faint);
+    font-style: italic;
+  }
+
+  .search-input:focus {
+    border-color: var(--gold-dim);
+  }
+
+  .sort-select {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 5px 10px;
+    cursor: pointer;
+    text-transform: uppercase;
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  .sort-select option {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  /* ─── Gallery grid ─── */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  /* ─── Cards ─── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card:hover {
+    border-color: var(--border-hi);
+    transform: translateY(-2px);
+  }
+
+  .card:hover .card-overlay {
+    opacity: 1;
+  }
+
+  .card-image-wrap {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .card-image-wrap img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.85) brightness(0.92);
+    transition: filter 0.3s !important;
+  }
+
+  .card:hover .card-image-wrap img {
+    filter: saturate(1) brightness(1);
+  }
+
+  .card-no-image {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px;
+    color: var(--text-faint);
+    opacity: 0.4;
+    user-select: none;
+  }
+
+  .card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(13,12,10,0.7) 0%, transparent 50%);
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  /* Status dot */
+  .status-dot {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    z-index: 2;
+    box-shadow: 0 0 0 2px rgba(13,12,10,0.6);
+  }
+  .status-dot.want  { background: var(--want); }
+  .status-dot.tried { background: var(--tried); }
+  .status-dot.done  { background: var(--done); }
+
+  /* Difficulty badge */
+  .diff-badge {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    background: rgba(13,12,10,0.8);
+    color: var(--text-dim);
+    z-index: 2;
+    border: 1px solid var(--border);
+  }
+
+  .card-body {
+    padding: 12px 14px 14px;
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .card-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.04em;
+    color: var(--text-faint);
+    padding: 2px 6px;
+    border: 1px solid var(--border);
+  }
+
+  .card-tag.gold {
+    color: var(--gold-dim);
+    border-color: rgba(122,101,64,0.4);
+  }
+
+  /* ─── Empty states ─── */
+  .empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    text-align: center;
+    color: var(--text-faint);
+  }
+
+  .empty-state-icon {
+    font-size: 36px;
+    margin-bottom: 16px;
+    opacity: 0.35;
+  }
+
+  .empty-state-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+    margin-bottom: 8px;
+  }
+
+  .empty-state-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+
+  .card-placeholder {
+    background: transparent;
+    border: 1px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .card-placeholder:hover {
+    border-color: var(--gold-dim);
+  }
+
+  .card-placeholder-inner {
+    text-align: center;
+    color: var(--text-faint);
+  }
+
+  .card-placeholder-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    opacity: 0.4;
+  }
+
+  .card-placeholder-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ─── Add/Edit panel (slide in) ─── */
+  .form-panel {
+    position: fixed;
+    top: 64px;
+    right: 0;
+    width: 480px;
+    height: calc(100vh - 64px);
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 200;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-panel.open {
+    transform: translateX(0);
+    box-shadow: -20px 0 60px var(--shadow);
+  }
+
+  .form-panel-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 199;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .form-panel-backdrop.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .form-header {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 1;
+  }
+
+  .form-title {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+    font-weight: 400;
+  }
+
+  .form-close {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .form-close:hover {
+    border-color: var(--border-hi);
+    color: var(--text);
+  }
+
+  .form-body {
+    padding: 24px 28px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+  }
+
+  .field-sublabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.05em;
+    color: var(--text-faint);
+    font-style: italic;
+    margin-top: -4px;
+  }
+
+  .field-error {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--tried);
+    margin-top: -4px;
+    display: none;
+  }
+
+  .field-error.visible { display: block; }
+
+  .field-input {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  .field-input:focus {
+    border-color: var(--gold-dim);
+  }
+
+  .field-input::placeholder {
+    color: var(--text-faint);
+  }
+
+  .field-input.error {
+    border-color: var(--tried);
+  }
+
+  textarea.field-input {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  textarea.field-input.attempt {
+    background: rgba(200,169,110,0.02);
+    border-color: rgba(122,101,64,0.4);
+  }
+
+  .image-input-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: start;
+  }
+
+  .upload-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .upload-btn:hover {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+  }
+
+  .image-preview {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    margin-top: 4px;
+    filter: saturate(0.85);
+    display: none;
+  }
+
+  .image-preview.visible { display: block; }
+
+  /* Status + Difficulty row */
+  .status-diff-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .radio-option:hover { border-color: var(--border-hi); }
+
+  .radio-option.selected {
+    border-color: var(--gold-dim);
+    background: rgba(200,169,110,0.04);
+  }
+
+  .radio-option.selected .radio-dot { background: var(--gold); }
+
+  .radio-option.status-want.selected  { border-color: var(--want);  background: rgba(74,127,181,0.07); }
+  .radio-option.status-tried.selected { border-color: var(--tried); background: rgba(200,169,110,0.07); }
+  .radio-option.status-done.selected  { border-color: var(--done);  background: rgba(90,138,90,0.07); }
+  .radio-option.status-want.selected  .radio-dot { background: var(--want); }
+  .radio-option.status-tried.selected .radio-dot { background: var(--tried); }
+  .radio-option.status-done.selected  .radio-dot { background: var(--done); }
+
+  .radio-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-faint);
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .radio-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+  }
+
+  /* Tag group in form */
+  .tag-group-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+
+  .tag-group-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .tag-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .tag-check {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    color: var(--text-faint);
+    cursor: pointer;
+    transition: all 0.12s;
+    user-select: none;
+  }
+
+  .tag-check:hover {
+    border-color: var(--border-hi);
+    color: var(--text-dim);
+  }
+
+  .tag-check.checked {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: rgba(200,169,110,0.07);
+  }
+
+  .form-divider {
+    height: 1px;
+    background: var(--border);
+    position: relative;
+    margin: 4px 0;
+  }
+
+  .form-divider-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    background: var(--surface);
+    padding: 0 10px;
+    white-space: nowrap;
+  }
+
+  .form-footer {
+    padding: 16px 28px 28px;
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid var(--border);
+    position: sticky;
+    bottom: 0;
+    background: var(--surface);
+  }
+
+  .btn-save {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 11px;
+    border: 1px solid var(--gold-dim);
+    background: rgba(200,169,110,0.08);
+    color: var(--gold);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-save:hover { background: rgba(200,169,110,0.15); }
+
+  .btn-cancel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 11px 18px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-faint);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel:hover {
+    border-color: var(--border-hi);
+    color: var(--text-dim);
+  }
+
+  /* ─── Theme toggle ─── */
+  .btn-theme {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+  }
+
+  .theme-icon {
+    font-size: 13px;
+    line-height: 1;
+    display: inline-block;
+    transition: transform 0.4s ease !important;
+  }
+
+  .btn-theme:hover .theme-icon { transform: rotate(20deg); }
+
+  /* ─── Light mode overrides ─── */
+  :root.light .card-image-wrap img { filter: saturate(0.9) brightness(0.97); }
+  :root.light .card:hover .card-image-wrap img { filter: saturate(1) brightness(1); }
+  :root.light .bg-geometry { opacity: 0.05; }
+  :root.light .compass-deco { opacity: 0.05; }
+
+  :root.light .card-overlay {
+    background: linear-gradient(to top, rgba(230,222,210,0.65) 0%, transparent 50%);
+  }
+
+  :root.light .diff-badge {
+    background: rgba(245,240,232,0.88);
+    color: var(--text-dim);
+    border-color: var(--border);
+  }
+
+  :root.light .tag-group-wrap { background: var(--bg); }
+
+  :root.light textarea.field-input.attempt {
+    background: rgba(138,101,32,0.04);
+    border-color: rgba(160,120,48,0.35);
+  }
+
+  :root.light .form-divider-label { background: var(--surface); }
+
+  /* ─── Scrollbar ─── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-hi); }
+
+  /* ─── Subtle compass rose decoration ─── */
+  .compass-deco {
+    position: fixed;
+    bottom: -120px;
+    right: -120px;
+    width: 400px;
+    height: 400px;
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Background geometry -->
+<svg class="bg-geometry" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="hexgrid" width="60" height="52" patternUnits="userSpaceOnUse">
+      <path d="M30 0 L60 17 L60 35 L30 52 L0 35 L0 17 Z" fill="none" stroke="#c8a96e" stroke-width="0.4"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#hexgrid)"/>
+</svg>
+
+<!-- Compass rose decoration -->
+<svg class="compass-deco" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="200" cy="200" r="190" fill="none" stroke="#c8a96e" stroke-width="0.5"/>
+  <circle cx="200" cy="200" r="150" fill="none" stroke="#c8a96e" stroke-width="0.3"/>
+  <circle cx="200" cy="200" r="100" fill="none" stroke="#c8a96e" stroke-width="0.3"/>
+  <circle cx="200" cy="200" r="50"  fill="none" stroke="#c8a96e" stroke-width="0.5"/>
+  <line x1="200" y1="10"  x2="200" y2="390" stroke="#c8a96e" stroke-width="0.3"/>
+  <line x1="10"  y1="200" x2="390" y2="200" stroke="#c8a96e" stroke-width="0.3"/>
+  <line x1="65"  y1="65"  x2="335" y2="335" stroke="#c8a96e" stroke-width="0.3"/>
+  <line x1="335" y1="65"  x2="65"  y2="335" stroke="#c8a96e" stroke-width="0.3"/>
+  <polygon points="200,10 208,45 200,35 192,45"   fill="#c8a96e"/>
+  <polygon points="200,390 208,355 200,365 192,355" fill="#c8a96e" opacity="0.5"/>
+  <polygon points="10,200 45,192 35,200 45,208"   fill="#c8a96e" opacity="0.5"/>
+  <polygon points="390,200 355,192 365,200 355,208" fill="#c8a96e" opacity="0.5"/>
+</svg>
+
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="wordmark">
+      <div class="wordmark-title">RADIAN</div>
+      <div class="wordmark-sep"></div>
+      <div class="wordmark-sub">Where Art and Mathematics Unite</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-theme" id="themeToggle" title="Toggle light/dark mode">
+        <span class="theme-icon">☽</span>
+        <span class="theme-label">Light</span>
+      </button>
+      <button class="btn" id="importBtn">Import JSON</button>
+      <button class="btn" id="exportBtn">Export JSON</button>
+      <button class="btn btn-primary" id="addBtn">+ Add piece</button>
+    </div>
+  </header>
+
+  <!-- Sidebar — populated by renderSidebar() -->
+  <aside id="sidebar"></aside>
+
+  <!-- Main gallery -->
+  <main id="mainArea">
+    <div class="gallery-header">
+      <div class="gallery-header-left">
+        <div class="gallery-title" id="galleryTitle">Your collection</div>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--want)"></div>Want to try
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--tried)"></div>Attempted
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--done)"></div>Done
+          </div>
+        </div>
+      </div>
+      <div class="gallery-header-right">
+        <input type="search" class="search-input" id="searchInput" placeholder="Search…" autocomplete="off">
+        <select class="sort-select" id="sortSelect">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="az">Title A–Z</option>
+        </select>
+      </div>
+    </div>
+    <div class="gallery-grid" id="gallery"></div>
+  </main>
+
+</div>
+
+<!-- Form panel backdrop -->
+<div class="form-panel-backdrop" id="backdrop"></div>
+
+<!-- Add/Edit Panel -->
+<div class="form-panel" id="formPanel">
+  <div class="form-header">
+    <div class="form-title" id="formTitle">NEW PIECE</div>
+    <button class="form-close" id="formClose">✕</button>
+  </div>
+  <div class="form-body" id="formBody">
+    <!-- Populated by renderForm() on init -->
+  </div>
+  <div class="form-footer">
+    <button class="btn-cancel" id="btnCancel">Cancel</button>
+    <button class="btn-save" id="btnSave">Save piece</button>
+  </div>
+</div>
+
+<!-- Hidden file inputs -->
+<input type="file" id="imageFileInput" accept="image/*" style="display:none">
+<input type="file" id="importFileInput" accept=".json" style="display:none">
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   DATA
+   TAG_VOCABULARY constant + localStorage utilities
+════════════════════════════════════════════════════════════════════ */
+
+const TAG_VOCABULARY = {
+  constructionMethod: [
+    'compass-and-straightedge', 'ruler-only', 'freehand',
+    'polygonal-method', 'grid-based', 'string-art-parabolic'
+  ],
+  tradition: [
+    'Islamic-geometric', 'Moorish-Andalusian', 'Persian-Iranian',
+    'Moroccan-Maghrebi', 'Ottoman', 'Gothic-Medieval',
+    'Hindu-Vedic', 'Celtic-Insular', 'Nature-derived'
+  ],
+  patternType: [
+    'rosette', 'star-polygon', 'tessellation', 'arabesque-biomorph',
+    'mandala', 'knot-interlace', 'spiral', 'parabolic-curve',
+    'epicycloid', 'curve-of-pursuit', 'Flower-of-Life-lineage'
+  ],
+  symmetry: [
+    '3-fold', '4-fold', '5-fold', '6-fold', '7-fold',
+    '8-fold', '10-fold', '12-fold', '16-fold'
+  ],
+  proportion: [
+    'golden-ratio', '√2', '√3', 'vesica-piscis', 'fibonacci', 'pi-based'
+  ]
+};
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+const storage = {
+  getAllEntries() {
+    try {
+      const ids = JSON.parse(localStorage.getItem('radian:index') || '[]');
+      return ids
+        .map(id => {
+          try { return JSON.parse(localStorage.getItem(`radian:entry:${id}`)); }
+          catch { return null; }
+        })
+        .filter(Boolean);
+    } catch { return []; }
+  },
+
+  getEntry(id) {
+    try { return JSON.parse(localStorage.getItem(`radian:entry:${id}`)); }
+    catch { return null; }
+  },
+
+  saveEntry(entry) {
+    try {
+      const ids = JSON.parse(localStorage.getItem('radian:index') || '[]');
+      if (!ids.includes(entry.id)) {
+        ids.push(entry.id);
+        localStorage.setItem('radian:index', JSON.stringify(ids));
+      }
+      localStorage.setItem(`radian:entry:${entry.id}`, JSON.stringify(entry));
+    } catch (e) {
+      console.error('radian: failed to save entry', e);
+    }
+  },
+
+  deleteEntry(id) {
+    try {
+      const ids = JSON.parse(localStorage.getItem('radian:index') || '[]');
+      const next = ids.filter(i => i !== id);
+      localStorage.setItem('radian:index', JSON.stringify(next));
+      localStorage.removeItem(`radian:entry:${id}`);
+    } catch (e) {
+      console.error('radian: failed to delete entry', e);
+    }
+  },
+
+  exportJSON() {
+    const entries = this.getAllEntries();
+    const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const date = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `radian-export-${date}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  importJSON(jsonStr) {
+    let incoming;
+    try { incoming = JSON.parse(jsonStr); }
+    catch { return { ok: false, error: 'Invalid JSON file.' }; }
+
+    if (!Array.isArray(incoming)) {
+      return { ok: false, error: 'Expected a JSON array of entries.' };
+    }
+
+    let imported = 0;
+    for (const entry of incoming) {
+      if (entry && typeof entry === 'object' && entry.id && entry.title) {
+        this.saveEntry(entry);
+        imported++;
+      }
+    }
+    return { ok: true, count: imported };
+  }
+};
+
+
+/* ════════════════════════════════════════════════════════════════════
+   GALLERY
+   renderGallery(), filterEntries(), card template, sidebar
+════════════════════════════════════════════════════════════════════ */
+
+// Application state
+const state = {
+  entries: [],
+  activeFilters: {
+    status:             new Set(),
+    difficulty:         new Set(),
+    constructionMethod: new Set(),
+    tradition:          new Set(),
+    patternType:        new Set(),
+    symmetry:           new Set(),
+    // proportion is not a sidebar filter per PRD Section 6
+  },
+  sort: 'newest',
+  search: ''
+};
+
+// Filter logic: AND across groups, OR within each group
+function filterEntries(entries, activeFilters, search) {
+  return entries.filter(entry => {
+    // Search: case-insensitive substring match on title
+    if (search) {
+      if (!entry.title.toLowerCase().includes(search.toLowerCase())) return false;
+    }
+
+    // Status filter (OR within group)
+    if (activeFilters.status.size > 0) {
+      if (!activeFilters.status.has(entry.status)) return false;
+    }
+
+    // Difficulty filter (OR within group)
+    if (activeFilters.difficulty.size > 0) {
+      if (!activeFilters.difficulty.has(entry.difficulty)) return false;
+    }
+
+    // Tag group filters (AND across groups, OR within each group)
+    for (const group of ['constructionMethod', 'tradition', 'patternType', 'symmetry']) {
+      const active = activeFilters[group];
+      if (active && active.size > 0) {
+        const entryTags = new Set(entry.tags ? entry.tags[group] || [] : []);
+        const hasMatch = [...active].some(tag => entryTags.has(tag));
+        if (!hasMatch) return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+function sortEntries(entries, sortKey) {
+  const sorted = [...entries];
+  if (sortKey === 'newest') sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  else if (sortKey === 'oldest') sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  else if (sortKey === 'az') sorted.sort((a, b) => a.title.localeCompare(b.title));
+  return sorted;
+}
+
+function createCardHTML(entry) {
+  const statusMap = { 'want-to-try': 'want', 'attempted': 'tried', 'done': 'done' };
+  const statusClass = statusMap[entry.status] || 'want';
+  const difficulty = entry.difficulty || 'beginner';
+
+  // Show symmetry first, then tradition tags on card
+  const symTags = (entry.tags && entry.tags.symmetry) ? entry.tags.symmetry.slice(0, 1) : [];
+  const tradTags = (entry.tags && entry.tags.tradition) ? entry.tags.tradition.slice(0, 2) : [];
+  const patTags  = (entry.tags && entry.tags.patternType) ? entry.tags.patternType.slice(0, 1) : [];
+
+  const imageContent = entry.imageUrl
+    ? `<img src="${escapeHtml(entry.imageUrl)}" alt="${escapeHtml(entry.title)}" loading="lazy" onerror="this.style.opacity='0'">`
+    : `<div class="card-no-image">◈</div>`;
+
+  const tagHtml = [
+    ...symTags.map(t => `<span class="card-tag gold">${escapeHtml(t)}</span>`),
+    ...tradTags.map(t => `<span class="card-tag">${escapeHtml(t)}</span>`),
+    ...patTags.map(t  => `<span class="card-tag">${escapeHtml(t)}</span>`)
+  ].join('');
+
+  return `
+    <div class="card" data-id="${escapeHtml(entry.id)}">
+      <div class="card-image-wrap">
+        ${imageContent}
+        <div class="card-overlay"></div>
+        <div class="status-dot ${statusClass}"></div>
+        <div class="diff-badge">${escapeHtml(difficulty)}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">${escapeHtml(entry.title)}</div>
+        <div class="card-tags">${tagHtml}</div>
+      </div>
+    </div>`;
+}
+
+function renderGallery(filteredEntries) {
+  const gallery = document.getElementById('gallery');
+
+  if (state.entries.length === 0) {
+    // No entries at all — show empty state
+    gallery.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">◈</div>
+        <div class="empty-state-title">Your collection is empty</div>
+        <div class="empty-state-sub">Add your first sacred geometry piece to begin</div>
+      </div>
+      <div class="card-placeholder" id="placeholderCard">
+        <div class="card-placeholder-inner">
+          <div class="card-placeholder-icon">◈</div>
+          <div class="card-placeholder-text">Add a piece</div>
+        </div>
+      </div>`;
+    document.getElementById('placeholderCard').addEventListener('click', openFormNew);
+    return;
+  }
+
+  if (filteredEntries.length === 0) {
+    // Has entries but none match filters
+    gallery.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">◈</div>
+        <div class="empty-state-title">No pieces match your filters</div>
+        <div class="empty-state-sub">Try clearing some filters or adjusting your search</div>
+      </div>`;
+    return;
+  }
+
+  gallery.innerHTML = filteredEntries.map(createCardHTML).join('');
+}
+
+function updateGalleryTitle(filtered, total) {
+  const titleEl = document.getElementById('galleryTitle');
+  if (total === 0) {
+    titleEl.innerHTML = `Your collection — <strong>empty</strong>`;
+  } else if (filtered === total) {
+    titleEl.innerHTML = `Your collection — <strong>${total} piece${total !== 1 ? 's' : ''}</strong>`;
+  } else {
+    titleEl.innerHTML = `Your collection — <strong>${filtered}</strong> of <strong>${total}</strong> pieces`;
+  }
+
+  // Update sidebar count
+  const cf = document.getElementById('countFiltered');
+  const ct = document.getElementById('countTotal');
+  if (cf) cf.textContent = filtered;
+  if (ct) ct.textContent = total;
+}
+
+function refreshGallery() {
+  const filtered = filterEntries(state.entries, state.activeFilters, state.search);
+  const sorted   = sortEntries(filtered, state.sort);
+  renderGallery(sorted);
+  updateGalleryTitle(filtered.length, state.entries.length);
+}
+
+const SIDEBAR_GROUPS = [
+  {
+    label: 'Status',
+    type:  'status',
+    chips: [
+      { value: 'want-to-try', label: 'Want to try', cls: 'status-chip want' },
+      { value: 'attempted',   label: 'Attempted',   cls: 'status-chip tried' },
+      { value: 'done',        label: 'Done',        cls: 'status-chip done' }
+    ]
+  },
+  {
+    label: 'Construction',
+    type:  'constructionMethod',
+    chips: TAG_VOCABULARY.constructionMethod.map(v => ({ value: v, label: v }))
+  },
+  {
+    label: 'Tradition',
+    type:  'tradition',
+    chips: TAG_VOCABULARY.tradition.map(v => ({ value: v, label: v }))
+  },
+  {
+    label: 'Pattern Type',
+    type:  'patternType',
+    chips: TAG_VOCABULARY.patternType.map(v => ({ value: v, label: v }))
+  },
+  {
+    label: 'Symmetry',
+    type:  'symmetry',
+    chips: TAG_VOCABULARY.symmetry.map(v => ({ value: v, label: v }))
+  },
+  {
+    label: 'Difficulty',
+    type:  'difficulty',
+    chips: [
+      { value: 'beginner',     label: 'Beginner' },
+      { value: 'intermediate', label: 'Intermediate' },
+      { value: 'advanced',     label: 'Advanced' }
+    ]
+  }
+];
+
+function renderSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.innerHTML = SIDEBAR_GROUPS.map(group => `
+    <div class="filter-section">
+      <div class="filter-label">${escapeHtml(group.label)}</div>
+      <div class="filter-chips">
+        ${group.chips.map(chip => `
+          <span class="chip ${chip.cls || ''}"
+                data-filter-type="${escapeHtml(group.type)}"
+                data-filter-value="${escapeHtml(chip.value)}">${escapeHtml(chip.label)}</span>
+        `).join('')}
+      </div>
+    </div>
+  `).join('') + `
+    <div class="filter-footer">
+      Showing <span id="countFiltered">0</span> of <span id="countTotal">0</span> pieces
+      <button class="clear-btn" id="clearFilters">Clear all filters</button>
+    </div>`;
+
+  // Wire chip clicks
+  sidebar.querySelectorAll('.chip[data-filter-type]').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const type  = chip.dataset.filterType;
+      const value = chip.dataset.filterValue;
+      if (!state.activeFilters[type]) state.activeFilters[type] = new Set();
+      if (state.activeFilters[type].has(value)) {
+        state.activeFilters[type].delete(value);
+        chip.classList.remove('active');
+      } else {
+        state.activeFilters[type].add(value);
+        chip.classList.add('active');
+      }
+      refreshGallery();
+    });
+  });
+
+  // Clear all filters
+  document.getElementById('clearFilters').addEventListener('click', () => {
+    for (const key of Object.keys(state.activeFilters)) state.activeFilters[key].clear();
+    sidebar.querySelectorAll('.chip.active').forEach(c => c.classList.remove('active'));
+    state.search = '';
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) searchInput.value = '';
+    refreshGallery();
+  });
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   FORM
+   renderForm(), populateForm(), readFormState(), saveCurrentEntry()
+════════════════════════════════════════════════════════════════════ */
+
+const TAG_GROUP_LABELS = {
+  constructionMethod: 'Construction method',
+  tradition:          'Tradition',
+  patternType:        'Pattern type',
+  symmetry:           'Symmetry',
+  proportion:         'Key proportion'
+};
+
+// Renders the tag groups HTML (helper used by renderForm)
+function buildTagGroupsHTML() {
+  return Object.entries(TAG_VOCABULARY).map(([group, tags]) => {
+    const suffix = group === 'proportion'
+      ? ` <span style="color:var(--text-faint);font-style:italic;text-transform:none;"> — optional</span>`
+      : '';
+    return `
+      <div class="tag-group-wrap">
+        <div class="tag-group-label">${escapeHtml(TAG_GROUP_LABELS[group])}${suffix}</div>
+        <div class="tag-checkboxes">
+          ${tags.map(tag => `
+            <span class="tag-check"
+                  data-group="${escapeHtml(group)}"
+                  data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</span>
+          `).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// Called once during init — builds the static form DOM
+function renderForm() {
+  const formBody = document.getElementById('formBody');
+  formBody.innerHTML = `
+    <!-- Image -->
+    <div class="form-field">
+      <div class="field-label">Image</div>
+      <div class="image-input-row">
+        <input class="field-input" placeholder="Paste image URL…" id="fieldImageUrl" autocomplete="off">
+        <label class="upload-btn" id="uploadLabel" title="Upload a local image file">↑ Upload</label>
+      </div>
+      <img class="image-preview" id="fieldImagePreview" src="" alt="Image preview">
+    </div>
+
+    <!-- Title -->
+    <div class="form-field">
+      <div class="field-label">Title <span style="color:var(--gold-dim)">*</span></div>
+      <input class="field-input" placeholder="Name this piece…" id="fieldTitle" autocomplete="off">
+      <div class="field-error" id="titleError">Title is required</div>
+    </div>
+
+    <!-- Status + Difficulty -->
+    <div class="status-diff-row">
+      <div class="form-field">
+        <div class="field-label">Status</div>
+        <div class="radio-group" id="statusGroup">
+          <div class="radio-option status-want selected" data-field="status" data-value="want-to-try">
+            <div class="radio-dot"></div>
+            <div class="radio-label">Want to try</div>
+          </div>
+          <div class="radio-option status-tried" data-field="status" data-value="attempted">
+            <div class="radio-dot"></div>
+            <div class="radio-label">Attempted</div>
+          </div>
+          <div class="radio-option status-done" data-field="status" data-value="done">
+            <div class="radio-dot"></div>
+            <div class="radio-label">Done</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <div class="field-label">Difficulty</div>
+        <div class="radio-group" id="difficultyGroup">
+          <div class="radio-option selected" data-field="difficulty" data-value="beginner">
+            <div class="radio-dot"></div>
+            <div class="radio-label">Beginner</div>
+          </div>
+          <div class="radio-option" data-field="difficulty" data-value="intermediate">
+            <div class="radio-dot"></div>
+            <div class="radio-label">Intermediate</div>
+          </div>
+          <div class="radio-option" data-field="difficulty" data-value="advanced">
+            <div class="radio-dot"></div>
+            <div class="radio-label">Advanced</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tags -->
+    <div class="form-field">
+      <div class="field-label">Tags</div>
+      <div style="display:flex;flex-direction:column;gap:8px;" id="tagGroupsContainer">
+        ${buildTagGroupsHTML()}
+      </div>
+    </div>
+
+    <!-- Source URL -->
+    <div class="form-field">
+      <div class="field-label">Source URL</div>
+      <input class="field-input" placeholder="Link to origin (optional)…" id="fieldSourceUrl" autocomplete="off">
+    </div>
+
+    <!-- Description -->
+    <div class="form-field">
+      <div class="field-label">Description</div>
+      <textarea class="field-input" placeholder="About this piece…" id="fieldDescription"></textarea>
+    </div>
+
+    <!-- Divider -->
+    <div class="form-divider">
+      <span class="form-divider-label">practice log</span>
+    </div>
+
+    <!-- Attempt Notes -->
+    <div class="form-field">
+      <div class="field-label">Attempt Notes</div>
+      <div class="field-sublabel">Your practice log — separate from description</div>
+      <textarea class="field-input attempt"
+                placeholder="What did you try? What was hard? What did you learn?…"
+                id="fieldAttemptNotes"
+                style="min-height:100px;"></textarea>
+    </div>
+
+    <!-- Hidden entry ID for edit mode -->
+    <input type="hidden" id="fieldEntryId" value="">
+  `;
+
+  // Wire radio option clicks
+  formBody.querySelectorAll('.radio-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const field = opt.dataset.field;
+      formBody.querySelectorAll(`.radio-option[data-field="${field}"]`)
+              .forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+    });
+  });
+
+  // Wire tag checkbox clicks
+  formBody.querySelectorAll('.tag-check').forEach(tag => {
+    tag.addEventListener('click', () => tag.classList.toggle('checked'));
+  });
+
+  // Wire image URL input → live preview
+  document.getElementById('fieldImageUrl').addEventListener('input', e => {
+    showImagePreview(e.target.value.trim());
+  });
+
+  // Wire title input → clear error on typing
+  document.getElementById('fieldTitle').addEventListener('input', () => {
+    document.getElementById('titleError').classList.remove('visible');
+    document.getElementById('fieldTitle').classList.remove('error');
+  });
+
+  // Wire upload button → trigger hidden file input
+  document.getElementById('uploadLabel').addEventListener('click', () => {
+    document.getElementById('imageFileInput').click();
+  });
+}
+
+// Shows or hides the image preview based on the URL/dataURI provided
+function showImagePreview(src) {
+  const preview = document.getElementById('fieldImagePreview');
+  if (!preview) return;
+  if (src && (src.startsWith('http') || src.startsWith('https') || src.startsWith('data:'))) {
+    preview.src = src;
+    preview.classList.add('visible');
+  } else {
+    preview.src = '';
+    preview.classList.remove('visible');
+  }
+}
+
+/**
+ * populateForm(entry)
+ *
+ * Pre-fills all form fields from an entry object.
+ * Called on edit-load AND will be called by the v2 Claude API annotation feature.
+ * Safe to call as a standalone function from outside the form submission flow.
+ *
+ * @param {Object} entry - A valid entry object (may be partial; defaults used for missing fields)
+ */
+function populateForm(entry) {
+  if (!entry) {
+    clearForm();
+    return;
+  }
+
+  // Entry ID (edit mode marker)
+  document.getElementById('fieldEntryId').value = entry.id || '';
+
+  // Image URL / data URI
+  const imageVal = entry.imageUrl || '';
+  document.getElementById('fieldImageUrl').value = imageVal;
+  showImagePreview(imageVal);
+
+  // Title
+  document.getElementById('fieldTitle').value = entry.title || '';
+
+  // Status (default: want-to-try)
+  const statusValue = entry.status || 'want-to-try';
+  document.querySelectorAll('[data-field="status"]').forEach(opt => {
+    opt.classList.toggle('selected', opt.dataset.value === statusValue);
+  });
+
+  // Difficulty (default: beginner)
+  const diffValue = entry.difficulty || 'beginner';
+  document.querySelectorAll('[data-field="difficulty"]').forEach(opt => {
+    opt.classList.toggle('selected', opt.dataset.value === diffValue);
+  });
+
+  // Tags — check/uncheck each tag-check element based on entry.tags
+  document.querySelectorAll('.tag-check[data-group]').forEach(el => {
+    const group = el.dataset.group;
+    const tag   = el.dataset.tag;
+    const isChecked = entry.tags && Array.isArray(entry.tags[group]) && entry.tags[group].includes(tag);
+    el.classList.toggle('checked', isChecked);
+  });
+
+  // Source URL
+  document.getElementById('fieldSourceUrl').value = entry.sourceUrl || '';
+
+  // Description
+  document.getElementById('fieldDescription').value = entry.description || '';
+
+  // Attempt notes
+  document.getElementById('fieldAttemptNotes').value = entry.attemptNotes || '';
+
+  // Clear any validation errors
+  document.getElementById('titleError').classList.remove('visible');
+  document.getElementById('fieldTitle').classList.remove('error');
+}
+
+// Resets all form fields to defaults (for new entry)
+function clearForm() {
+  document.getElementById('fieldEntryId').value   = '';
+  document.getElementById('fieldImageUrl').value  = '';
+  document.getElementById('fieldTitle').value     = '';
+  document.getElementById('fieldSourceUrl').value = '';
+  document.getElementById('fieldDescription').value   = '';
+  document.getElementById('fieldAttemptNotes').value  = '';
+  showImagePreview('');
+
+  // Reset status to want-to-try
+  document.querySelectorAll('[data-field="status"]').forEach(opt => {
+    opt.classList.toggle('selected', opt.dataset.value === 'want-to-try');
+  });
+
+  // Reset difficulty to beginner
+  document.querySelectorAll('[data-field="difficulty"]').forEach(opt => {
+    opt.classList.toggle('selected', opt.dataset.value === 'beginner');
+  });
+
+  // Uncheck all tags
+  document.querySelectorAll('.tag-check').forEach(el => el.classList.remove('checked'));
+
+  // Clear validation errors
+  document.getElementById('titleError').classList.remove('visible');
+  document.getElementById('fieldTitle').classList.remove('error');
+}
+
+// Reads current form state into an entry object
+function readFormState() {
+  const id        = document.getElementById('fieldEntryId').value;
+  const imageUrl  = document.getElementById('fieldImageUrl').value.trim();
+  const title     = document.getElementById('fieldTitle').value.trim();
+  const sourceUrl = document.getElementById('fieldSourceUrl').value.trim();
+  const desc      = document.getElementById('fieldDescription').value.trim();
+  const notes     = document.getElementById('fieldAttemptNotes').value.trim();
+
+  const status = (document.querySelector('[data-field="status"].selected') || {}).dataset?.value || 'want-to-try';
+  const difficulty = (document.querySelector('[data-field="difficulty"].selected') || {}).dataset?.value || 'beginner';
+
+  const tags = {};
+  for (const group of Object.keys(TAG_VOCABULARY)) {
+    tags[group] = [];
+    document.querySelectorAll(`.tag-check[data-group="${group}"].checked`).forEach(el => {
+      tags[group].push(el.dataset.tag);
+    });
+  }
+
+  return { id, imageUrl, title, sourceUrl, status, difficulty, tags, description: desc, attemptNotes: notes };
+}
+
+// Validates, saves, closes form, and refreshes gallery
+function saveCurrentEntry() {
+  const formData = readFormState();
+
+  if (!formData.title) {
+    document.getElementById('titleError').classList.add('visible');
+    document.getElementById('fieldTitle').classList.add('error');
+    document.getElementById('fieldTitle').focus();
+    return;
+  }
+
+  const existingId = formData.id;
+  const id = existingId || crypto.randomUUID();
+
+  // Preserve createdAt for edits; use now for new entries
+  let createdAt = new Date().toISOString();
+  if (existingId) {
+    const existing = state.entries.find(e => e.id === existingId);
+    if (existing) createdAt = existing.createdAt;
+  }
+
+  const entry = {
+    id,
+    createdAt,
+    title:        formData.title,
+    imageUrl:     formData.imageUrl,
+    sourceUrl:    formData.sourceUrl,
+    status:       formData.status,
+    difficulty:   formData.difficulty,
+    tags:         formData.tags,
+    description:  formData.description,
+    attemptNotes: formData.attemptNotes
+  };
+
+  storage.saveEntry(entry);
+  state.entries = storage.getAllEntries();
+
+  closeForm();
+  refreshGallery();
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   APP
+   init(), routing, event listeners
+════════════════════════════════════════════════════════════════════ */
+
+function openFormNew() {
+  document.getElementById('formTitle').textContent = 'NEW PIECE';
+  clearForm();
+  document.getElementById('formPanel').classList.add('open');
+  document.getElementById('backdrop').classList.add('open');
+  // Focus title after transition
+  setTimeout(() => document.getElementById('fieldTitle').focus(), 360);
+}
+
+function openFormEdit(id) {
+  const entry = storage.getEntry(id);
+  if (!entry) return;
+  document.getElementById('formTitle').textContent = 'EDIT PIECE';
+  populateForm(entry);
+  document.getElementById('formPanel').classList.add('open');
+  document.getElementById('backdrop').classList.add('open');
+}
+
+function closeForm() {
+  document.getElementById('formPanel').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('open');
+}
+
+function init() {
+  // Load persisted theme preference
+  const savedTheme = localStorage.getItem('radian:theme');
+  if (savedTheme === 'light') {
+    document.documentElement.classList.add('light');
+    document.querySelector('.theme-icon').textContent  = '☀';
+    document.querySelector('.theme-label').textContent = 'Dark';
+  }
+
+  // Build sidebar and form DOM (one-time)
+  renderSidebar();
+  renderForm();
+
+  // Load entries from storage
+  state.entries = storage.getAllEntries();
+  refreshGallery();
+
+  // ─── Header: theme toggle ───
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const isLight = document.documentElement.classList.toggle('light');
+    document.querySelector('.theme-icon').textContent  = isLight ? '☀' : '☽';
+    document.querySelector('.theme-label').textContent = isLight ? 'Dark' : 'Light';
+    localStorage.setItem('radian:theme', isLight ? 'light' : 'dark');
+  });
+
+  // ─── Header: add button ───
+  document.getElementById('addBtn').addEventListener('click', openFormNew);
+
+  // ─── Header: export ───
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    if (state.entries.length === 0) {
+      alert('No entries to export.');
+      return;
+    }
+    storage.exportJSON();
+  });
+
+  // ─── Header: import ───
+  document.getElementById('importBtn').addEventListener('click', () => {
+    document.getElementById('importFileInput').click();
+  });
+
+  document.getElementById('importFileInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const result = storage.importJSON(ev.target.result);
+      if (result.ok) {
+        state.entries = storage.getAllEntries();
+        refreshGallery();
+        alert(`Imported ${result.count} piece${result.count !== 1 ? 's' : ''} successfully.`);
+      } else {
+        alert(`Import failed: ${result.error}`);
+      }
+      // Reset so the same file can be re-imported
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  // ─── Gallery: card click (event delegation) ───
+  document.getElementById('gallery').addEventListener('click', e => {
+    const card = e.target.closest('.card[data-id]');
+    if (card) openFormEdit(card.dataset.id);
+  });
+
+  // ─── Gallery: search ───
+  document.getElementById('searchInput').addEventListener('input', e => {
+    state.search = e.target.value.trim();
+    refreshGallery();
+  });
+
+  // ─── Gallery: sort ───
+  document.getElementById('sortSelect').addEventListener('change', e => {
+    state.sort = e.target.value;
+    refreshGallery();
+  });
+
+  // ─── Form panel: close/cancel ───
+  document.getElementById('formClose').addEventListener('click', closeForm);
+  document.getElementById('btnCancel').addEventListener('click', closeForm);
+  document.getElementById('backdrop').addEventListener('click', closeForm);
+
+  // ─── Form panel: save ───
+  document.getElementById('btnSave').addEventListener('click', saveCurrentEntry);
+
+  // ─── Form panel: image file upload ───
+  document.getElementById('imageFileInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const dataUri = ev.target.result;
+      document.getElementById('fieldImageUrl').value = dataUri;
+      showImagePreview(dataUri);
+    };
+    reader.readAsDataURL(file);
+    // Reset so the same file can be re-selected
+    e.target.value = '';
+  });
+}
+
+// ─── Boot ───
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
