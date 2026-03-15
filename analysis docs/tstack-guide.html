@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>tstack — How to work with this in Claude Code</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141416;
+    --border: #232328;
+    --border-bright: #38383f;
+    --text: #e8e8ed;
+    --muted: #6b6b78;
+    --dim: #3a3a42;
+
+    --pm: #c8a96e;
+    --pm-dim: #2a2318;
+    --pm-mid: #4a3d28;
+
+    --pe: #6eb5c8;
+    --pe-dim: #172028;
+    --pe-mid: #253544;
+
+    --ux: #a8c86e;
+    --ux-dim: #1a2318;
+    --ux-mid: #2e3d25;
+
+    --regulated: #c86e8f;
+    --regulated-dim: #28151e;
+
+    --synthesis: #9b8ec8;
+    --synthesis-dim: #1d1a2e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 0 0 120px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 64px 64px 48px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 32px;
+  }
+
+  .header-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 52px;
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  .header-meta {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.8;
+  }
+
+  .header-meta strong {
+    display: block;
+    color: var(--text);
+    font-weight: 400;
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 64px;
+  }
+
+  section {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 28px;
+    font-weight: 400;
+    margin-bottom: 8px;
+  }
+
+  h3 {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 15px;
+    color: #b0b0ba;
+    max-width: 620px;
+    margin-bottom: 24px;
+  }
+
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--text);
+  }
+
+  /* ── INSTALL STEPS ── */
+  .install-steps {
+    display: grid;
+    gap: 2px;
+  }
+
+  .install-step {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .install-step:first-child { border-radius: 8px 8px 0 0; }
+  .install-step:last-child { border-radius: 0 0 8px 8px; }
+  .install-step:only-child { border-radius: 8px; }
+
+  .step-num {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px 0 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    border-right: 1px solid var(--border);
+  }
+
+  .step-content {
+    padding: 20px 24px;
+  }
+
+  .step-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .step-body {
+    font-size: 13px;
+    color: #8888a0;
+    margin-bottom: 12px;
+    max-width: none;
+  }
+
+  .code-block {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    background: #0a0a0c;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    color: #c8c8d8;
+    overflow-x: auto;
+    white-space: pre;
+    line-height: 1.6;
+  }
+
+  .code-block .comment { color: var(--muted); }
+  .code-block .cmd { color: var(--pe); }
+  .code-block .path { color: var(--pm); }
+  .code-block .string { color: var(--ux); }
+
+  /* ── ROLE CARDS ── */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+  }
+
+  .role-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px;
+    border-radius: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .roles-grid .role-card:first-child { border-radius: 8px 0 0 8px; }
+  .roles-grid .role-card:last-child { border-radius: 0 8px 8px 0; }
+
+  .role-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .role-pm::before { background: var(--pm); }
+  .role-pe::before { background: var(--pe); }
+  .role-ux::before { background: var(--ux); }
+
+  .role-icon {
+    font-size: 20px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .role-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .role-pm .role-name { color: var(--pm); }
+  .role-pe .role-name { color: var(--pe); }
+  .role-ux .role-name { color: var(--ux); }
+
+  .role-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 18px;
+    font-weight: 400;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .first-step-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .first-step-text {
+    font-size: 13px;
+    color: #9898a8;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  .role-outputs {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .role-output {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: #8888a0;
+  }
+
+  .role-pm .role-output { background: var(--pm-dim); border: 1px solid var(--pm-mid); }
+  .role-pe .role-output { background: var(--pe-dim); border: 1px solid var(--pe-mid); }
+  .role-ux .role-output { background: var(--ux-dim); border: 1px solid var(--ux-mid); }
+
+  /* ── WORKFLOW ── */
+  .workflow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .workflow-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 0;
+    position: relative;
+  }
+
+  .workflow-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .workflow-node {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    flex-shrink: 0;
+    z-index: 1;
+    position: relative;
+  }
+
+  .workflow-line {
+    width: 1px;
+    flex: 1;
+    min-height: 32px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+
+  .workflow-label {
+    display: flex;
+    align-items: flex-start;
+    padding: 6px 0 24px 20px;
+    gap: 16px;
+  }
+
+  .workflow-label-inner h4 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .workflow-label-inner p {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0;
+    max-width: 520px;
+  }
+
+  .wf-planning .workflow-node { background: var(--synthesis-dim); border: 1px solid var(--synthesis); color: var(--synthesis); }
+  .wf-exec .workflow-node { background: var(--pe-dim); border: 1px solid var(--pe); color: var(--pe); }
+  .wf-review .workflow-node { background: #231a10; border: 1px solid #8b6a3e; color: #c8a44e; }
+  .wf-ship .workflow-node { background: #0d1f14; border: 1px solid #3d7a52; color: #5fb87c; }
+  .wf-browse .workflow-node { background: var(--regulated-dim); border: 1px solid var(--regulated); color: var(--regulated); }
+  .wf-retro .workflow-node { background: #0d1020; border: 1px solid #3a4070; color: #6e7ec8; }
+
+  .mode-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .badge-planning { background: var(--synthesis-dim); color: var(--synthesis); border: 1px solid var(--synthesis); }
+  .badge-execution { background: var(--pe-dim); color: var(--pe); border: 1px solid var(--pe); }
+  .badge-gstack { background: #0d1a10; color: #5fb87c; border: 1px solid #3d7a52; }
+  .badge-regulated { background: var(--regulated-dim); color: var(--regulated); border: 1px solid var(--regulated); }
+
+  /* ── REGULATED OVERLAY ── */
+  .regulated-card {
+    background: var(--regulated-dim);
+    border: 1px solid var(--regulated);
+    border-radius: 8px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .regulated-card::after {
+    content: '/regulated';
+    position: absolute;
+    top: 24px;
+    right: 28px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--regulated);
+    opacity: 0.4;
+  }
+
+  .regulated-card h3 { color: var(--regulated); }
+
+  .regulated-lenses {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .regulated-lens {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(200,110,143,0.2);
+    border-radius: 6px;
+    padding: 16px;
+  }
+
+  .regulated-lens-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--regulated);
+    margin-bottom: 8px;
+  }
+
+  .regulated-lens p {
+    font-size: 12px;
+    color: #9898a8;
+    margin: 0;
+    max-width: none;
+    line-height: 1.5;
+  }
+
+  .blockers {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .blocker {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12px;
+    color: #a8a8b8;
+    padding: 8px 12px;
+    background: rgba(200,110,143,0.06);
+    border-radius: 4px;
+    border-left: 2px solid var(--regulated);
+  }
+
+  .blocker::before {
+    content: '⛔';
+    font-size: 11px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── INVOKE TABLE ── */
+  .invoke-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .invoke-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  .invoke-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: #b0b0ba;
+  }
+
+  .invoke-table tr:last-child td { border-bottom: none; }
+
+  .invoke-table tr:hover td { background: var(--surface); }
+
+  .invoke-table td:first-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  /* ── SESSION HANDOFF ── */
+  .handoff-box {
+    background: var(--pe-dim);
+    border: 1px solid var(--pe-mid);
+    border-radius: 8px;
+    padding: 28px;
+  }
+
+  .handoff-box h3 { color: var(--pe); }
+
+  .handoff-flow {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .handoff-step {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--pe-mid);
+    border-radius: 6px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .handoff-step-icon { font-size: 18px; margin-bottom: 6px; }
+  .handoff-step-label {
+    font-size: 11px;
+    color: var(--pe);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 4px;
+  }
+  .handoff-step-desc { font-size: 11px; color: var(--muted); }
+
+  .handoff-arrow {
+    color: var(--dim);
+    font-size: 18px;
+    text-align: center;
+  }
+
+  /* ── TIPS ── */
+  .tips-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .tip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .tip-icon { font-size: 16px; margin-bottom: 8px; }
+  .tip h4 { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+  .tip p { font-size: 12px; color: var(--muted); margin: 0; max-width: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="header-eyebrow">Personal Claude Code Skill Library</div>
+    <h1>tstack<br><em>How to work with this</em></h1>
+  </div>
+  <div class="header-meta">
+    <strong>Skills</strong>
+    /team &nbsp;·&nbsp; /regulated
+    <br><br>
+    <strong>Integrates with</strong>
+    gstack /browse &nbsp;·&nbsp; /retro
+    <br><br>
+    <strong>Pattern</strong>
+    CLAUDE.md / AGENTS.md
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- INSTALL -->
+  <section>
+    <div class="section-label">01 — Install</div>
+    <h2>Set up tstack in Claude Code</h2>
+    <p>Three steps. Everything lives inside <code>.claude/</code>. Nothing touches your PATH.</p>
+
+    <div class="install-steps">
+      <div class="install-step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Clone the skill files into your Claude global skills directory</div>
+          <div class="step-body">Paste this into Claude Code. Claude will create the directory structure and copy the skill files.</div>
+          <div class="code-block"><span class="comment"># Paste this prompt into Claude Code:</span>
+Set up tstack: create <span class="path">~/.claude/skills/tstack/</span> and inside it create
+<span class="path">SKILL-team.md</span> and <span class="path">SKILL-regulated.md</span> from the content I'm about to share.
+Then update <span class="path">~/.claude/CLAUDE.md</span> with a tstack section listing
+the available skills and how to invoke them.</div>
+        </div>
+      </div>
+
+      <div class="install-step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Add tstack to a project so it's available across sessions</div>
+          <div class="step-body">For any project you want tstack active in — Radian, SkyWatch prototypes, etc.</div>
+          <div class="code-block"><span class="comment"># Paste this into Claude Code inside the project:</span>
+Add tstack to this project: copy <span class="path">~/.claude/skills/tstack/</span> to
+<span class="path">.claude/skills/tstack/</span> and add a tstack section to this project's
+<span class="path">CLAUDE.md</span> listing available skills: /team, /regulated</div>
+        </div>
+      </div>
+
+      <div class="install-step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Verify Claude Code can see the skills</div>
+          <div class="step-body">Quick check — Claude should describe both skills without hesitation.</div>
+          <div class="code-block"><span class="comment"># Type directly in Claude Code:</span>
+What tstack skills do you have available?</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE TEAM -->
+  <section>
+    <div class="section-label">02 — The Team</div>
+    <h2>Three roles, one synthesis</h2>
+    <p>Each role has a mandatory first step it never skips. The mandatory step is what separates this from a generic assistant — it enforces discipline before ideation begins.</p>
+
+    <div class="roles-grid">
+      <div class="role-card role-pm">
+        <span class="role-icon">🗂️</span>
+        <div class="role-name">PM</div>
+        <div class="role-title">Competitive Strategy & Requirements</div>
+        <div class="first-step-label">Mandatory first step</div>
+        <div class="first-step-text">Run a competitive scan before touching requirements. 2–4 competitors → their gaps → your whitespace.</div>
+        <div class="role-outputs">
+          <div class="role-output">MoSCoW requirements</div>
+          <div class="role-output">Differentiator tied to each must-have</div>
+          <div class="role-output">Open questions to validate</div>
+        </div>
+      </div>
+
+      <div class="role-card role-pe">
+        <span class="role-icon">⚙️</span>
+        <div class="role-name">PE</div>
+        <div class="role-title">Internal Systems & Prototyping</div>
+        <div class="first-step-label">Mandatory first step</div>
+        <div class="first-step-text">Audit what already exists — systems, APIs, data models, and reserved architectural contracts — before proposing anything new.</div>
+        <div class="role-outputs">
+          <div class="role-output">Prototype plan (days, not sprints)</div>
+          <div class="role-output">Complexity: Low / Medium / High</div>
+          <div class="role-output">CLAUDE.md UPDATE block</div>
+        </div>
+      </div>
+
+      <div class="role-card role-ux">
+        <span class="role-icon">🎨</span>
+        <div class="role-name">UX</div>
+        <div class="role-title">Service Design & Journey Mapping</div>
+        <div class="first-step-label">Mandatory first step</div>
+        <div class="first-step-text">Map the full service journey — front stage, back stage, non-digital moments, moments of truth — before touching any interface.</div>
+        <div class="role-outputs">
+          <div class="role-output">Job-to-be-done</div>
+          <div class="role-output">Systemic gap (not just UI)</div>
+          <div class="role-output">What must change upstream/downstream</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKFLOW -->
+  <section>
+    <div class="section-label">03 — Workflow</div>
+    <h2>A feature from idea to shipped</h2>
+    <p>Use tstack for planning and decisions. Use gstack for execution and verification. They compose — don't blur them.</p>
+
+    <div class="workflow">
+
+      <div class="workflow-row wf-planning">
+        <div class="workflow-connector">
+          <div class="workflow-node">01</div>
+          <div class="workflow-line"></div>
+        </div>
+        <div class="workflow-label">
+          <span class="mode-badge badge-planning">Planning</span>
+          <div class="workflow-label-inner">
+            <h4>/team — Pressure-test the idea</h4>
+            <p>Describe what you want to build. PM scans competitors and sets requirements. PE audits existing systems and flags reserved contracts. UX maps the full journey and finds the real gap. Synthesis names the real tensions.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="workflow-row wf-planning">
+        <div class="workflow-connector">
+          <div class="workflow-node">02</div>
+          <div class="workflow-line"></div>
+        </div>
+        <div class="workflow-label">
+          <span class="mode-badge badge-planning">Planning</span>
+          <div class="workflow-label-inner">
+            <h4>Review and approve the CLAUDE.md UPDATE block</h4>
+            <p>The PE produces this automatically. Review it. If you approve the decisions and locked assumptions, paste it into your project's <code>CLAUDE.md</code> or <code>AGENTS.md</code>. This is how context compounds across sessions.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="workflow-row wf-exec">
+        <div class="workflow-connector">
+          <div class="workflow-node">03</div>
+          <div class="workflow-line"></div>
+        </div>
+        <div class="workflow-label">
+          <span class="mode-badge badge-execution">Execution</span>
+          <div class="workflow-label-inner">
+            <h4>/team — Lock the spec, then build</h4>
+            <p>Prefix with "Execution Mode —" to tell Claude the spec is locked. PE leads implementation. PM confirms scope hasn't crept. UX flags any journey breaks introduced by the implementation. No re-ideation in this mode.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="workflow-row wf-review">
+        <div class="workflow-connector">
+          <div class="workflow-node">04</div>
+          <div class="workflow-line"></div>
+        </div>
+        <div class="workflow-label">
+          <span class="mode-badge badge-gstack">gstack /review</span>
+          <div class="workflow-label-inner">
+            <h4>Paranoid staff engineer review</h4>
+            <p>Green tests don't mean it's safe. gstack's /review looks for N+1 queries, race conditions, trust boundary violations, and the bugs that survive CI. Run this before /ship.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="workflow-row wf-ship">
+        <div class="workflow-connector">
+          <div class="workflow-node">05</div>
+          <div class="workflow-line"></div>
+        </div>
+        <div class="workflow-label">
+          <span class="mode-badge badge-gstack">gstack /ship</span>
+          <div class="workflow-label-inner">
+            <h4>Sync main, run tests, push, open PR</h4>
+            <p>Release machine mode. Spec is decided, review is done, branch is ready. This is not for deciding what to build — it's for landing the plane.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="workflow-row wf-browse">
+        <div class="workflow-connector">
+          <div class="workflow-node">06</div>
+          <div class="workflow-line"></div>
+        </div>
+        <div class="workflow-label">
+          <span class="mode-badge badge-gstack">gstack /browse</span>
+          <div class="workflow-label-inner">
+            <h4>QA pass — give Claude eyes</h4>
+            <p>Claude Code navigates to staging, logs in, clicks through every changed page, takes screenshots, checks the console. The full QA loop runs in ~60 seconds. You don't open a browser.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="workflow-row wf-retro">
+        <div class="workflow-connector">
+          <div class="workflow-node">07</div>
+        </div>
+        <div class="workflow-label">
+          <span class="mode-badge" style="background:#0d1020;color:#6e7ec8;border:1px solid #3a4070;">gstack /retro</span>
+          <div class="workflow-label-inner">
+            <h4>End of week: commit history, patterns, velocity</h4>
+            <p>Saves a JSON snapshot for trend tracking. Run /retro compare to see this week vs last week. Useful for actually knowing if the system is compounding.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- INVOKE -->
+  <section>
+    <div class="section-label">04 — Invocation</div>
+    <h2>How to invoke — common patterns</h2>
+
+    <table class="invoke-table">
+      <thead>
+        <tr>
+          <th>Prompt</th>
+          <th>Mode</th>
+          <th>When to use</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>/team I want to add real-time tag filtering to Radian</td>
+          <td><span class="mode-badge badge-planning">Planning</span></td>
+          <td>New feature you haven't specced yet</td>
+        </tr>
+        <tr>
+          <td>/team Execution Mode — implement the filter logic from the locked spec</td>
+          <td><span class="mode-badge badge-execution">Execution</span></td>
+          <td>Spec is locked, you're building</td>
+        </tr>
+        <tr>
+          <td>/team /regulated Design the audit log for the SkyWatch imagery workflow</td>
+          <td><span class="mode-badge badge-regulated">Regulated</span></td>
+          <td>Any work with compliance obligations or AI-in-the-loop decisions</td>
+        </tr>
+        <tr>
+          <td>/team PM: is this the right scope cut?</td>
+          <td><span class="mode-badge badge-planning">Planning</span></td>
+          <td>Address one role directly — that role leads, others briefly weigh in</td>
+        </tr>
+        <tr>
+          <td>/team PE: does this violate the populateForm() contract?</td>
+          <td><span class="mode-badge badge-execution">Execution</span></td>
+          <td>Check a specific architectural constraint mid-implementation</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- REGULATED -->
+  <section>
+    <div class="section-label">05 — The Overlay</div>
+    <h2>When to add /regulated</h2>
+
+    <div class="regulated-card">
+      <h3>Regulated Industry Overlay</h3>
+      <p style="color:#c898a8; max-width:620px;">This skill doesn't replace the team — it adds a compliance constraint layer that every role runs their output through. Invoke it alongside /team whenever the work touches regulated contexts.</p>
+
+      <div class="regulated-lenses">
+        <div class="regulated-lens">
+          <div class="regulated-lens-name">🗂️ PM lens</div>
+          <p>Compliance as competitive moat. Regulatory surface scan. Auditor-useful evidence, not just internal checkboxes. Explicit human sign-off points mapped before requirements are written.</p>
+        </div>
+        <div class="regulated-lens">
+          <div class="regulated-lens-name">⚙️ PE lens</div>
+          <p>Audit-first architecture. Machine-readable log of every AI-assisted decision from day one. Confidence score shown with explicit provenance. Human approval logged as a separate event from AI recommendation.</p>
+        </div>
+        <div class="regulated-lens">
+          <div class="regulated-lens-name">🎨 UX lens</div>
+          <p>Two critical gaps: the post-proposal/pre-decision moment (where AI hands off to human judgment) and the downstream audit review moment (auditors as users). Both must be designed explicitly.</p>
+        </div>
+      </div>
+
+      <div class="blockers">
+        <div class="blocker">No machine-readable audit trail of AI-assisted decisions — this is a blocker, not a backlog item</div>
+        <div class="blocker">Conflating AI confidence score with human approval — they are different events, log them separately</div>
+        <div class="blocker">Fully automated consequential decisions with no human override path</div>
+        <div class="blocker">Audit data requiring significant transformation before an auditor can read it</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SESSION HANDOFF -->
+  <section>
+    <div class="section-label">06 — Session Continuity</div>
+    <h2>How context compounds across sessions</h2>
+    <p>Claude Code has no memory between sessions. The PE's CLAUDE.md UPDATE block is the mechanism that carries decisions forward — without it, every session starts from zero.</p>
+
+    <div class="handoff-box">
+      <h3>The PE CLAUDE.md UPDATE block</h3>
+
+      <div class="handoff-flow">
+        <div class="handoff-step">
+          <div class="handoff-step-icon">💬</div>
+          <div class="handoff-step-label">Planning session</div>
+          <div class="handoff-step-desc">You run /team on a new feature or decision</div>
+        </div>
+        <div class="handoff-arrow">→</div>
+        <div class="handoff-step">
+          <div class="handoff-step-icon">📋</div>
+          <div class="handoff-step-label">PE produces block</div>
+          <div class="handoff-step-desc">Decisions made, locked assumptions, open questions, reserved contracts</div>
+        </div>
+        <div class="handoff-arrow">→</div>
+        <div class="handoff-step">
+          <div class="handoff-step-icon">📄</div>
+          <div class="handoff-step-label">You paste to CLAUDE.md</div>
+          <div class="handoff-step-desc">Review, approve, paste into project CLAUDE.md or AGENTS.md</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px;">
+      <div class="code-block"><span class="comment">## Example PE CLAUDE.md UPDATE block output:</span>
+
+<span class="cmd">## CLAUDE.md UPDATE — Session 2025-03-14</span>
+
+<span class="string">Decisions made:</span>
+- Filter logic: AND across tag groups, OR within tag groups
+- localStorage key prefix: radian: (no changes)
+- Tag vocabulary locked at five groups (Construction Method, Tradition,
+  Pattern Type, Symmetry, Key Proportion)
+
+<span class="string">Locked assumptions:</span>
+- Desktop browser only — no responsive breakpoints required this version
+- No server-side storage — localStorage is the persistence layer for v1
+
+<span class="string">Open questions carried forward:</span>
+- Should imported items be read-only or editable? Not resolved.
+- populateForm() contract: reserved for v2 Claude API integration. 
+  Do not implement until explicitly unlocked.
+
+<span class="string">Reserved contracts:</span>
+- populateForm(data: TemplateData): void — architectural hook for v2
+  annotation feature. No implementation this session.</div>
+    </div>
+  </section>
+
+  <!-- TIPS -->
+  <section style="border-bottom: none;">
+    <div class="section-label">07 — Working patterns</div>
+    <h2>Tips from how this was designed</h2>
+
+    <div class="tips-grid">
+      <div class="tip">
+        <div class="tip-icon">🔀</div>
+        <h4>Don't blur Planning and Execution Mode</h4>
+        <p>gstack's key insight: planning is not review, review is not shipping. Your parallel: Planning Mode is not Execution Mode. Explicitly declare which mode you're in at the start of every session.</p>
+      </div>
+      <div class="tip">
+        <div class="tip-icon">⚡</div>
+        <h4>The synthesis block is the most valuable output</h4>
+        <p>The "where we conflict" section is what you can't get from a single-role assistant. A PM differentiator that takes 3 months and solves the wrong journey moment is a real conflict — the synthesis names it.</p>
+      </div>
+      <div class="tip">
+        <div class="tip-icon">🔒</div>
+        <h4>Add /regulated early, not after the fact</h4>
+        <p>Retrofitting an audit trail is expensive. If there's any chance the work touches regulated contexts, run /team /regulated in the first planning session, not after the architecture is locked.</p>
+      </div>
+      <div class="tip">
+        <div class="tip-icon">📌</div>
+        <h4>Treat reserved contracts as hard constraints</h4>
+        <p>The populateForm() hook pattern — reserve the interface, don't implement it. The PE will flag any approach that violates it. This is how v2 integrations stay clean even when built months later.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+</body>
+</html>
