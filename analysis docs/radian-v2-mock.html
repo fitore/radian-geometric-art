@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radian v2 — Where Art and Mathematics Unite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0d0c0a;
+    --surface:   #141310;
+    --card:      #1a1816;
+    --card-hover:#201e1a;
+    --border:    #2a2722;
+    --border-hi: #3d3830;
+    --gold:      #c8a96e;
+    --gold-dim:  #7a6540;
+    --gold-glow: rgba(200,169,110,0.15);
+    --text:      #e2d9c8;
+    --text-dim:  #8a8070;
+    --text-faint:#4a4438;
+    --blue:      #4a7fb5;
+    --green:     #5a8a5a;
+    --red:       #b54a4a;
+    --want:      #4a7fb5;
+    --tried:     #c8a96e;
+    --done:      #5a8a5a;
+    --conf-high: #5a8a5a;
+    --conf-med:  #c8a96e;
+    --conf-low:  #b57a4a;
+    --header-bg: rgba(13,12,10,0.97);
+    --shadow:    rgba(0,0,0,0.5);
+    --panel-width: 520px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 16px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── Background geometry ─── */
+  .bg-geometry {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+    opacity: 0.02;
+  }
+
+  /* ─── App shell ─── */
+  .app {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    grid-template-rows: 64px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ─── Header ─── */
+  header {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--header-bg);
+    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 200;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 24px; }
+
+  .wordmark {
+    display: flex; align-items: baseline; gap: 10px;
+    text-decoration: none;
+  }
+  .wordmark-title {
+    font-family: 'Cinzel', serif;
+    font-size: 19px; font-weight: 500;
+    letter-spacing: 0.14em; color: var(--gold);
+  }
+  .wordmark-sep {
+    width: 1px; height: 14px; background: var(--border-hi);
+    align-self: center;
+  }
+  .wordmark-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 300;
+    letter-spacing: 0.06em; color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* ─── Tab nav ─── */
+  .tab-nav {
+    display: flex; gap: 2px;
+    background: var(--surface);
+    border-radius: 6px; padding: 3px;
+    border: 1px solid var(--border);
+  }
+  .tab-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 300;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--text-dim);
+    background: transparent; border: none;
+    padding: 7px 16px; border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .tab-btn:hover { color: var(--text); background: var(--card); }
+  .tab-btn.active {
+    color: var(--gold); background: var(--card);
+    box-shadow: 0 0 0 1px var(--border-hi);
+  }
+
+  .header-actions { display: flex; align-items: center; gap: 10px; }
+
+  .btn-icon {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text-dim);
+    cursor: pointer; transition: all 0.2s;
+    font-size: 16px;
+  }
+  .btn-icon:hover { border-color: var(--border-hi); color: var(--text); }
+
+  /* ─── Sidebar ─── */
+  .sidebar {
+    grid-row: 2;
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    padding: 20px 16px;
+    overflow-y: auto;
+    max-height: calc(100vh - 64px);
+  }
+
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .chip-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.02em;
+    padding: 5px 10px; border-radius: 3px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--text-dim);
+    cursor: pointer; transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--border-hi); color: var(--text); }
+  .chip.active {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: var(--gold-glow);
+  }
+
+  .search-inspiration-btn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 10px 16px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px; letter-spacing: 0.08em;
+    color: var(--gold);
+    background: linear-gradient(135deg, rgba(200,169,110,0.08), rgba(200,169,110,0.03));
+    border: 1px solid var(--gold-dim);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .search-inspiration-btn:hover {
+    background: linear-gradient(135deg, rgba(200,169,110,0.15), rgba(200,169,110,0.06));
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(200,169,110,0.1);
+  }
+  .search-inspiration-btn .icon { font-size: 14px; }
+
+  .recent-searches {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .recent-search-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-faint);
+    padding: 4px 0; cursor: pointer;
+    transition: color 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .recent-search-item:hover { color: var(--text-dim); }
+  .recent-search-item .arrow { font-size: 8px; }
+
+  /* ─── Main content ─── */
+  .main { grid-row: 2; overflow-y: auto; max-height: calc(100vh - 64px); }
+
+  .main-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10;
+    background: var(--bg);
+  }
+  .entry-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text-dim);
+    letter-spacing: 0.03em;
+  }
+  .main-controls { display: flex; gap: 8px; align-items: center; }
+
+  .sort-select {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-dim);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; padding: 5px 8px;
+    cursor: pointer;
+  }
+  .sort-select:focus { outline: 1px solid var(--gold-dim); }
+
+  .btn-add {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.04em;
+    color: var(--bg); background: var(--gold);
+    border: none; border-radius: 4px;
+    padding: 7px 14px;
+    cursor: pointer; transition: all 0.2s;
+    font-weight: 400;
+  }
+  .btn-add:hover { background: #d4b87a; }
+
+  /* ─── Gallery grid ─── */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px; padding: 20px 24px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+  }
+  .card:hover {
+    border-color: var(--border-hi);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .card.web-result { border-style: dashed; }
+  .card.web-result:hover { border-color: var(--gold-dim); }
+
+  .card-img {
+    width: 100%; aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.85);
+    transition: filter 0.3s;
+  }
+  .card:hover .card-img { filter: saturate(1); }
+
+  .card-badge {
+    position: absolute; top: 8px; right: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 7px; border-radius: 3px;
+  }
+  .badge-web {
+    background: rgba(122,101,64,0.85);
+    color: var(--text);
+    backdrop-filter: blur(4px);
+  }
+  .badge-analyzed {
+    background: rgba(90,138,90,0.85);
+    color: var(--text);
+    backdrop-filter: blur(4px);
+  }
+
+  .card-body { padding: 12px 14px; }
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px; font-weight: 500;
+    color: var(--text); margin-bottom: 6px;
+    line-height: 1.3;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .card-source {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--text-faint);
+    margin-bottom: 8px;
+  }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .card-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.02em;
+    padding: 2px 6px; border-radius: 2px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  .card-tag.ai-suggested {
+    border-color: var(--gold-dim);
+    color: var(--gold-dim);
+  }
+  .card-tag.ai-suggested::before { content: '✦ '; font-size: 7px; }
+
+  .card-actions {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    display: flex; gap: 1px;
+    background: var(--border);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .card:hover .card-actions { opacity: 1; }
+  .card-action-btn {
+    flex: 1; padding: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-dim); background: var(--card);
+    border: none; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .card-action-btn:hover { color: var(--gold); background: var(--card-hover); }
+  .card-action-btn.primary-action { color: var(--gold); }
+
+  /* ─── Status dots on cards ─── */
+  .status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    display: inline-block; margin-right: 4px;
+  }
+  .status-dot.want { background: var(--want); }
+  .status-dot.tried { background: var(--tried); }
+  .status-dot.done { background: var(--done); }
+
+  /* Attempt count badge */
+  .attempt-badge {
+    position: absolute; top: 8px; left: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    background: rgba(13,12,10,0.85);
+    color: var(--text-dim);
+    padding: 3px 7px; border-radius: 3px;
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .attempt-badge .icon { font-size: 10px; }
+
+  /* ─── Slide-in Panels ─── */
+  .panel-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .panel-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .panel {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: var(--panel-width);
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 301;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .panel.open { transform: translateX(0); }
+  .panel.wide { width: min(900px, 90vw); }
+
+  .panel-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+    background: var(--surface);
+    z-index: 5;
+  }
+  .panel-title {
+    font-family: 'Cinzel', serif;
+    font-size: 14px; letter-spacing: 0.08em;
+    color: var(--gold);
+  }
+  .panel-close {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text-dim);
+    cursor: pointer; font-size: 14px;
+    transition: all 0.15s;
+  }
+  .panel-close:hover { border-color: var(--border-hi); color: var(--text); }
+
+  .panel-body { padding: 20px; flex: 1; }
+  .panel-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky; bottom: 0;
+  }
+
+  /* ─── Analysis Panel ─── */
+  .analysis-loading {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 60px 20px;
+    gap: 20px;
+  }
+  .analysis-loading-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; font-style: italic;
+    color: var(--text-dim);
+  }
+
+  /* Shimmer animation */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer-line {
+    height: 14px; border-radius: 3px;
+    background: linear-gradient(90deg, var(--border) 25%, var(--border-hi) 50%, var(--border) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease infinite;
+    margin-bottom: 10px;
+  }
+  .shimmer-line.short { width: 60%; }
+  .shimmer-line.med { width: 80%; }
+  .shimmer-line.long { width: 100%; }
+
+  /* Compass spinner */
+  @keyframes spin-compass {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .compass-spinner {
+    width: 48px; height: 48px;
+    border: 1px solid var(--border-hi);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin-compass 1.5s linear infinite;
+  }
+
+  .analysis-image {
+    width: 100%; border-radius: 6px;
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+    max-height: 280px;
+    object-fit: cover;
+  }
+
+  .classification-row {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .classification-row:last-child { border-bottom: none; }
+
+  .class-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+  .class-group-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-faint);
+  }
+  .class-actions { display: flex; gap: 4px; }
+
+  .btn-tiny {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 8px; border-radius: 3px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--text-dim);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-tiny:hover { border-color: var(--border-hi); color: var(--text); }
+  .btn-tiny.accept { border-color: var(--conf-high); color: var(--conf-high); }
+  .btn-tiny.accept:hover { background: rgba(90,138,90,0.15); }
+
+  .class-value {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 6px;
+  }
+  .class-tag-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.02em;
+    padding: 4px 10px; border-radius: 3px;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    background: var(--gold-glow);
+  }
+
+  .confidence-badge {
+    display: flex; align-items: center; gap: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.04em;
+  }
+  .conf-indicator {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 1.5px solid;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .conf-indicator.high {
+    border-color: var(--conf-high);
+    background: var(--conf-high);
+  }
+  .conf-indicator.medium {
+    border-color: var(--conf-med);
+    background: linear-gradient(to top, var(--conf-med) 50%, transparent 50%);
+  }
+  .conf-indicator.low {
+    border-color: var(--conf-low);
+    background: transparent;
+  }
+  .conf-label { text-transform: uppercase; }
+  .conf-label.high { color: var(--conf-high); }
+  .conf-label.medium { color: var(--conf-med); }
+  .conf-label.low { color: var(--conf-low); }
+
+  .class-rationale {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px; font-style: italic;
+    color: var(--text-dim); line-height: 1.5;
+  }
+
+  .construction-notes {
+    padding: 16px; margin-top: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .construction-notes-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--gold-dim);
+    margin-bottom: 8px;
+  }
+  .construction-notes-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px; line-height: 1.6;
+    color: var(--text);
+  }
+
+  .btn-accept-all {
+    width: 100%;
+    padding: 12px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px; letter-spacing: 0.08em;
+    color: var(--bg); background: var(--gold);
+    border: none; border-radius: 6px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-accept-all:hover { background: #d4b87a; }
+
+  /* ─── Template Extraction Panel ─── */
+  .extraction-workspace {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .extraction-pane {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .extraction-pane-label {
+    position: absolute; top: 8px; left: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px; border-radius: 3px;
+    background: rgba(13,12,10,0.85);
+    color: var(--text-dim);
+    backdrop-filter: blur(4px);
+    z-index: 2;
+  }
+  .extraction-img {
+    width: 100%; aspect-ratio: 1;
+    object-fit: cover; display: block;
+  }
+  .extraction-template {
+    width: 100%; aspect-ratio: 1;
+    background: #f5f0e8;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+
+  .controls-strip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .control-row {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 12px;
+  }
+  .control-row:last-child { margin-bottom: 0; }
+  .control-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    width: 110px; flex-shrink: 0;
+  }
+  .control-slider {
+    flex: 1; height: 3px;
+    -webkit-appearance: none; appearance: none;
+    background: var(--border-hi);
+    border-radius: 2px;
+    outline: none;
+  }
+  .control-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 2px solid var(--bg);
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(200,169,110,0.3);
+  }
+  .control-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--gold);
+    width: 32px; text-align: right;
+  }
+
+  .download-strip {
+    display: flex; gap: 8px;
+  }
+  .btn-download {
+    flex: 1; padding: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--text-dim);
+    border-radius: 4px; cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-download:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .btn-download.primary {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: var(--gold-glow);
+  }
+
+  .extraction-helper {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px; font-style: italic;
+    color: var(--text-faint);
+    text-align: center;
+    padding: 8px 0;
+  }
+
+  /* ─── Construction Sequence ─── */
+  .construction-step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+  }
+  .construction-step.active {
+    border-color: var(--gold-dim);
+    box-shadow: 0 0 0 1px var(--gold-glow);
+  }
+  .step-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 10px;
+  }
+  .step-number {
+    font-family: 'Cinzel', serif;
+    font-size: 20px; font-weight: 600;
+    color: var(--gold);
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--gold-dim);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .step-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; font-weight: 500;
+    color: var(--text);
+  }
+  .step-tools {
+    display: flex; gap: 6px;
+    margin-left: auto;
+  }
+  .tool-icon {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.04em;
+    padding: 3px 8px; border-radius: 3px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  .step-instruction {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px; line-height: 1.65;
+    color: var(--text);
+    padding-left: 48px;
+  }
+  .step-geometry-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-faint);
+    padding-left: 48px; margin-top: 6px;
+  }
+
+  .step-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 16px; margin-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .step-nav-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 8px 16px; border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--text-dim);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .step-nav-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .step-nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .step-progress {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-faint);
+  }
+
+  /* ─── Practice Tab ─── */
+  .practice-view { padding: 24px; }
+
+  .practice-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    text-align: center;
+  }
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px; font-weight: 400;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .heatmap-section { margin-bottom: 28px; }
+  .heatmap-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 12px;
+  }
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(52, 1fr);
+    gap: 2px;
+  }
+  .heatmap-cell {
+    aspect-ratio: 1; border-radius: 2px;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+  .heatmap-cell.l1 { background: rgba(200,169,110,0.15); border-color: rgba(200,169,110,0.2); }
+  .heatmap-cell.l2 { background: rgba(200,169,110,0.3); border-color: rgba(200,169,110,0.35); }
+  .heatmap-cell.l3 { background: rgba(200,169,110,0.5); border-color: rgba(200,169,110,0.55); }
+  .heatmap-cell.l4 { background: rgba(200,169,110,0.75); border-color: rgba(200,169,110,0.8); }
+
+  .practice-section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 14px; letter-spacing: 0.06em;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  /* Attempt cards */
+  .attempt-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+  }
+  .attempt-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .attempt-card:hover {
+    border-color: var(--border-hi);
+    transform: translateY(-1px);
+  }
+  .attempt-img {
+    width: 100%; aspect-ratio: 4/3;
+    object-fit: cover; display: block;
+    filter: saturate(0.8);
+  }
+  .attempt-body { padding: 10px 12px; }
+  .attempt-pattern-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px; color: var(--text);
+    margin-bottom: 4px;
+  }
+  .attempt-meta {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .attempt-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--text-faint);
+  }
+  .attempt-rating { display: flex; gap: 2px; }
+  .star { font-size: 10px; color: var(--border-hi); }
+  .star.filled { color: var(--gold); }
+
+  /* ─── Log Attempt Form ─── */
+  .form-group { margin-bottom: 18px; }
+  .form-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 6px; display: block;
+  }
+  .form-input, .form-textarea, .form-select {
+    width: 100%;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px; color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 12px;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus, .form-textarea:focus, .form-select:focus {
+    outline: none; border-color: var(--gold-dim);
+  }
+  .form-textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
+
+  .photo-upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 6px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .photo-upload-zone:hover {
+    border-color: var(--gold-dim);
+    background: var(--gold-glow);
+  }
+  .upload-icon { font-size: 24px; color: var(--text-faint); margin-bottom: 6px; }
+  .upload-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-dim);
+  }
+
+  .rating-input { display: flex; gap: 6px; }
+  .rating-star {
+    font-size: 22px; color: var(--border-hi);
+    cursor: pointer; transition: color 0.1s;
+  }
+  .rating-star.active, .rating-star:hover { color: var(--gold); }
+
+  .tool-checkboxes { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tool-check {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 5px 10px; border-radius: 3px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .tool-check.active {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: var(--gold-glow);
+  }
+
+  .btn-save {
+    width: 100%; padding: 12px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px; letter-spacing: 0.08em;
+    color: var(--bg); background: var(--gold);
+    border: none; border-radius: 6px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-save:hover { background: #d4b87a; }
+
+  /* ─── Empty state ─── */
+  .empty-state {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 60px 40px;
+    text-align: center;
+  }
+  .empty-state-icon {
+    font-size: 48px; color: var(--text-faint);
+    margin-bottom: 16px; opacity: 0.5;
+  }
+  .empty-state-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .empty-state-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px; color: var(--text-faint);
+    max-width: 360px; line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  /* ─── Discover tab search-in-progress ─── */
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(200,169,110,0); }
+    50% { box-shadow: 0 0 20px 4px rgba(200,169,110,0.15); }
+  }
+  .searching-indicator {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    background: var(--card);
+    border: 1px solid var(--gold-dim);
+    border-radius: 6px;
+    margin: 20px 24px;
+    animation: pulse-glow 2s ease infinite;
+  }
+  .searching-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px; font-style: italic;
+    color: var(--gold);
+  }
+
+  /* ─── Utility ─── */
+  .hidden { display: none !important; }
+  .section-divider {
+    height: 1px; background: var(--border);
+    margin: 20px 0;
+  }
+
+  /* ─── Scrollbar ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-hi); }
+
+  /* ─── Page-level transitions ─── */
+  .view { display: none; }
+  .view.active { display: block; }
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+
+<!-- Background geometry SVG -->
+<svg class="bg-geometry" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="geo-grid" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+      <circle cx="60" cy="60" r="55" fill="none" stroke="#c8a96e" stroke-width="0.3"/>
+      <circle cx="60" cy="60" r="35" fill="none" stroke="#c8a96e" stroke-width="0.2"/>
+      <line x1="60" y1="5" x2="60" y2="115" stroke="#c8a96e" stroke-width="0.15"/>
+      <line x1="5" y1="60" x2="115" y2="60" stroke="#c8a96e" stroke-width="0.15"/>
+      <line x1="15" y1="15" x2="105" y2="105" stroke="#c8a96e" stroke-width="0.1"/>
+      <line x1="105" y1="15" x2="15" y2="105" stroke="#c8a96e" stroke-width="0.1"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#geo-grid)"/>
+</svg>
+
+<div class="app">
+
+  <!-- ─── Header ─── -->
+  <header>
+    <div class="header-left">
+      <a class="wordmark" href="#">
+        <span class="wordmark-title">RADIAN</span>
+        <span class="wordmark-sep"></span>
+        <span class="wordmark-sub">Where Art &amp; Mathematics Unite</span>
+      </a>
+      <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="collection">Collection</button>
+        <button class="tab-btn" data-tab="discover">Discover</button>
+        <button class="tab-btn" data-tab="practice">Practice</button>
+      </nav>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" title="Camera Capture" onclick="openPanel('camera')">⬡</button>
+      <button class="btn-icon" title="Settings" onclick="openPanel('settings')">⚙</button>
+      <button class="btn-icon" title="Export" onclick="">↗</button>
+    </div>
+  </header>
+
+  <!-- ─── Sidebar ─── -->
+  <aside class="sidebar" id="sidebar">
+    
+    <div class="sidebar-section">
+      <div class="sidebar-label">
+        <span>Status</span>
+        <span style="cursor:pointer" onclick="clearFilters()" title="Clear all">✕</span>
+      </div>
+      <div class="chip-grid">
+        <button class="chip" onclick="toggleChip(this)">Want to Try</button>
+        <button class="chip" onclick="toggleChip(this)">Attempted</button>
+        <button class="chip active" onclick="toggleChip(this)">Done</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Construction Method</div>
+      <div class="chip-grid">
+        <button class="chip active" onclick="toggleChip(this)">Compass & Straightedge</button>
+        <button class="chip" onclick="toggleChip(this)">Ruler Only</button>
+        <button class="chip" onclick="toggleChip(this)">Freehand</button>
+        <button class="chip" onclick="toggleChip(this)">Polygonal</button>
+        <button class="chip" onclick="toggleChip(this)">Grid-Based</button>
+        <button class="chip" onclick="toggleChip(this)">String Art</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Tradition</div>
+      <div class="chip-grid">
+        <button class="chip active" onclick="toggleChip(this)">Islamic Geometric</button>
+        <button class="chip" onclick="toggleChip(this)">Moorish-Andalusian</button>
+        <button class="chip" onclick="toggleChip(this)">Persian-Iranian</button>
+        <button class="chip" onclick="toggleChip(this)">Moroccan-Maghrebi</button>
+        <button class="chip" onclick="toggleChip(this)">Ottoman</button>
+        <button class="chip" onclick="toggleChip(this)">Gothic-Medieval</button>
+        <button class="chip" onclick="toggleChip(this)">Hindu-Vedic</button>
+        <button class="chip" onclick="toggleChip(this)">Celtic-Insular</button>
+        <button class="chip" onclick="toggleChip(this)">Nature-Derived</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Pattern Type</div>
+      <div class="chip-grid">
+        <button class="chip" onclick="toggleChip(this)">Rosette</button>
+        <button class="chip active" onclick="toggleChip(this)">Star Polygon</button>
+        <button class="chip" onclick="toggleChip(this)">Tessellation</button>
+        <button class="chip" onclick="toggleChip(this)">Arabesque</button>
+        <button class="chip" onclick="toggleChip(this)">Mandala</button>
+        <button class="chip" onclick="toggleChip(this)">Knot-Interlace</button>
+        <button class="chip" onclick="toggleChip(this)">Spiral</button>
+        <button class="chip" onclick="toggleChip(this)">Flower of Life</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Symmetry</div>
+      <div class="chip-grid">
+        <button class="chip" onclick="toggleChip(this)">3-fold</button>
+        <button class="chip" onclick="toggleChip(this)">4-fold</button>
+        <button class="chip" onclick="toggleChip(this)">5-fold</button>
+        <button class="chip" onclick="toggleChip(this)">6-fold</button>
+        <button class="chip active" onclick="toggleChip(this)">8-fold</button>
+        <button class="chip" onclick="toggleChip(this)">10-fold</button>
+        <button class="chip" onclick="toggleChip(this)">12-fold</button>
+        <button class="chip" onclick="toggleChip(this)">16-fold</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Proportion</div>
+      <div class="chip-grid">
+        <button class="chip" onclick="toggleChip(this)">Golden Ratio</button>
+        <button class="chip active" onclick="toggleChip(this)">√2</button>
+        <button class="chip" onclick="toggleChip(this)">√3</button>
+        <button class="chip" onclick="toggleChip(this)">Vesica Piscis</button>
+        <button class="chip" onclick="toggleChip(this)">Fibonacci</button>
+      </div>
+    </div>
+
+    <!-- Search button (visible on Discover tab) -->
+    <div id="search-section" class="hidden">
+      <button class="search-inspiration-btn" onclick="simulateSearch()">
+        <span class="icon">✦</span>
+        Search for Inspiration
+      </button>
+      <div class="recent-searches">
+        <div class="sidebar-label" style="margin-bottom:8px">Recent Searches</div>
+        <div class="recent-search-item"><span class="arrow">↳</span> 8-fold · Islamic · Star Polygon</div>
+        <div class="recent-search-item"><span class="arrow">↳</span> Celtic · Knot-Interlace · 3-fold</div>
+        <div class="recent-search-item"><span class="arrow">↳</span> Flower of Life · Compass</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ─── Main Content ─── -->
+  <div class="main">
+
+    <!-- ═══ COLLECTION VIEW ═══ -->
+    <div class="view active" id="view-collection">
+      <div class="main-header">
+        <span class="entry-count">8 of 23 pieces</span>
+        <div class="main-controls">
+          <select class="sort-select">
+            <option>Newest</option><option>Oldest</option><option>A → Z</option>
+          </select>
+          <button class="btn-add" onclick="openPanel('form')">+ Add Entry</button>
+        </div>
+      </div>
+      <div class="gallery">
+        <!-- Card 1 - Analyzed pattern with attempts -->
+        <div class="card" onclick="openPanel('analysis')">
+          <span class="badge-analyzed">✦ Analyzed</span>
+          <span class="attempt-badge"><span class="icon">✎</span> 3</span>
+          <svg class="card-img" viewBox="0 0 400 400" style="background:#1a1816">
+            <defs><clipPath id="c1"><rect width="400" height="400"/></clipPath></defs>
+            <g clip-path="url(#c1)">
+              <circle cx="200" cy="200" r="160" fill="none" stroke="#c8a96e" stroke-width="1.5" opacity="0.6"/>
+              <circle cx="200" cy="200" r="110" fill="none" stroke="#c8a96e" stroke-width="1" opacity="0.4"/>
+              <g stroke="#c8a96e" stroke-width="0.8" opacity="0.7">
+                <polygon points="200,40 360,200 200,360 40,200" fill="none"/>
+                <polygon points="313,87 313,313 87,313 87,87" fill="none"/>
+              </g>
+              <g stroke="#7a6540" stroke-width="0.5" opacity="0.5">
+                <line x1="200" y1="40" x2="200" y2="360"/><line x1="40" y1="200" x2="360" y2="200"/>
+                <line x1="87" y1="87" x2="313" y2="313"/><line x1="313" y1="87" x2="87" y2="313"/>
+              </g>
+              <g fill="#c8a96e" opacity="0.3">
+                <polygon points="200,40 240,120 313,87 280,160 360,200 280,240 313,313 240,280 200,360 160,280 87,313 120,240 40,200 120,160 87,87 160,120"/>
+              </g>
+            </g>
+          </svg>
+          <div class="card-body">
+            <div class="card-title"><span class="status-dot done"></span>8-Pointed Star from Alhambra Dado Panel</div>
+            <div class="card-tags">
+              <span class="card-tag ai-suggested">8-fold</span>
+              <span class="card-tag ai-suggested">Moorish</span>
+              <span class="card-tag">Compass</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-action-btn primary-action">✦ Analyze</button>
+            <button class="card-action-btn">Extract</button>
+            <button class="card-action-btn">Edit</button>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card" onclick="openPanel('extraction')">
+          <svg class="card-img" viewBox="0 0 400 400" style="background:#1a1816">
+            <g opacity="0.7">
+              <circle cx="200" cy="200" r="120" fill="none" stroke="#4a7fb5" stroke-width="1"/>
+              <circle cx="200" cy="80" r="120" fill="none" stroke="#4a7fb5" stroke-width="0.6" opacity="0.5"/>
+              <circle cx="200" cy="320" r="120" fill="none" stroke="#4a7fb5" stroke-width="0.6" opacity="0.5"/>
+              <circle cx="96" cy="140" r="120" fill="none" stroke="#4a7fb5" stroke-width="0.6" opacity="0.5"/>
+              <circle cx="304" cy="140" r="120" fill="none" stroke="#4a7fb5" stroke-width="0.6" opacity="0.5"/>
+              <circle cx="96" cy="260" r="120" fill="none" stroke="#4a7fb5" stroke-width="0.6" opacity="0.5"/>
+              <circle cx="304" cy="260" r="120" fill="none" stroke="#4a7fb5" stroke-width="0.6" opacity="0.5"/>
+            </g>
+          </svg>
+          <div class="card-body">
+            <div class="card-title"><span class="status-dot want"></span>Flower of Life — 7 Circle Seed</div>
+            <div class="card-tags">
+              <span class="card-tag">6-fold</span>
+              <span class="card-tag">Compass</span>
+              <span class="card-tag">FOL</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-action-btn primary-action">✦ Analyze</button>
+            <button class="card-action-btn">Extract</button>
+            <button class="card-action-btn">Edit</button>
+          </div>
+        </div>
+
+        <!-- Card 3 - Celtic -->
+        <div class="card" onclick="openPanel('construction')">
+          <svg class="card-img" viewBox="0 0 400 400" style="background:#1a1816">
+            <g transform="translate(200,200)" stroke="#5a8a5a" fill="none" opacity="0.7">
+              <path d="M0,-120 Q80,-120 100,-50 Q120,30 60,80 Q0,130 -60,80 Q-120,30 -100,-50 Q-80,-120 0,-120" stroke-width="12" stroke-linecap="round"/>
+              <path d="M0,-120 Q80,-120 100,-50 Q120,30 60,80 Q0,130 -60,80 Q-120,30 -100,-50 Q-80,-120 0,-120" stroke-width="6" stroke="#1a1816"/>
+              <circle r="8" fill="#5a8a5a" cx="0" cy="-120"/>
+              <circle r="8" fill="#5a8a5a" cx="60" cy="80"/>
+              <circle r="8" fill="#5a8a5a" cx="-60" cy="80"/>
+            </g>
+          </svg>
+          <div class="card-body">
+            <div class="card-title"><span class="status-dot tried"></span>Triquetra — Celtic Trinity Knot</div>
+            <div class="card-tags">
+              <span class="card-tag">3-fold</span>
+              <span class="card-tag">Celtic</span>
+              <span class="card-tag">Knot</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-action-btn primary-action">✦ Analyze</button>
+            <button class="card-action-btn">Extract</button>
+            <button class="card-action-btn">Edit</button>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="card">
+          <svg class="card-img" viewBox="0 0 400 400" style="background:#1a1816">
+            <g opacity="0.6" stroke="#c8a96e" fill="none" stroke-width="0.6">
+              <g transform="translate(200,200)">
+                <polygon points="0,-150 130,-75 130,75 0,150 -130,75 -130,-75" stroke-width="1"/>
+                <polygon points="0,-100 87,-50 87,50 0,100 -87,50 -87,-50"/>
+                <polygon points="0,-50 43,-25 43,25 0,50 -43,25 -43,-25"/>
+                <line x1="0" y1="-150" x2="0" y2="150"/><line x1="-130" y1="-75" x2="130" y2="75"/><line x1="-130" y1="75" x2="130" y2="-75"/>
+              </g>
+            </g>
+          </svg>
+          <div class="card-body">
+            <div class="card-title"><span class="status-dot want"></span>Hexagonal Grid Study — √3 Proportions</div>
+            <div class="card-tags">
+              <span class="card-tag">6-fold</span>
+              <span class="card-tag">Grid</span>
+              <span class="card-tag">√3</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-action-btn primary-action">✦ Analyze</button>
+            <button class="card-action-btn">Extract</button>
+            <button class="card-action-btn">Edit</button>
+          </div>
+        </div>
+
+        <!-- Card 5 - Girih -->
+        <div class="card">
+          <svg class="card-img" viewBox="0 0 400 400" style="background:#1a1816">
+            <g transform="translate(200,200)" stroke="#b57a4a" fill="none" opacity="0.65">
+              <polygon points="0,-140 133,-43 82,113 -82,113 -133,-43" stroke-width="1.2"/>
+              <polygon points="0,-80 76,-25 47,65 -47,65 -76,-25" stroke-width="0.8"/>
+              <line x1="0" y1="-140" x2="0" y2="-80"/><line x1="133" y1="-43" x2="76" y2="-25"/>
+              <line x1="82" y1="113" x2="47" y2="65"/><line x1="-82" y1="113" x2="-47" y2="65"/>
+              <line x1="-133" y1="-43" x2="-76" y2="-25"/>
+              <circle r="4" fill="#b57a4a" cx="0" cy="0"/>
+            </g>
+          </svg>
+          <div class="card-body">
+            <div class="card-title"><span class="status-dot want"></span>Pentagonal Girih Tile Pattern</div>
+            <div class="card-tags">
+              <span class="card-tag">5-fold</span>
+              <span class="card-tag">Persian</span>
+              <span class="card-tag">Girih</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-action-btn primary-action">✦ Analyze</button>
+            <button class="card-action-btn">Extract</button>
+            <button class="card-action-btn">Edit</button>
+          </div>
+        </div>
+
+        <!-- More placeholder cards -->
+        <div class="card">
+          <svg class="card-img" viewBox="0 0 400 400" style="background:#1a1816">
+            <g opacity="0.5">
+              <g stroke="#c8a96e" fill="none" stroke-width="0.5">
+                <rect x="80" y="80" width="240" height="240" transform="rotate(45,200,200)"/>
+                <rect x="110" y="110" width="180" height="180" transform="rotate(45,200,200)"/>
+                <circle cx="200" cy="200" r="120"/><circle cx="200" cy="200" r="85"/>
+              </g>
+            </g>
+          </svg>
+          <div class="card-body">
+            <div class="card-title"><span class="status-dot done"></span>Rotating Squares — 8-fold Construction</div>
+            <div class="card-tags">
+              <span class="card-tag">8-fold</span>
+              <span class="card-tag">Islamic</span>
+              <span class="card-tag">√2</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-action-btn primary-action">✦ Analyze</button>
+            <button class="card-action-btn">Extract</button>
+            <button class="card-action-btn">Edit</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="attempt-badge"><span class="icon">✎</span> 1</span>
+          <svg class="card-img" viewBox="0 0 400 400" style="background:#1a1816">
+            <g opacity="0.55" stroke="#c8a96e" fill="none">
+              <path d="M200,60 Q340,200 200,340 Q60,200 200,60" stroke-width="1"/>
+              <ellipse cx="200" cy="200" rx="70" ry="140" stroke-width="0.7"/>
+              <circle cx="200" cy="200" r="100" stroke-width="0.5"/>
+              <circle cx="200" cy="200" r="40" stroke-width="0.5"/>
+            </g>
+          </svg>
+          <div class="card-body">
+            <div class="card-title"><span class="status-dot tried"></span>Vesica Piscis — Sacred Intersection</div>
+            <div class="card-tags">
+              <span class="card-tag">Compass</span>
+              <span class="card-tag">Vesica</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-action-btn primary-action">✦ Analyze</button>
+            <button class="card-action-btn">Extract</button>
+            <button class="card-action-btn">Edit</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <svg class="card-img" viewBox="0 0 400 400" style="background:#1a1816">
+            <g transform="translate(200,200)" opacity="0.5">
+              <g stroke="#c8a96e" fill="none" stroke-width="0.6">
+                <path d="M0,0 L0,-160" /><path d="M0,0 L138,-80" /><path d="M0,0 L138,80" />
+                <path d="M0,0 L0,160" /><path d="M0,0 L-138,80" /><path d="M0,0 L-138,-80" />
+                <circle r="160"/><circle r="120"/><circle r="80"/><circle r="40"/>
+              </g>
+            </g>
+          </svg>
+          <div class="card-body">
+            <div class="card-title"><span class="status-dot want"></span>Polar Grid Study — 6-fold Base</div>
+            <div class="card-tags">
+              <span class="card-tag">6-fold</span>
+              <span class="card-tag">Grid</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-action-btn primary-action">✦ Analyze</button>
+            <button class="card-action-btn">Extract</button>
+            <button class="card-action-btn">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ DISCOVER VIEW ═══ -->
+    <div class="view" id="view-discover">
+      <div class="main-header">
+        <span class="entry-count">Searching: Compass & Straightedge · Islamic Geometric · Star Polygon · 8-fold · √2</span>
+      </div>
+
+      <!-- Searching state -->
+      <div class="searching-indicator" id="search-loading">
+        <div class="compass-spinner"></div>
+        <span class="searching-text">Searching practitioner sources, museum archives, and geometry references...</span>
+      </div>
+
+      <div class="gallery" id="discover-results">
+        <!-- Web result cards -->
+        <div class="card web-result" onclick="openPanel('analysis')">
+          <span class="card-badge badge-web">From Web</span>
+          <svg class="card-img" viewBox="0 0 400 400" style="background:#1e1a16">
+            <g transform="translate(200,200)" stroke="#d4b87a" fill="none" opacity="0.75">
+              <circle r="160" stroke-width="1"/><circle r="113" stroke-width="0.7"/>
+              <polygon points="0,-160 160,0 0,160 -160,0" stroke-width="1.2"/>
+              <polygon points="113,-113 113,113 -113,113 -113,-113" stroke-width="0.8"/>
+              <g stroke-width="0.4" opacity="0.5">
+                <line x1="0" y1="-160" x2="113" y2="-113"/><line x1="160" y1="0" x2="113" y2="-113"/>
+                <line x1="160" y1="0" x2="113" y2="113"/><line x1="0" y1="160" x2="113" y2="113"/>
+                <line x1="0" y1="160" x2="-113" y2="113"/><line x1="-160" y1="0" x2="-113" y2="113"/>
+                <line x1="-160" y1="0" x2="-113" y2="-113"/><line x1="0" y1="-160" x2="-113" y2="-113"/>
+              </g>
+            </g>
+          </svg>
+          <div class="card-body">
+            <div class="card-title">8-Pointed Star Construction — Rotating Squares Method</div>
+            <div class="card-source">Art of Islamic Pattern · Adam Williamson</div>
+            <div class="card-tags">
+              <span class="card-tag">8-fold</span>
+              <span class="card-tag">Islamic</span>
+              <span class="card-tag">√2</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-action-btn primary-action">Save to Collection</button>
+            <button class="card-action-btn">✦ Analyze</button>
+          </div>
+        </div>
+
+        <div class="card web-result">
+          <span class="card-badge badge-web">From Web</span>
+          <svg class="card-img" viewBox="0 0 400 400" style="background:#1e1a16">
+            <g transform="translate(200,200)" opacity="0.6">
+              <g stroke="#c8a96e" fill="none" stroke-width="0.8">
+                <polygon points="0,-140 99,-99 140,0 99,99 0,140 -99,99 -140,0 -99,-99"/>
+                <polygon points="0,-95 67,-67 95,0 67,67 0,95 -67,67 -95,0 -67,-67"/>
+              </g>
+              <g stroke="#7a6540" fill="none" stroke-width="0.4">
+                <line x1="0" y1="-140" x2="0" y2="140"/><line x1="-140" y1="0" x2="140" y2="0"/>
+                <line x1="-99" y1="-99" x2="99" y2="99"/><line x1="99" y1="-99" x2="-99" y2="99"/>
+              </g>
+            </g>
+          </svg>
+          <div class="card-body">
+            <div class="card-title">Octagonal Geometry — Alhambra Palace Dado</div>
+            <div class="card-source">V&A Museum Digital Collection</div>
+            <div class="card-tags">
+              <span class="card-tag">8-fold</span>
+              <span class="card-tag">Moorish</span>
+              <span class="card-tag">Star</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-action-btn primary-action">Save to Collection</button>
+            <button class="card-action-btn">✦ Analyze</button>
+          </div>
+        </div>
+
+        <div class="card web-result">
+          <span class="card-badge badge-web">From Web</span>
+          <svg class="card-img" viewBox="0 0 400 400" style="background:#1e1a16">
+            <g stroke="#8a8070" fill="none" opacity="0.6">
+              <g transform="translate(100,100)"><polygon points="0,-60 60,0 0,60 -60,0" stroke-width="0.7"/><circle r="42" stroke-width="0.4"/></g>
+              <g transform="translate(300,100)"><polygon points="0,-60 60,0 0,60 -60,0" stroke-width="0.7"/><circle r="42" stroke-width="0.4"/></g>
+              <g transform="translate(200,200)"><polygon points="0,-60 60,0 0,60 -60,0" stroke-width="0.7"/><circle r="42" stroke-width="0.4"/></g>
+              <g transform="translate(100,300)"><polygon points="0,-60 60,0 0,60 -60,0" stroke-width="0.7"/><circle r="42" stroke-width="0.4"/></g>
+              <g transform="translate(300,300)"><polygon points="0,-60 60,0 0,60 -60,0" stroke-width="0.7"/><circle r="42" stroke-width="0.4"/></g>
+            </g>
+          </svg>
+          <div class="card-body">
+            <div class="card-title">Compass Construction of 8-fold Tiling — Step Reference</div>
+            <div class="card-source">Eric Broug · Islamic Geometric Design</div>
+            <div class="card-tags">
+              <span class="card-tag">8-fold</span>
+              <span class="card-tag">Compass</span>
+              <span class="card-tag">Tessellation</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-action-btn primary-action">Save to Collection</button>
+            <button class="card-action-btn">✦ Analyze</button>
+          </div>
+        </div>
+
+        <div class="card web-result">
+          <span class="card-badge badge-web">From Web</span>
+          <svg class="card-img" viewBox="0 0 400 400" style="background:#1e1a16">
+            <g transform="translate(200,200)" stroke="#c8a96e" fill="none" opacity="0.55" stroke-width="0.6">
+              <circle r="150"/><circle r="106"/><circle r="62"/>
+              <polygon points="0,-150 150,0 0,150 -150,0"/>
+              <polygon points="106,-106 106,106 -106,106 -106,-106"/>
+              <g fill="#c8a96e" opacity="0.15">
+                <polygon points="0,-150 106,-106 150,0 106,106 0,150 -106,106 -150,0 -106,-106"/>
+              </g>
+            </g>
+          </svg>
+          <div class="card-body">
+            <div class="card-title">√2 System — Octagram from Inscribed Squares</div>
+            <div class="card-source">Samira Mian · Workshop Reference</div>
+            <div class="card-tags">
+              <span class="card-tag">8-fold</span>
+              <span class="card-tag">√2</span>
+              <span class="card-tag">Rosette</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-action-btn primary-action">Save to Collection</button>
+            <button class="card-action-btn">✦ Analyze</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PRACTICE VIEW ═══ -->
+    <div class="view" id="view-practice">
+      <div class="practice-view">
+        <div class="practice-stats">
+          <div class="stat-card">
+            <div class="stat-value">23</div>
+            <div class="stat-label">Patterns Collected</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">14</div>
+            <div class="stat-label">Attempted</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">7</div>
+            <div class="stat-label">Completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">42h</div>
+            <div class="stat-label">Time Drawing</div>
+          </div>
+        </div>
+
+        <div class="heatmap-section">
+          <div class="heatmap-title">Drawing Activity — Last 52 Weeks</div>
+          <div class="heatmap-grid" id="heatmap"></div>
+        </div>
+
+        <div class="practice-section-title">Recent Attempts</div>
+        <div class="attempt-gallery">
+          <div class="attempt-card" onclick="openPanel('attempt-detail')">
+            <svg class="attempt-img" viewBox="0 0 400 300" style="background:#f5f0e8">
+              <g transform="translate(200,150)" stroke="#2a2722" fill="none" opacity="0.6">
+                <circle r="120" stroke-width="0.8"/><circle r="85" stroke-width="0.6"/>
+                <polygon points="0,-120 120,0 0,120 -120,0" stroke-width="1"/>
+                <polygon points="85,-85 85,85 -85,85 -85,-85" stroke-width="0.7"/>
+              </g>
+              <text x="200" y="280" text-anchor="middle" font-family="'JetBrains Mono'" font-size="8" fill="#8a8070" opacity="0.5">Pencil on paper · 0.3mm</text>
+            </svg>
+            <div class="attempt-body">
+              <div class="attempt-pattern-name">8-Pointed Star from Alhambra</div>
+              <div class="attempt-meta">
+                <span class="attempt-date">Mar 12, 2026 · 45 min</span>
+                <div class="attempt-rating">
+                  <span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star">★</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="attempt-card">
+            <svg class="attempt-img" viewBox="0 0 400 300" style="background:#f5f0e8">
+              <g transform="translate(200,150)" stroke="#2a2722" fill="none" opacity="0.5">
+                <path d="M0,-100 Q60,-100 80,-40 Q100,20 50,60 Q0,100 -50,60 Q-100,20 -80,-40 Q-60,-100 0,-100" stroke-width="1.5"/>
+                <circle r="5" fill="#2a2722" cx="0" cy="-100" opacity="0.4"/>
+                <circle r="5" fill="#2a2722" cx="50" cy="60" opacity="0.4"/>
+                <circle r="5" fill="#2a2722" cx="-50" cy="60" opacity="0.4"/>
+              </g>
+            </svg>
+            <div class="attempt-body">
+              <div class="attempt-pattern-name">Triquetra — Celtic Trinity Knot</div>
+              <div class="attempt-meta">
+                <span class="attempt-date">Mar 10, 2026 · 30 min</span>
+                <div class="attempt-rating">
+                  <span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star">★</span><span class="star">★</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="attempt-card">
+            <svg class="attempt-img" viewBox="0 0 400 300" style="background:#f5f0e8">
+              <g transform="translate(200,150)" stroke="#2a2722" fill="none" opacity="0.45" stroke-width="0.7">
+                <circle r="100"/><circle cx="0" cy="-100" r="100"/><circle cx="87" cy="-50" r="100"/>
+                <circle cx="87" cy="50" r="100"/><circle cx="0" cy="100" r="100"/>
+                <circle cx="-87" cy="50" r="100"/><circle cx="-87" cy="-50" r="100"/>
+              </g>
+            </svg>
+            <div class="attempt-body">
+              <div class="attempt-pattern-name">Flower of Life — 7 Circle Seed</div>
+              <div class="attempt-meta">
+                <span class="attempt-date">Mar 8, 2026 · 20 min</span>
+                <div class="attempt-rating">
+                  <span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="attempt-card">
+            <svg class="attempt-img" viewBox="0 0 400 300" style="background:#f5f0e8">
+              <g transform="translate(200,150)" stroke="#2a2722" fill="none" opacity="0.5" stroke-width="0.5">
+                <polygon points="0,-130 113,-65 113,65 0,130 -113,65 -113,-65"/>
+                <polygon points="0,-87 75,-43 75,43 0,87 -75,43 -75,-43"/>
+                <polygon points="0,-43 38,-22 38,22 0,43 -38,22 -38,-22"/>
+                <line x1="0" y1="-130" x2="0" y2="130"/><line x1="-113" y1="-65" x2="113" y2="65"/><line x1="-113" y1="65" x2="113" y2="-65"/>
+              </g>
+            </svg>
+            <div class="attempt-body">
+              <div class="attempt-pattern-name">Hexagonal Grid Study</div>
+              <div class="attempt-meta">
+                <span class="attempt-date">Mar 5, 2026 · 35 min</span>
+                <div class="attempt-rating">
+                  <span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star">★</span><span class="star">★</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+
+<!-- ═══ PANEL: Analysis ═══ -->
+<div class="panel-overlay" id="overlay-analysis" onclick="closeAllPanels()"></div>
+<div class="panel" id="panel-analysis">
+  <div class="panel-header">
+    <span class="panel-title">✦ Pattern Analysis</span>
+    <button class="panel-close" onclick="closeAllPanels()">✕</button>
+  </div>
+  <div class="panel-body">
+    <svg class="analysis-image" viewBox="0 0 400 280" style="background:#1a1816">
+      <g transform="translate(200,140)">
+        <circle r="120" fill="none" stroke="#c8a96e" stroke-width="1" opacity="0.5"/>
+        <polygon points="0,-120 120,0 0,120 -120,0" fill="none" stroke="#c8a96e" stroke-width="1" opacity="0.6"/>
+        <polygon points="85,-85 85,85 -85,85 -85,-85" fill="none" stroke="#c8a96e" stroke-width="0.8" opacity="0.5"/>
+        <g fill="#c8a96e" opacity="0.2"><polygon points="0,-120 85,-85 120,0 85,85 0,120 -85,85 -120,0 -85,-85"/></g>
+      </g>
+    </svg>
+
+    <!-- Classification rows -->
+    <div class="classification-row">
+      <div class="class-header">
+        <span class="class-group-label">Symmetry</span>
+        <div class="class-actions">
+          <button class="btn-tiny accept">Accept</button>
+          <button class="btn-tiny">Edit</button>
+        </div>
+      </div>
+      <div class="class-value">
+        <span class="class-tag-pill">8-fold</span>
+        <div class="confidence-badge">
+          <span class="conf-indicator high"></span>
+          <span class="conf-label high">High</span>
+        </div>
+      </div>
+      <div class="class-rationale">Eight identical segments radiating from center, created by two overlapping squares rotated 45°.</div>
+    </div>
+
+    <div class="classification-row">
+      <div class="class-header">
+        <span class="class-group-label">Tradition</span>
+        <div class="class-actions">
+          <button class="btn-tiny accept">Accept</button>
+          <button class="btn-tiny">Edit</button>
+        </div>
+      </div>
+      <div class="class-value">
+        <span class="class-tag-pill">Moorish-Andalusian</span>
+        <div class="confidence-badge">
+          <span class="conf-indicator medium"></span>
+          <span class="conf-label medium">Medium</span>
+        </div>
+      </div>
+      <div class="class-rationale">Consistent with Alhambra dado panel geometry, though this specific star construction appears across multiple Islamic traditions.</div>
+    </div>
+
+    <div class="classification-row">
+      <div class="class-header">
+        <span class="class-group-label">Construction Method</span>
+        <div class="class-actions">
+          <button class="btn-tiny accept">Accept</button>
+          <button class="btn-tiny">Edit</button>
+        </div>
+      </div>
+      <div class="class-value">
+        <span class="class-tag-pill">Compass & Straightedge</span>
+        <div class="confidence-badge">
+          <span class="conf-indicator high"></span>
+          <span class="conf-label high">High</span>
+        </div>
+      </div>
+      <div class="class-rationale">The rotating squares method requires only a compass for the base circle and straightedge for connecting intersection points.</div>
+    </div>
+
+    <div class="classification-row">
+      <div class="class-header">
+        <span class="class-group-label">Pattern Type</span>
+        <div class="class-actions">
+          <button class="btn-tiny accept">Accept</button>
+          <button class="btn-tiny">Edit</button>
+        </div>
+      </div>
+      <div class="class-value">
+        <span class="class-tag-pill">Star Polygon</span>
+        <span class="class-tag-pill" style="opacity:0.6; font-size:10px">+ Rosette</span>
+        <div class="confidence-badge">
+          <span class="conf-indicator high"></span>
+          <span class="conf-label high">High</span>
+        </div>
+      </div>
+      <div class="class-rationale">Primary form is an 8-pointed star polygon; the filled region creates a rosette effect typical of Islamic geometric art.</div>
+    </div>
+
+    <div class="classification-row">
+      <div class="class-header">
+        <span class="class-group-label">Proportion</span>
+        <div class="class-actions">
+          <button class="btn-tiny accept">Accept</button>
+          <button class="btn-tiny">Edit</button>
+        </div>
+      </div>
+      <div class="class-value">
+        <span class="class-tag-pill">√2</span>
+        <div class="confidence-badge">
+          <span class="conf-indicator high"></span>
+          <span class="conf-label high">High</span>
+        </div>
+      </div>
+      <div class="class-rationale">The inner square's diagonal relates to the outer by √2, which is the defining proportion of all octagonal geometry.</div>
+    </div>
+
+    <div class="construction-notes">
+      <div class="construction-notes-label">Construction Notes</div>
+      <div class="construction-notes-text">Begin with a base circle of your chosen radius. Inscribe a square using horizontal and vertical diameters. Rotate a second square 45° by marking compass arcs at the diagonal intersections. The 8-pointed star emerges at the intersection points of both squares. This is a beginner-friendly construction requiring only 6 compass operations and 8 straight lines.</div>
+    </div>
+  </div>
+  <div class="panel-footer">
+    <button class="btn-accept-all" onclick="closeAllPanels()">Accept All Classifications</button>
+  </div>
+</div>
+
+
+<!-- ═══ PANEL: Template Extraction ═══ -->
+<div class="panel-overlay" id="overlay-extraction" onclick="closeAllPanels()"></div>
+<div class="panel wide" id="panel-extraction">
+  <div class="panel-header">
+    <span class="panel-title">Extract Line Template</span>
+    <button class="panel-close" onclick="closeAllPanels()">✕</button>
+  </div>
+  <div class="panel-body">
+    <div class="extraction-workspace">
+      <div class="extraction-pane">
+        <span class="extraction-pane-label">Original</span>
+        <svg class="extraction-img" viewBox="0 0 400 400" style="background:#1a1816">
+          <g opacity="0.7">
+            <circle cx="200" cy="200" r="120" fill="none" stroke="#4a7fb5" stroke-width="1"/>
+            <circle cx="200" cy="80" r="120" fill="none" stroke="#4a7fb5" stroke-width="0.6" opacity="0.5"/>
+            <circle cx="200" cy="320" r="120" fill="none" stroke="#4a7fb5" stroke-width="0.6" opacity="0.5"/>
+            <circle cx="96" cy="140" r="120" fill="none" stroke="#4a7fb5" stroke-width="0.6" opacity="0.5"/>
+            <circle cx="304" cy="140" r="120" fill="none" stroke="#4a7fb5" stroke-width="0.6" opacity="0.5"/>
+            <circle cx="96" cy="260" r="120" fill="none" stroke="#4a7fb5" stroke-width="0.6" opacity="0.5"/>
+            <circle cx="304" cy="260" r="120" fill="none" stroke="#4a7fb5" stroke-width="0.6" opacity="0.5"/>
+          </g>
+        </svg>
+      </div>
+      <div class="extraction-pane">
+        <span class="extraction-pane-label">Extracted Template</span>
+        <svg class="extraction-img" viewBox="0 0 400 400" style="background:#f5f0e8">
+          <g stroke="#1a1816" fill="none">
+            <circle cx="200" cy="200" r="120" stroke-width="1.5"/>
+            <circle cx="200" cy="80" r="120" stroke-width="1.2" opacity="0.8"/>
+            <circle cx="200" cy="320" r="120" stroke-width="1.2" opacity="0.8"/>
+            <circle cx="96" cy="140" r="120" stroke-width="1.2" opacity="0.8"/>
+            <circle cx="304" cy="140" r="120" stroke-width="1.2" opacity="0.8"/>
+            <circle cx="96" cy="260" r="120" stroke-width="1.2" opacity="0.8"/>
+            <circle cx="304" cy="260" r="120" stroke-width="1.2" opacity="0.8"/>
+          </g>
+          <!-- Center mark -->
+          <line x1="197" y1="200" x2="203" y2="200" stroke="#b54a4a" stroke-width="0.5" opacity="0.5"/>
+          <line x1="200" y1="197" x2="200" y2="203" stroke="#b54a4a" stroke-width="0.5" opacity="0.5"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="controls-strip">
+      <div class="control-row">
+        <span class="control-label">Edge Sensitivity</span>
+        <input type="range" class="control-slider" min="10" max="200" value="50">
+        <span class="control-value">50</span>
+      </div>
+      <div class="control-row">
+        <span class="control-label">Line Weight</span>
+        <input type="range" class="control-slider" min="1" max="5" value="2">
+        <span class="control-value">2px</span>
+      </div>
+      <div class="control-row">
+        <span class="control-label">Blur Radius</span>
+        <input type="range" class="control-slider" min="0" max="40" value="14">
+        <span class="control-value">1.4</span>
+      </div>
+      <div class="control-row">
+        <span class="control-label">Contrast</span>
+        <input type="range" class="control-slider" min="0" max="100" value="60">
+        <span class="control-value">60%</span>
+      </div>
+    </div>
+
+    <div class="extraction-helper">Best results from clean, high-contrast images. Photos of physical patterns may need adjustment.</div>
+
+    <div class="section-divider"></div>
+
+    <div class="download-strip">
+      <button class="btn-download primary">
+        <span>↓</span> PNG · High-Res
+      </button>
+      <button class="btn-download">
+        <span>↓</span> SVG · Vector
+      </button>
+      <button class="btn-download">
+        <span>↓</span> PDF · A4 Print
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ PANEL: Construction Sequence ═══ -->
+<div class="panel-overlay" id="overlay-construction" onclick="closeAllPanels()"></div>
+<div class="panel wide" id="panel-construction">
+  <div class="panel-header">
+    <span class="panel-title">Construction Sequence</span>
+    <button class="panel-close" onclick="closeAllPanels()">✕</button>
+  </div>
+  <div class="panel-body">
+    <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;">
+      <span class="class-tag-pill" style="font-size:10px">Triquetra</span>
+      <span style="font-family:'JetBrains Mono';font-size:9px;color:var(--text-faint)">6 steps · ~15 min · Beginner</span>
+      <span style="margin-left:auto;font-family:'JetBrains Mono';font-size:8px;color:var(--text-faint);letter-spacing:0.05em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--conf-low);border-radius:3px;color:var(--conf-low)">⚠ Experimental</span>
+    </div>
+
+    <div class="construction-step active">
+      <div class="step-header">
+        <span class="step-number">1</span>
+        <span class="step-title">Draw the base circle</span>
+        <div class="step-tools">
+          <span class="tool-icon">◎ compass</span>
+        </div>
+      </div>
+      <div class="step-instruction">Set your compass to radius R — this will be the outer boundary of the knot. Place the compass point at center O and draw a complete circle.</div>
+      <div class="step-geometry-note">→ Produces: Base circle defining the pattern's extent</div>
+    </div>
+
+    <div class="construction-step">
+      <div class="step-header">
+        <span class="step-number">2</span>
+        <span class="step-title">Mark three equidistant points</span>
+        <div class="step-tools">
+          <span class="tool-icon">◎ compass</span>
+        </div>
+      </div>
+      <div class="step-instruction">Without changing the compass width, place the point on the circle's top. Walk the compass around the circle, marking intersections. Every second mark gives you three equidistant points at 120° intervals — the vertices of your inscribed equilateral triangle.</div>
+      <div class="step-geometry-note">→ Produces: Points A, B, C at 120° intervals on the base circle</div>
+    </div>
+
+    <div class="construction-step">
+      <div class="step-header">
+        <span class="step-number">3</span>
+        <span class="step-title">Draw three overlapping circles</span>
+        <div class="step-tools">
+          <span class="tool-icon">◎ compass</span>
+        </div>
+      </div>
+      <div class="step-instruction">Reduce compass to ⅔R. Place point at A, draw a full circle. Repeat from B and C. These three circles define the curved paths of the triquetra.</div>
+      <div class="step-geometry-note">→ Produces: Three overlapping circles creating the knot framework</div>
+    </div>
+
+    <div class="construction-step">
+      <div class="step-header">
+        <span class="step-number">4</span>
+        <span class="step-title">Trace the continuous knot path</span>
+        <div class="step-tools">
+          <span class="tool-icon">✎ pen</span>
+        </div>
+      </div>
+      <div class="step-instruction">Starting from the top intersection, trace along the arc of circle A clockwise until you reach the intersection with circle B. Continue along circle B's arc, then onto circle C, returning to your starting point. You should have a continuous closed path.</div>
+      <div class="step-geometry-note">→ Produces: The outer boundary of the triquetra knot</div>
+    </div>
+
+    <div class="construction-step">
+      <div class="step-header">
+        <span class="step-number">5</span>
+        <span class="step-title">Add the interlace crossings</span>
+        <div class="step-tools">
+          <span class="tool-icon">✎ pen</span>
+          <span class="tool-icon">▬ straightedge</span>
+        </div>
+      </div>
+      <div class="step-instruction">At each of the three crossing points, establish the over-under pattern. The convention is: each arm passes over one crossing and under the next, creating a true knot. Erase the overlapped segments and redraw with the gap to show the weaving.</div>
+      <div class="step-geometry-note">→ Produces: The characteristic Celtic interlace at three crossing points</div>
+    </div>
+
+    <div class="construction-step">
+      <div class="step-header">
+        <span class="step-number">6</span>
+        <span class="step-title">Ink the final form</span>
+        <div class="step-tools">
+          <span class="tool-icon">✎ pen</span>
+        </div>
+      </div>
+      <div class="step-instruction">Trace the final knot path with your chosen pen weight. Add consistent line thickness — traditional Celtic knotwork uses uniform stroke width. Optionally add a center point where the three arcs converge.</div>
+      <div class="step-geometry-note">→ Produces: Completed triquetra with clean interlace crossings</div>
+    </div>
+
+    <div class="step-nav">
+      <button class="step-nav-btn" disabled>← Previous</button>
+      <span class="step-progress">Step 1 of 6</span>
+      <button class="step-nav-btn">Next →</button>
+    </div>
+  </div>
+  <div class="panel-footer">
+    <div class="download-strip">
+      <button class="btn-download primary"><span>↓</span> PDF · Full Sequence</button>
+      <button class="btn-download"><span>✎</span> Log Attempt</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ PANEL: Log Attempt ═══ -->
+<div class="panel-overlay" id="overlay-attempt" onclick="closeAllPanels()"></div>
+<div class="panel" id="panel-attempt">
+  <div class="panel-header">
+    <span class="panel-title">Log Attempt</span>
+    <button class="panel-close" onclick="closeAllPanels()">✕</button>
+  </div>
+  <div class="panel-body">
+    <div style="font-family:'Cormorant Garamond';font-size:15px;color:var(--text);margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      Recording attempt on <span style="color:var(--gold)">8-Pointed Star from Alhambra Dado Panel</span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Photo of your drawing</label>
+      <div class="photo-upload-zone">
+        <div class="upload-icon">◻</div>
+        <div class="upload-text">Click or drag to upload a photo</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Time Spent</label>
+      <input type="text" class="form-input" placeholder="e.g. 45 min" value="45 min">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Tools Used</label>
+      <div class="tool-checkboxes">
+        <span class="tool-check active" onclick="this.classList.toggle('active')">Compass</span>
+        <span class="tool-check active" onclick="this.classList.toggle('active')">Straightedge</span>
+        <span class="tool-check" onclick="this.classList.toggle('active')">Ruler</span>
+        <span class="tool-check active" onclick="this.classList.toggle('active')">0.3mm Pen</span>
+        <span class="tool-check" onclick="this.classList.toggle('active')">0.5mm Pen</span>
+        <span class="tool-check" onclick="this.classList.toggle('active')">Pencil</span>
+        <span class="tool-check" onclick="this.classList.toggle('active')">Eraser</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Self Rating</label>
+      <div class="rating-input">
+        <span class="rating-star active" onclick="setRating(this, 1)">★</span>
+        <span class="rating-star active" onclick="setRating(this, 2)">★</span>
+        <span class="rating-star active" onclick="setRating(this, 3)">★</span>
+        <span class="rating-star active" onclick="setRating(this, 4)">★</span>
+        <span class="rating-star" onclick="setRating(this, 5)">★</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" placeholder="What went well? What was challenging?">Line weight consistency was better this time. Still struggling with the star point angles — they tend to drift inward. Need to be more careful marking the √2 intersections before inking.</textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Challenges</label>
+      <div class="tool-checkboxes">
+        <span class="tool-check" onclick="this.classList.toggle('active')">Line Weight</span>
+        <span class="tool-check active" onclick="this.classList.toggle('active')">Symmetry Drift</span>
+        <span class="tool-check active" onclick="this.classList.toggle('active')">Proportion Error</span>
+        <span class="tool-check" onclick="this.classList.toggle('active')">Ink Smudge</span>
+        <span class="tool-check" onclick="this.classList.toggle('active')">Compass Slip</span>
+        <span class="tool-check" onclick="this.classList.toggle('active')">Paper Quality</span>
+      </div>
+    </div>
+  </div>
+  <div class="panel-footer">
+    <button class="btn-save" onclick="closeAllPanels()">Save Attempt</button>
+  </div>
+</div>
+
+
+<script>
+// ─── Tab switching ───
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.getElementById('view-' + tab).classList.add('active');
+    document.getElementById('view-' + tab).classList.add('fade-in');
+
+    // Show/hide search section
+    const searchSection = document.getElementById('search-section');
+    if (tab === 'discover') {
+      searchSection.classList.remove('hidden');
+    } else {
+      searchSection.classList.add('hidden');
+    }
+  });
+});
+
+// ─── Chip toggling ───
+function toggleChip(el) {
+  el.classList.toggle('active');
+}
+
+function clearFilters() {
+  document.querySelectorAll('.chip.active').forEach(c => c.classList.remove('active'));
+}
+
+// ─── Panel management ───
+function openPanel(name) {
+  closeAllPanels();
+  setTimeout(() => {
+    const overlay = document.getElementById('overlay-' + name);
+    const panel = document.getElementById('panel-' + name);
+    if (overlay) overlay.classList.add('open');
+    if (panel) panel.classList.add('open');
+  }, 50);
+}
+
+function closeAllPanels() {
+  document.querySelectorAll('.panel-overlay').forEach(o => o.classList.remove('open'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('open'));
+}
+
+// ─── Slider live values ───
+document.querySelectorAll('.control-slider').forEach(slider => {
+  const valueEl = slider.parentElement.querySelector('.control-value');
+  slider.addEventListener('input', () => {
+    if (valueEl) valueEl.textContent = slider.value;
+  });
+});
+
+// ─── Rating stars ───
+function setRating(el, n) {
+  const stars = el.parentElement.querySelectorAll('.rating-star');
+  stars.forEach((s, i) => {
+    s.classList.toggle('active', i < n);
+  });
+}
+
+// ─── Heatmap generation ───
+const heatmap = document.getElementById('heatmap');
+for (let week = 0; week < 52; week++) {
+  for (let day = 0; day < 7; day++) {
+    const cell = document.createElement('div');
+    cell.className = 'heatmap-cell';
+    const r = Math.random();
+    if (week > 38) {
+      if (r > 0.4) cell.classList.add(r > 0.85 ? 'l4' : r > 0.7 ? 'l3' : r > 0.55 ? 'l2' : 'l1');
+    } else if (week > 30) {
+      if (r > 0.6) cell.classList.add(r > 0.85 ? 'l3' : r > 0.75 ? 'l2' : 'l1');
+    } else if (week > 20) {
+      if (r > 0.75) cell.classList.add(r > 0.9 ? 'l2' : 'l1');
+    } else {
+      if (r > 0.88) cell.classList.add('l1');
+    }
+    heatmap.appendChild(cell);
+  }
+}
+
+// ─── Search simulation ───
+function simulateSearch() {
+  // Switch to discover tab
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelector('[data-tab="discover"]').classList.add('active');
+  document.getElementById('view-discover').classList.add('active');
+  document.getElementById('search-section').classList.remove('hidden');
+
+  // Show loading, hide results
+  document.getElementById('search-loading').style.display = 'flex';
+  document.getElementById('discover-results').style.opacity = '0';
+
+  // After delay, show results
+  setTimeout(() => {
+    document.getElementById('search-loading').style.display = 'none';
+    document.getElementById('discover-results').style.opacity = '1';
+    document.getElementById('discover-results').classList.add('fade-in');
+  }, 2500);
+}
+
+// ─── Construction step navigation ───
+let currentStep = 0;
+const steps = document.querySelectorAll('.construction-step');
+const prevBtn = document.querySelector('.step-nav-btn:first-child');
+const nextBtn = document.querySelector('.step-nav-btn:last-child');
+const progress = document.querySelector('.step-progress');
+
+function updateSteps() {
+  steps.forEach((s, i) => {
+    s.classList.toggle('active', i === currentStep);
+    s.style.opacity = i <= currentStep ? '1' : '0.4';
+  });
+  prevBtn.disabled = currentStep === 0;
+  nextBtn.disabled = currentStep === steps.length - 1;
+  progress.textContent = `Step ${currentStep + 1} of ${steps.length}`;
+}
+
+prevBtn?.addEventListener('click', () => { if (currentStep > 0) { currentStep--; updateSteps(); } });
+nextBtn?.addEventListener('click', () => { if (currentStep < steps.length - 1) { currentStep++; updateSteps(); } });
+updateSteps();
+</script>
+
+</body>
+</html>
