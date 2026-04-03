@@ -1,6 +1,77 @@
 # Radian v2 — Vision Analysis Spike
 ## Principal Engineer: Geometric Pattern Classification & Line Template Feasibility
 
+
+You are continuing a vision classification spike for Radian, a sacred geometry 
+collection app. The spike validates whether Claude Vision can classify geometric 
+pattern images using a structured taxonomy. Here is the full state:
+
+## Repository
+/Users/fitore/Development/radian-geometric-art (git branch: second-iteration)
+
+## Key files
+- spike/run-spike.js          — the spike runner (read this first)
+- spike/results.json          — raw results from iteration 1 run
+- spike/scorecard.md          — per-image scoring table
+- spike/SPIKE-RESULTS.md      — findings narrative
+- analysis docs/test-images.json  — 10 verified test images with ground truth
+- analysis docs/radian-vision-spike.md  — full spike plan (Parts 1-5)
+- analysis docs/radian-v2-PRD.md        — product context (Sections 6, 14)
+
+## Spike results so far
+Iteration 1 (SYSTEM_PROMPT_V1, model: claude-sonnet-4-6) ran across 10 images.
+Overall accuracy: 55.5% → ITERATE decision (threshold: ≥70% greenlight).
+
+Per-field accuracy:
+- patternType:        77.5%  ← strong, above greenlight threshold
+- constructionMethod: 60.0%
+- tradition:          50.0%
+- symmetry:           47.5%  ← weakest
+- proportion:         42.5%  ← all wrong answers were PARTIAL (no confident misses)
+
+Identified failure patterns:
+1. Schema bleed — Claude put "Flower-of-Life-lineage" (a patternType value) into 
+   the tradition field on images 1 and 14. "syncretic" and "Contemporary-Mathematical" 
+   were missing from the tradition vocabulary in v1.
+2. Symmetry miscounting — Penrose (predicted 10-fold, gt 5-fold), Sri Yantra 
+   (predicted 4-fold, gt 3-fold), Nautilus (predicted 3-fold, gt none). Claude 
+   is counting star points or rhombus pairs rather than full rotational repeats.
+3. constructionMethod for organic sources — Nautilus shell predicted 
+   compass-and-straightedge (should be freehand — it's a nature photograph).
+4. Image 11 (hexagon GIF) scored 10% — Claude returned "uncertain" on 4/5 fields. 
+   Suspected cause: animated GIF format renders poorly as base64. 
+   Replace with a PNG version before re-running.
+
+## What was already fixed
+SYSTEM_PROMPT_V2 is written and live in spike/run-spike.js (replaces SYSTEM_PROMPT_V1 
+which is kept as a const for comparison). Changes:
+1. Added syncretic + Contemporary-Mathematical to tradition vocabulary
+2. Explicit warning: "Flower-of-Life-lineage is a patternType ONLY, never a tradition"
+3. Symmetry guideline rewritten: count rotational repeats, not points/edges
+4. constructionMethod guideline: classify the SOURCE, not any overlay annotation
+
+## Next task
+Run the spike with SYSTEM_PROMPT_V2 (just run: node spike/run-spike.js from the 
+project root) and compare results against iteration 1. 
+
+If overall accuracy crosses 70%: greenlight Feature 2.
+If still 50-70%: apply Part 5 Iteration 2 (chain-of-thought prefix before JSON).
+If image 11 (hexagon GIF) still fails: replace its URL in test-images.json with 
+a PNG equivalent from Wikimedia — search for "Regular hexagon inscribed circle PNG".
+
+## API setup
+.env file at project root contains key "radian-app-api-key" (funded, ~$5 balance).
+dotenv is installed. The script reads it automatically.
+
+
+
+
+
+
+
+
+
+
 **Purpose:** Validate whether Claude Vision can reliably classify sacred geometry images using Radian's TAG_VOCABULARY, and determine the right architecture for the analysis + extraction pipeline.
 
 **Time budget:** 2 days

@@ -1,0 +1,188 @@
+{
+  "description": "Radian v2 Vision Spike — Test Image Set",
+  "generated": "2026-04-01",
+  "updated": "2026-04-03",
+  "notes": "All images sourced from Wikimedia Commons. URLs verified via Wikimedia API on 2026-04-03 — 5 original images were no longer available and removed. 10 images remain.",
+  "images": [
+    {
+      "id": 1,
+      "description": "Flower of Life — 19 overlapping circles enclosed in outer circle",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Flower-of-Life-19circles36arcs-enclosed.svg/960px-Flower-of-Life-19circles36arcs-enclosed.svg.png",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Flower-of-Life-19circles36arcs-enclosed.svg",
+      "license": "Public Domain",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "syncretic",
+        "patternType": "Flower-of-Life-lineage",
+        "symmetry": "6-fold",
+        "proportion": ["vesica-piscis", "√3"],
+        "difficulty": "beginner"
+      },
+      "notes": "Classic FOL. All circles same radius, each center on circumference of neighbors. Should be very high confidence on all fields. Tradition is syncretic — FOL appears across cultures."
+    },
+    {
+      "id": 2,
+      "description": "Islamic 8-pointed star geometric pattern (star and cross / octagram)",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Islamic_geometric_pattern.svg/960px-Islamic_geometric_pattern.svg.png",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Islamic_geometric_pattern.svg",
+      "license": "CC BY-SA 4.0",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "Islamic-geometric",
+        "patternType": "star-polygon",
+        "symmetry": "8-fold",
+        "proportion": ["√2"],
+        "difficulty": "beginner"
+      },
+      "notes": "The classic star-and-cross (breath of the compassionate). Two overlapping squares rotated 45°. Foundational Islamic pattern."
+    },
+    {
+      "id": 3,
+      "description": "Celtic triquetra (trinity knot) with interlaced circle",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Triquetra-circle-interlaced.svg/960px-Triquetra-circle-interlaced.svg.png",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Triquetra-circle-interlaced.svg",
+      "license": "Public Domain",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "Celtic-Insular",
+        "patternType": "knot-interlace",
+        "symmetry": "3-fold",
+        "proportion": ["√3"],
+        "difficulty": "intermediate"
+      },
+      "notes": "Classic triquetra with circle. The interlace crossings are the diagnostic Celtic feature. 3-fold rotational symmetry is unambiguous."
+    },
+    {
+      "id": 4,
+      "description": "Chartres Cathedral north rose window — Gothic tracery with 12-fold structure",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Chartres_-_cath%C3%A9drale_-_rosace_nord.jpg/960px-Chartres_-_cath%C3%A9drale_-_rosace_nord.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chartres_-_cath%C3%A9drale_-_rosace_nord.jpg",
+      "license": "CC BY-SA 3.0",
+      "imageType": "photograph-architecture",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "Gothic-Medieval",
+        "patternType": "rosette",
+        "symmetry": "12-fold",
+        "proportion": ["√3", "√2"],
+        "difficulty": "advanced"
+      },
+      "notes": "Photograph of actual architecture. This tests Claude's ability with noisy real-world images. The 12-fold structure should be identifiable. Tradition should be obvious from Gothic pointed arches and tracery."
+    },
+    {
+      "id": 6,
+      "description": "Sri Yantra — Hindu sacred diagram with nine interlocking triangles",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Sri_Yantra.svg/960px-Sri_Yantra.svg.png",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sri_Yantra.svg",
+      "license": "CC BY-SA 3.0",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "Hindu-Vedic",
+        "patternType": "mandala",
+        "symmetry": "3-fold",
+        "proportion": ["golden-ratio"],
+        "difficulty": "advanced"
+      },
+      "notes": "Nine interlocking triangles around a central bindu point. The 3-fold symmetry from the triangular structure may be read as 'no clear rotational symmetry' — accept either. Golden ratio is present in the triangle proportions but debated in scholarship. Accept medium/low confidence on proportion."
+    },
+    {
+      "id": 7,
+      "description": "Penrose tiling — P3 rhombus aperiodic tiling with 5-fold symmetry",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Penrose_Tiling_%28Rhombi%29.svg/960px-Penrose_Tiling_%28Rhombi%29.svg.png",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Penrose_Tiling_(Rhombi).svg",
+      "license": "Public Domain",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "grid-based",
+        "tradition": "Contemporary-Mathematical",
+        "patternType": "tessellation",
+        "symmetry": "5-fold",
+        "proportion": ["golden-ratio"],
+        "difficulty": "advanced"
+      },
+      "notes": "Aperiodic tiling using two rhombus shapes with golden ratio proportions. Tradition should be 'syncretic' or 'Contemporary-Mathematical'. The 5-fold symmetry is the key diagnostic. Accept 'uncertain' on tradition."
+    },
+    {
+      "id": 8,
+      "description": "Nautilus shell cross-section showing logarithmic spiral",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/NautilusCutawayLogarithmicSpiral.jpg/960px-NautilusCutawayLogarithmicSpiral.jpg",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:NautilusCutawayLogarithmicSpiral.jpg",
+      "license": "CC BY-SA 3.0",
+      "imageType": "photograph-nature",
+      "groundTruth": {
+        "constructionMethod": "freehand",
+        "tradition": "Nature-derived",
+        "patternType": "spiral",
+        "symmetry": "none",
+        "proportion": ["golden-ratio", "fibonacci"],
+        "difficulty": "intermediate"
+      },
+      "notes": "Nature photograph with logarithmic spiral overlay. No rotational symmetry — spirals are not rotationally symmetric. The golden ratio / Fibonacci connection is approximate (actual nautilus is not exactly golden). Accept medium confidence on proportions."
+    },
+    {
+      "id": 10,
+      "description": "Persian/Islamic 12-fold girih star pattern — geometric interlace",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Girih_tiles.svg/960px-Girih_tiles.svg.png",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Girih_tiles.svg",
+      "license": "Public Domain",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "polygonal-method",
+        "tradition": "Persian-Iranian",
+        "patternType": "star-polygon",
+        "symmetry": "10-fold",
+        "proportion": ["golden-ratio"],
+        "difficulty": "advanced"
+      },
+      "notes": "Girih tile set — the five tile shapes used in Persian geometric patterns. Tests whether Claude identifies the girih system specifically. The 10-fold symmetry comes from the pentagonal basis of girih. Golden ratio is inherent in the 5-fold geometry."
+    },
+    {
+      "id": 11,
+      "description": "Compass-and-straightedge hexagon construction diagram",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/89/Regular_Hexagon_Inscribed_in_a_Circle.gif",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Regular_Hexagon_Inscribed_in_a_Circle.gif",
+      "license": "CC BY-SA 3.0",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "syncretic",
+        "patternType": "rosette",
+        "symmetry": "6-fold",
+        "proportion": ["√3"],
+        "difficulty": "beginner"
+      },
+      "notes": "Basic construction — circle with six equally spaced points connected. This is the foundation of 6-fold geometry. Tests whether Claude recognizes a construction diagram (process) vs. a finished pattern."
+    },
+    {
+      "id": 14,
+      "description": "Metatron's Cube — 13 circles with all connecting lines",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Metatrons_cube.svg/960px-Metatrons_cube.svg.png",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Metatrons_cube.svg",
+      "license": "Public Domain",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "syncretic",
+        "patternType": "Flower-of-Life-lineage",
+        "symmetry": "6-fold",
+        "proportion": ["√3", "vesica-piscis"],
+        "difficulty": "intermediate"
+      },
+      "notes": "Metatron's Cube — derived from the Fruit of Life (13 circles from FOL), with all centers connected by straight lines. Contains all five Platonic solids in 2D projection. Tests whether Claude classifies this within FOL lineage."
+    }
+  ],
+  "coverageMatrix": {
+    "traditions": ["syncretic", "Islamic-geometric", "Celtic-Insular", "Gothic-Medieval", "Hindu-Vedic", "Contemporary-Mathematical", "Nature-derived", "Persian-Iranian"],
+    "patternTypes": ["Flower-of-Life-lineage", "star-polygon", "knot-interlace", "rosette", "tessellation", "mandala", "spiral"],
+    "symmetries": ["3-fold", "5-fold", "6-fold", "8-fold", "10-fold", "12-fold", "none"],
+    "imageTypes": {
+      "clean-digital-diagram": [1, 2, 3, 6, 7, 10, 11, 14],
+      "photograph-architecture": [4],
+      "photograph-nature": [8]
+    }
+  }
+}
