@@ -1,0 +1,25 @@
+{
+  "name": "radian-geometric-art",
+  "version": "1.0.0",
+  "description": "Radian: Where Arts and Mathematics Unite. A Claude Code playground for geometric art patterns that can be used as inspiration or drawing templates.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fitore/radian-geometric-art.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/fitore/radian-geometric-art/issues"
+  },
+  "homepage": "https://github.com/fitore/radian-geometric-art#readme",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
+    "dotenv": "^17.4.0"
+  }
+}
