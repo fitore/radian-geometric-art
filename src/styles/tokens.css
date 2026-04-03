@@ -1,0 +1,93 @@
+/* ─── Design tokens — Radian v2 ─────────────────────────────────────────────
+   Built on Open Props scales. Light mode is the default (:root).
+   Dark mode overrides via [data-theme="dark"].
+─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Surfaces */
+  --color-bg:         #f5f0e8;
+  --color-surface:    #ede7d9;
+  --color-card:       #e4ddd0;
+  --color-header-bg:  rgba(245, 240, 232, 0.95);
+
+  /* Borders */
+  --color-border:     #cec4ae;
+  --color-border-hi:  #b8ad96;
+
+  /* Accent — warm gold */
+  --color-gold:       #8a6520;
+  --color-gold-dim:   #a07830;
+
+  /* Text */
+  --color-text:       #1e1a14;
+  --color-text-dim:   #5a5040;
+  --color-text-faint: #9a8e78;
+
+  /* Status */
+  --color-want:       #2a5f95;
+  --color-tried:      #8a6520;
+  --color-done:       #3a6a3a;
+
+  /* Shadows */
+  --shadow-panel:     rgba(0, 0, 0, 0.15);
+  --shadow-card:      rgba(0, 0, 0, 0.06);
+
+  /* Card overlay gradient */
+  --card-overlay-gradient: linear-gradient(to top, rgba(230, 222, 210, 0.65) 0%, transparent 50%);
+
+  /* Geometry decoration opacity */
+  --opacity-bg-geo:   0.05;
+  --opacity-compass:  0.05;
+
+  /* Image filter on cards */
+  --img-filter:       saturate(0.9) brightness(0.97);
+  --img-filter-hover: saturate(1) brightness(1);
+
+  /* Sizing */
+  --header-h:         64px;
+  --sidebar-w:        260px;
+  --form-panel-w:     480px;
+  --settings-panel-w: 400px;
+  --radius-card:      0px; /* sharp-edged by design */
+
+  /* Typography */
+  --font-serif:       'Cormorant Garamond', Georgia, serif;
+  --font-mono:        'JetBrains Mono', monospace;
+  --font-display:     'Cinzel', serif;
+
+  /* Transitions */
+  --transition-theme: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  --transition-panel: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] {
+  --color-bg:         #0d0c0a;
+  --color-surface:    #141310;
+  --color-card:       #1a1816;
+  --color-header-bg:  rgba(13, 12, 10, 0.95);
+
+  --color-border:     #2a2722;
+  --color-border-hi:  #3d3830;
+
+  --color-gold:       #c8a96e;
+  --color-gold-dim:   #7a6540;
+
+  --color-text:       #e2d9c8;
+  --color-text-dim:   #8a8070;
+  --color-text-faint: #4a4438;
+
+  --color-want:       #4a7fb5;
+  --color-tried:      #c8a96e;
+  --color-done:       #5a8a5a;
+
+  --shadow-panel:     rgba(0, 0, 0, 0.5);
+  --shadow-card:      rgba(0, 0, 0, 0.3);
+
+  --card-overlay-gradient: linear-gradient(to top, rgba(13, 12, 10, 0.7) 0%, transparent 50%);
+
+  --opacity-bg-geo:   0.025;
+  --opacity-compass:  0.025;
+
+  --img-filter:       saturate(0.85) brightness(0.92);
+  --img-filter-hover: saturate(1) brightness(1);
+}
