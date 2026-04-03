@@ -1,0 +1,867 @@
+{
+  "model": "claude-sonnet-4-6",
+  "results": [
+    {
+      "id": 1,
+      "description": "Flower of Life — 19 overlapping circles enclosed in outer circle",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "syncretic",
+        "patternType": "Flower-of-Life-lineage",
+        "symmetry": "6-fold",
+        "proportion": [
+          "vesica-piscis",
+          "√3"
+        ],
+        "difficulty": "beginner"
+      },
+      "claudeAnalysis": {
+        "analysis": {
+          "constructionMethod": {
+            "primary": "compass-and-straightedge",
+            "confidence": "high",
+            "rationale": "The entire pattern is composed exclusively of circular arcs of equal radius, each circle centered on the intersection points of previously drawn circles — a purely compass-driven construction requiring no straightedge beyond establishing the initial center."
+          },
+          "tradition": {
+            "primary": "Flower-of-Life-lineage",
+            "secondary": "Nature-derived",
+            "confidence": "high",
+            "rationale": "This is the canonical Flower of Life pattern, a modern sacred geometry archetype associated with Pythagorean and Hermetic traditions, and structurally derived from hexagonal close-packing found in nature."
+          },
+          "patternType": {
+            "primary": "Flower-of-Life-lineage",
+            "secondary": "tessellation",
+            "confidence": "high",
+            "rationale": "This is unambiguously the Flower of Life — a field of overlapping equal circles arranged on a triangular grid, bounded by a double-ring enclosure circle, which is the defining presentation of this pattern type."
+          },
+          "symmetry": {
+            "primary": "6-fold",
+            "confidence": "high",
+            "rationale": "The hexagonal close-packing of equal circles produces 6-fold rotational symmetry, confirmed visually by six identical sectors radiating from the central circle."
+          },
+          "proportion": {
+            "detected": [
+              "√3",
+              "vesica-piscis"
+            ],
+            "confidence": "high",
+            "rationale": "Every adjacent pair of equal circles produces a vesica piscis at their intersection, and the triangular grid spacing inherently encodes √3 as the ratio of row height to circle radius."
+          }
+        },
+        "description": "The Flower of Life is constructed by placing equal circles so that each circle's center lies on the circumference of its neighbors, generating a tessellation of overlapping vesica piscis forms across a triangular grid. The interior field spans approximately four rings of circles outward from the center, clipped by a bounding circle and framed with a concentric double-ring border. Every intersection point in the field is simultaneously the center of another circle, making the pattern entirely self-referential in its construction logic.",
+        "suggestedDifficulty": "intermediate",
+        "constructionNotes": "Begin with a central circle, then walk the compass around its circumference placing six circles of identical radius with centers on the first circle's edge; continue expanding ring by ring, always placing new circle centers at existing intersection points. The bounding ring is drawn last by finding the radius that cleanly clips the outermost partial circles."
+      },
+      "scoring": {
+        "fields": {
+          "constructionMethod": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "tradition": {
+            "score": -0.5,
+            "verdict": "MISS_HIGH"
+          },
+          "patternType": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "symmetry": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "proportion": {
+            "score": 0.5,
+            "verdict": "PARTIAL"
+          }
+        },
+        "totalScore": 3,
+        "maxScore": 5,
+        "pct": 0.6
+      },
+      "error": null
+    },
+    {
+      "id": 2,
+      "description": "Islamic 8-pointed star geometric pattern (star and cross / octagram)",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "Islamic-geometric",
+        "patternType": "star-polygon",
+        "symmetry": "8-fold",
+        "proportion": [
+          "√2"
+        ],
+        "difficulty": "beginner"
+      },
+      "claudeAnalysis": {
+        "analysis": {
+          "constructionMethod": {
+            "primary": "compass-and-straightedge",
+            "confidence": "high",
+            "rationale": "The pattern is built from interlocking star polygons and curved petal forms that require compass arcs for the rounded lobes and straightedge work for the radiating lines — a classic Islamic geometric construction sequence."
+          },
+          "tradition": {
+            "primary": "Islamic-geometric",
+            "secondary": "Persian-Iranian",
+            "confidence": "high",
+            "rationale": "The combination of 8-pointed stars, cross-shaped connectors, interlocking pentagons/kite fillers, and the dense all-over repeat without figurative elements is diagnostic of the Islamic geometric tradition, with the specific star-and-petal vocabulary strongly suggesting Persian or Anatolian workshop practice."
+          },
+          "patternType": {
+            "primary": "tessellation",
+            "secondary": "star-polygon",
+            "confidence": "high",
+            "rationale": "The image is a fully repeating, tileable wallpaper pattern whose fundamental tile is organized around 8-pointed star polygons connected by smaller secondary motifs (crosses, kite-arrow shapes, and curved petal lobes), making it simultaneously a tessellation and a star-polygon composition."
+          },
+          "symmetry": {
+            "primary": "8-fold",
+            "confidence": "high",
+            "rationale": "Each primary star rosette at the tile centers exhibits clear 8-fold rotational symmetry, with eight identical pointed arms radiating outward, and the overall repeat grid preserves that 8-fold motif at every node."
+          },
+          "proportion": {
+            "detected": [
+              "√2"
+            ],
+            "confidence": "medium",
+            "rationale": "The 8-fold symmetry and square repeat lattice strongly imply √2 proportions governing the relationship between the star diameter and the tile side length, as is standard in octagonal Islamic geometry; no pentagon-derived golden ratio evidence is visible."
+          }
+        },
+        "description": "A dense, all-over Islamic geometric tessellation built on a square repeat lattice populated by 8-pointed star polygons. Between the stars, the interstices are filled with a secondary vocabulary of cross-shaped forms, arrow/kite polygons, and softly curved petal lobes that give the pattern its characteristic visual richness. The line weight is uniform throughout, rendered in outline only, which makes the interlocking logic of the geometry especially legible.",
+        "suggestedDifficulty": "advanced",
+        "constructionNotes": "Begin by establishing the square repeat unit and inscribing a circle; divide the circle into 8 equal parts (45° intervals) to place the star-polygon vertices, then use a straightedge to connect every other vertex at the correct skip-interval to form the 8-pointed star. Secondary kite and petal fillers are derived from the remaining intersection points of the extended star lines — trace them carefully before inking, as misalignment in the filler shapes will compound across the repeat."
+      },
+      "scoring": {
+        "fields": {
+          "constructionMethod": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "tradition": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "patternType": {
+            "score": -0.5,
+            "verdict": "MISS_HIGH"
+          },
+          "symmetry": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "proportion": {
+            "score": 0.5,
+            "verdict": "PARTIAL"
+          }
+        },
+        "totalScore": 3,
+        "maxScore": 5,
+        "pct": 0.6
+      },
+      "error": null
+    },
+    {
+      "id": 3,
+      "description": "Celtic triquetra (trinity knot) with interlaced circle",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "Celtic-Insular",
+        "patternType": "knot-interlace",
+        "symmetry": "3-fold",
+        "proportion": [
+          "√3"
+        ],
+        "difficulty": "intermediate"
+      },
+      "claudeAnalysis": {
+        "analysis": {
+          "constructionMethod": {
+            "primary": "compass-and-straightedge",
+            "confidence": "high",
+            "rationale": "The triquetra is constructed from three interlocking vesica piscis arcs (compass-drawn) combined with a surrounding triangular outer border formed by straight lines and arcs, requiring both compass and straightedge."
+          },
+          "tradition": {
+            "primary": "Celtic-Insular",
+            "secondary": null,
+            "confidence": "high",
+            "rationale": "This is an unambiguous Celtic triquetra (trinity knot) — a canonical motif of Insular art featuring continuous interwoven lines with over-under weaving and no loose terminals, appearing extensively in manuscripts like the Book of Kells."
+          },
+          "patternType": {
+            "primary": "knot-interlace",
+            "secondary": "rosette",
+            "confidence": "high",
+            "rationale": "The pattern is a continuous single-strand interlace with consistent over-under crossings, forming a closed triquetra loop; the outer triangular frame adds a rosette-like radiating quality at its three pointed cusps."
+          },
+          "symmetry": {
+            "primary": "3-fold",
+            "confidence": "high",
+            "rationale": "The pattern has exact 120° rotational symmetry with three identical lobes, confirmed by the three cusps, three arc segments, and three crossing points arranged equidistantly around the center."
+          },
+          "proportion": {
+            "detected": [
+              "vesica-piscis",
+              "√3"
+            ],
+            "confidence": "high",
+            "rationale": "Each lobe of the triquetra is a vesica piscis (intersection of two equal-radius circles), and the overall triangular geometry implies √3 proportions inherent to equilateral triangle construction."
+          }
+        },
+        "description": "This is a Celtic triquetra (trinity knot) enclosed within a triangular outer border with pointed cusps. It is formed by three interlocking arcs — each a vesica piscis — woven into a single continuous strand with alternating over-under crossings at each of the six intersection points. The outer border echoes the three-lobed structure, framing the central knot with three concave-sided arcs terminating in sharp Gothic-like points.",
+        "suggestedDifficulty": "intermediate",
+        "constructionNotes": "Begin by constructing an equilateral triangle to establish the three anchor points, then draw three overlapping circles of equal radius centered on each vertex so that each pair intersects at the triangle's center region — the overlapping lens shapes form the triquetra lobes. The over-under weaving is achieved by interrupting stroke width at each crossing; the outer border is constructed by extending the outer arcs of each circle and connecting them with straight-line or arc terminals at the three cusps."
+      },
+      "scoring": {
+        "fields": {
+          "constructionMethod": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "tradition": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "patternType": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "symmetry": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "proportion": {
+            "score": 0.5,
+            "verdict": "PARTIAL"
+          }
+        },
+        "totalScore": 4.5,
+        "maxScore": 5,
+        "pct": 0.9
+      },
+      "error": null
+    },
+    {
+      "id": 4,
+      "description": "Chartres Cathedral north rose window — Gothic tracery with 12-fold structure",
+      "imageType": "photograph-architecture",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "Gothic-Medieval",
+        "patternType": "rosette",
+        "symmetry": "12-fold",
+        "proportion": [
+          "√3",
+          "√2"
+        ],
+        "difficulty": "advanced"
+      },
+      "claudeAnalysis": {
+        "analysis": {
+          "constructionMethod": {
+            "primary": "compass-and-straightedge",
+            "confidence": "high",
+            "rationale": "The rose window is built entirely from compass-struck arcs, circular medallions, vesica-shaped foils, pointed trefoils, and quatrefoils subdivided by straight radial armatures — classic compass-and-straightedge Gothic tracery construction."
+          },
+          "tradition": {
+            "primary": "Gothic-Medieval",
+            "secondary": null,
+            "confidence": "high",
+            "rationale": "The pointed lancet windows below, the large circular rose with radiating petals, trefoil and quatrefoil tracery, and figurative stained glass iconography (with visible inscriptions including 'DAVID' and 'AARON') are all diagnostic markers of High Gothic cathedral architecture, consistent with Chartres Cathedral's north rose window (c. 1235)."
+          },
+          "patternType": {
+            "primary": "rosette",
+            "secondary": "mandala",
+            "confidence": "high",
+            "rationale": "The composition is a large radiating rosette — a central medallion from which concentric rings of lobed compartments expand outward — and its concentric, axially symmetric organization gives it a mandala-like quality, though its function is purely Gothic-liturgical."
+          },
+          "symmetry": {
+            "primary": "12-fold",
+            "confidence": "medium",
+            "rationale": "The outermost ring of the rose appears to have approximately 12 major radial divisions of lancet-shaped and foiled compartments, though the inner rings shift between groupings of 4 and 8, suggesting a layered symmetry that is not strictly uniform — high confidence on 12-fold for the outer ring, medium overall."
+          },
+          "proportion": {
+            "detected": [
+              "vesica-piscis",
+              "√3"
+            ],
+            "confidence": "medium",
+            "rationale": "The pervasive pointed-arch forms and lens-shaped foils are geometrically derived from the vesica piscis (intersection of two equal circles), and the equilateral triangular relationships between circle centers imply √3 proportions; golden ratio cannot be confirmed visually without measurement."
+          }
+        },
+        "description": "This is the north rose window of Chartres Cathedral (c. 1235), one of the supreme examples of High Gothic geometric tracery. The rose is organized as a radiating rosette of concentric rings: a central oculus surrounded by expanding bands of circular medallions, pointed lozenges, trefoils, and vesica-shaped foils, all filled with figurative stained glass depicting Old Testament kings and prophets (including David, Solomon, and Aaron) surrounding the Virgin and Child at center. Below the rose, five tall pointed lancet windows continue the iconographic program with standing figures under Gothic arched canopies.",
+        "suggestedDifficulty": "advanced",
+        "constructionNotes": "Begin with a master circle and establish the central point; use compass to strike concentric rings at proportional radii derived from vesica-piscis intersections, then subdivide each ring into equal arcs for medallion placement. The trefoils and quatrefoils are each constructed as independent compass figures centered on radial grid intersections, with pointed cusps formed by overlapping arcs — expect 30–50 distinct compass setups for a faithful reproduction."
+      },
+      "scoring": {
+        "fields": {
+          "constructionMethod": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "tradition": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "patternType": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "symmetry": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "proportion": {
+            "score": 0.5,
+            "verdict": "PARTIAL"
+          }
+        },
+        "totalScore": 4.5,
+        "maxScore": 5,
+        "pct": 0.9
+      },
+      "error": null
+    },
+    {
+      "id": 6,
+      "description": "Sri Yantra — Hindu sacred diagram with nine interlocking triangles",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "Hindu-Vedic",
+        "patternType": "mandala",
+        "symmetry": "3-fold",
+        "proportion": [
+          "golden-ratio"
+        ],
+        "difficulty": "advanced"
+      },
+      "claudeAnalysis": {
+        "analysis": {
+          "constructionMethod": {
+            "primary": "compass-and-straightedge",
+            "confidence": "high",
+            "rationale": "The concentric circles, lotus petal rings, and precisely intersecting triangles all require compass arcs for the circular elements and a straightedge for the triangle network, which is the classical construction method for this yantra."
+          },
+          "tradition": {
+            "primary": "Hindu-Vedic",
+            "secondary": null,
+            "confidence": "high",
+            "rationale": "This is unambiguously a Sri Yantra (Shri Chakra), one of the most recognized diagrams in Hindu Tantric tradition, identifiable by its nine interlocking triangles, lotus rings, and square bhupura with T-shaped gates."
+          },
+          "patternType": {
+            "primary": "mandala",
+            "secondary": "star-polygon",
+            "confidence": "high",
+            "rationale": "The Sri Yantra is a concentric, concentrically-organized symbolic diagram (mandala) whose core is built from nine interlocking triangles producing a complex star-polygon arrangement of 43 smaller triangles."
+          },
+          "symmetry": {
+            "primary": "4-fold",
+            "confidence": "medium",
+            "rationale": "The outer bhupura (square enclosure) with its four T-shaped gate openings imposes 4-fold symmetry on the overall composition, though the inner triangle network has a bilateral/vertical axis of symmetry rather than strict rotational symmetry."
+          },
+          "proportion": {
+            "detected": [
+              "√3",
+              "vesica-piscis"
+            ],
+            "confidence": "medium",
+            "rationale": "The equilateral and isoceles triangles in the nava-chakra grid imply √3 relationships, and the overlapping circle constructions used to derive the lotus petals invoke vesica piscis geometry; golden ratio is sometimes claimed for Sri Yantra but is not visually confirmable here with certainty."
+          }
+        },
+        "description": "This is a Sri Yantra (also called Shri Chakra), the paramount yantra of the Hindu Shakta Tantric tradition. It consists of nine interlocking triangles — five pointing downward (Shakti) and four pointing upward (Shiva) — arranged around a central bindu point, generating 43 smaller triangular regions. The triangle core is enclosed by two rings of lotus petals (8 and 16 petals respectively), three concentric circles, and a square bhupura with four T-shaped gates (dvara) on each cardinal side.",
+        "suggestedDifficulty": "advanced",
+        "constructionNotes": "Begin by establishing the central bindu and the outermost circle, then carefully construct the nine triangles using compass and straightedge — precise angular placement is critical as small errors cascade; traditional construction sequences (such as the Mishra or Ramadas methods) provide step-by-step triangle ordering to achieve the correct intersection geometry. The lotus rings and bhupura gates are added concentrically outward once the triangle core is verified."
+      },
+      "scoring": {
+        "fields": {
+          "constructionMethod": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "tradition": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "patternType": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "symmetry": {
+            "score": 0,
+            "verdict": "MISS_LOW"
+          },
+          "proportion": {
+            "score": 0,
+            "verdict": "MISS_LOW"
+          }
+        },
+        "totalScore": 3,
+        "maxScore": 5,
+        "pct": 0.6
+      },
+      "error": null
+    },
+    {
+      "id": 7,
+      "description": "Penrose tiling — P3 rhombus aperiodic tiling with 5-fold symmetry",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "grid-based",
+        "tradition": "Contemporary-Mathematical",
+        "patternType": "tessellation",
+        "symmetry": "5-fold",
+        "proportion": [
+          "golden-ratio"
+        ],
+        "difficulty": "advanced"
+      },
+      "claudeAnalysis": {
+        "analysis": {
+          "constructionMethod": {
+            "primary": "compass-and-straightedge",
+            "confidence": "high",
+            "rationale": "The pattern is built from rhombuses of consistent proportions arrayed around a circular field, requiring compass work to establish the angular divisions and straightedge to construct the rhombus tiles."
+          },
+          "tradition": {
+            "primary": "uncertain",
+            "secondary": "Nature-derived",
+            "confidence": "medium",
+            "rationale": "The Penrose-style aperiodic tiling is a modern mathematical discovery (1970s) with no direct historical tradition; however, its quasicrystalline structure has strong affinities with Nature-derived phyllotactic and quasicrystal geometry, and visual echoes of Islamic geometric star patterns."
+          },
+          "patternType": {
+            "primary": "tessellation",
+            "secondary": "star-polygon",
+            "confidence": "high",
+            "rationale": "This is a Penrose P2 (or P3) aperiodic tessellation composed of two rhombus types (fat and thin, or kite and dart), which locally cluster into 5-fold star/decagon rosette motifs rendered in the green thin-rhombus groupings."
+          },
+          "symmetry": {
+            "primary": "10-fold",
+            "confidence": "high",
+            "rationale": "The overall patch has a visually clear 10-fold (decagonal) approximate rotational symmetry about its center, characteristic of Penrose tilings, with 5-fold local symmetry repeating throughout."
+          },
+          "proportion": {
+            "detected": [
+              "golden-ratio"
+            ],
+            "confidence": "high",
+            "rationale": "Penrose rhombus tilings are rigorously constructed on golden-ratio proportions: the ratio of the diagonals of both the fat and thin rhombuses equals φ ≈ 1.618, and the ratio of fat-to-thin tile frequency in the infinite tiling is exactly φ."
+          }
+        },
+        "description": "This is a Penrose aperiodic rhombus tiling (P3 type) displayed as a finite decagonal patch. Two rhombus types — a wide 'fat' rhombus (blue) and a narrow 'thin' rhombus (green) — tile the plane without periodic repetition, governed entirely by golden-ratio proportions. Locally, clusters of thin rhombuses form 5-pointed star motifs while clusters of fat rhombuses form decagonal rosettes, giving the whole composition a quasi-crystalline, 10-fold symmetric appearance.",
+        "suggestedDifficulty": "advanced",
+        "constructionNotes": "Begin by establishing a central decagon divided into 10 golden gnomons (36-72-72° triangles); use compass-and-straightedge subdivision following Penrose matching rules (or de Bruijn pentagrid method) to inflate the tiling outward, maintaining the two rhombus angles of 36° and 72° throughout. Colour discipline — tracking which tiles are fat vs. thin — is essential before inking."
+      },
+      "scoring": {
+        "fields": {
+          "constructionMethod": {
+            "score": -0.5,
+            "verdict": "MISS_HIGH"
+          },
+          "tradition": {
+            "score": 0.25,
+            "verdict": "HONEST_MISS"
+          },
+          "patternType": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "symmetry": {
+            "score": -0.5,
+            "verdict": "MISS_HIGH"
+          },
+          "proportion": {
+            "score": 0.5,
+            "verdict": "PARTIAL"
+          }
+        },
+        "totalScore": 0.75,
+        "maxScore": 5,
+        "pct": 0.15
+      },
+      "error": null
+    },
+    {
+      "id": 8,
+      "description": "Nautilus shell cross-section showing logarithmic spiral",
+      "imageType": "photograph-nature",
+      "groundTruth": {
+        "constructionMethod": "freehand",
+        "tradition": "Nature-derived",
+        "patternType": "spiral",
+        "symmetry": "none",
+        "proportion": [
+          "golden-ratio",
+          "fibonacci"
+        ],
+        "difficulty": "intermediate"
+      },
+      "claudeAnalysis": {
+        "analysis": {
+          "constructionMethod": {
+            "primary": "compass-and-straightedge",
+            "confidence": "medium",
+            "rationale": "A nautilus cross-section is best approximated by a practitioner using compass arcs of geometrically increasing radii (the classic 'Fibonacci spiral' compass construction), though the biological original is not tool-made."
+          },
+          "tradition": {
+            "primary": "Nature-derived",
+            "secondary": null,
+            "confidence": "high",
+            "rationale": "This is a photographed cross-section of an actual Nautilus pompilius shell — the canonical exemplar of logarithmic spiral growth in nature, not a human geometric tradition."
+          },
+          "patternType": {
+            "primary": "spiral",
+            "secondary": null,
+            "confidence": "high",
+            "rationale": "The chambered nautilus cross-section displays a textbook logarithmic (equiangular) spiral, with each successive chamber scaling by a constant ratio as the spiral expands outward."
+          },
+          "symmetry": {
+            "primary": "3-fold",
+            "confidence": "low",
+            "rationale": "A logarithmic spiral has no discrete rotational symmetry in the strict sense — it is self-similar under rotation+scaling, not pure rotation; no entry in the vocabulary cleanly fits, so confidence is low and this field is effectively not applicable."
+          },
+          "proportion": {
+            "detected": [
+              "golden-ratio",
+              "fibonacci"
+            ],
+            "confidence": "medium",
+            "rationale": "The nautilus shell is the most iconic claimed example of the golden ratio in nature; while recent measurement studies show the ratio is approximately φ but not exact (typically ~1.33), the Fibonacci growth sequence and φ-approximation are visually evident in the chamber scaling and are the standard practitioner reference for this form."
+          }
+        },
+        "description": "A polished cross-section of a Nautilus pompilius shell revealing its internal chambered structure (phragmocone), displaying a near-perfect logarithmic spiral. Each successive chamber is geometrically similar to the last, scaled by an approximately constant ratio as the organism grew outward from the center. The nacre (mother-of-pearl) lining creates the luminous iridescent surface visible in the image.",
+        "suggestedDifficulty": "intermediate",
+        "constructionNotes": "To draft this as a geometric construction, establish a center point and use compass arcs based on a Fibonacci rectangle sequence: draw adjacent squares whose sides follow 1, 1, 2, 3, 5, 8, 13… units, then sweep a quarter-circle arc through each square's corner to produce the approximating spiral. For a true logarithmic spiral, a parametric approach or successive compass arcs with a constant scaling factor (e.g., φ per 90° rotation) is more accurate."
+      },
+      "scoring": {
+        "fields": {
+          "constructionMethod": {
+            "score": 0,
+            "verdict": "MISS_LOW"
+          },
+          "tradition": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "patternType": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "symmetry": {
+            "score": 0,
+            "verdict": "MISS_LOW"
+          },
+          "proportion": {
+            "score": 0.5,
+            "verdict": "PARTIAL"
+          }
+        },
+        "totalScore": 2.5,
+        "maxScore": 5,
+        "pct": 0.5
+      },
+      "error": null
+    },
+    {
+      "id": 10,
+      "description": "Persian/Islamic 12-fold girih star pattern — geometric interlace",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "polygonal-method",
+        "tradition": "Persian-Iranian",
+        "patternType": "star-polygon",
+        "symmetry": "10-fold",
+        "proportion": [
+          "golden-ratio"
+        ],
+        "difficulty": "advanced"
+      },
+      "claudeAnalysis": {
+        "analysis": {
+          "constructionMethod": {
+            "primary": "polygonal-method",
+            "confidence": "high",
+            "rationale": "All five figures are constructed by inscribing star polygons within regular or irregular polygon boundaries using the polygon subdivision technique — connecting vertices at regular intervals to form interior star patterns."
+          },
+          "tradition": {
+            "primary": "Islamic-geometric",
+            "secondary": "uncertain",
+            "confidence": "medium",
+            "rationale": "The star-polygon-within-polygon construction technique is characteristic of Islamic geometric pattern drafting, particularly the 'polygons-in-contact' method, though the presentation here appears to be a modern pedagogical or computational illustration of the method across different polygon types rather than a traditional finished design."
+          },
+          "patternType": {
+            "primary": "star-polygon",
+            "secondary": "tessellation",
+            "confidence": "high",
+            "rationale": "Each figure shows a star polygon inscribed within a containing polygon — a {5/2} pentagram in the pentagon, a {7/2} or {7/3} heptagram in the heptagon, a {10/3} or similar decagram in the decagon, and irregular star forms in the quadrilateral and non-convex shapes — suggesting these are tiles from a potential tessellation system."
+          },
+          "symmetry": {
+            "primary": "5-fold",
+            "confidence": "medium",
+            "rationale": "The dominant figures are the yellow pentagon (5-fold) and the large cyan decagon (10-fold, reducible to 5-fold); the parallelogram and non-convex red shape have no rotational symmetry, and the green hexagonal shape appears to have approximate 3-fold symmetry, making the composite image multi-symmetry — 5-fold is chosen as the most visually prominent motif."
+          },
+          "proportion": {
+            "detected": [
+              "golden-ratio"
+            ],
+            "confidence": "medium",
+            "rationale": "The regular pentagon and decagon constructions inherently encode golden-ratio proportions in their diagonals and star intersections, though no explicit φ-based construction lines are shown to confirm this visually beyond the polygon geometry itself."
+          }
+        },
+        "description": "This image presents a set of five polygon tiles, each containing an inscribed star polygon drawn by connecting non-adjacent vertices — a parallelogram, an irregular convex hexagon, a non-convex bowtie-like quadrilateral, a regular pentagon with a {5/2} pentagram, and a regular decagon with a {10/3}-style decagram. The collection reads as a pedagogical or design-system illustration of the Islamic 'polygons-in-contact' construction method applied across varied polygon types, including both regular and irregular forms. The blue stroke lines mark the star connections while the colored fills indicate the polygon interiors.",
+        "suggestedDifficulty": "intermediate",
+        "constructionNotes": "A practitioner would begin each tile by constructing the bounding polygon with compass and straightedge, then mark equal arc divisions on each edge or vertex to determine the star's connection angle; for the decagon tile specifically, start with a circle, divide it into 10 equal parts (bisecting a regular pentagon), then connect every third vertex to generate the 10-pointed star interior."
+      },
+      "scoring": {
+        "fields": {
+          "constructionMethod": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "tradition": {
+            "score": 0.5,
+            "verdict": "PARTIAL"
+          },
+          "patternType": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "symmetry": {
+            "score": 0,
+            "verdict": "MISS_LOW"
+          },
+          "proportion": {
+            "score": 0.5,
+            "verdict": "PARTIAL"
+          }
+        },
+        "totalScore": 3,
+        "maxScore": 5,
+        "pct": 0.6
+      },
+      "error": null
+    },
+    {
+      "id": 11,
+      "description": "Compass-and-straightedge hexagon construction diagram",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "syncretic",
+        "patternType": "rosette",
+        "symmetry": "6-fold",
+        "proportion": [
+          "√3"
+        ],
+        "difficulty": "beginner"
+      },
+      "claudeAnalysis": {
+        "analysis": {
+          "constructionMethod": {
+            "primary": "ruler-only",
+            "confidence": "high",
+            "rationale": "The image contains only straight lines — a horizontal line spanning the width of the image with a short vertical tick mark at its midpoint — requiring nothing beyond a straightedge."
+          },
+          "tradition": {
+            "primary": "uncertain",
+            "secondary": null,
+            "confidence": "low",
+            "rationale": "A single bisected line is a foundational drafting element, not a culturally specific geometric pattern; it could be a construction baseline from any tradition or simply a blank canvas with a center mark."
+          },
+          "patternType": {
+            "primary": "uncertain",
+            "secondary": null,
+            "confidence": "low",
+            "rationale": "This appears to be a construction reference line with a midpoint marker, not a completed geometric pattern of any classifiable type in the vocabulary."
+          },
+          "symmetry": {
+            "primary": "uncertain",
+            "confidence": "low",
+            "rationale": "The line with a center tick has bilateral (reflective) symmetry about the vertical axis, but it does not exhibit rotational symmetry in any of the defined N-fold categories."
+          },
+          "proportion": {
+            "detected": [],
+            "confidence": "low",
+            "rationale": "No proportional relationships (golden ratio, √2, √3, vesica piscis, etc.) can be visually confirmed from a single bisected line alone."
+          }
+        },
+        "description": "The image shows a single horizontal line bisected by a short vertical tick mark at or near its center — the most elementary drafting construction possible. This is almost certainly a construction baseline or starting reference mark rather than a finished geometric pattern. No sacred geometry tradition, symmetry order, or proportion system can be meaningfully assigned to this element in isolation.",
+        "suggestedDifficulty": "beginner",
+        "constructionNotes": "This is the first step in virtually any compass-and-straightedge construction: draw a baseline and mark its center with a perpendicular tick, typically by swinging equal arcs from two anchor points to locate the midpoint. If this is the start of a larger work, the next step would likely be erecting a perpendicular bisector or scribing the first circle."
+      },
+      "scoring": {
+        "fields": {
+          "constructionMethod": {
+            "score": -0.5,
+            "verdict": "MISS_HIGH"
+          },
+          "tradition": {
+            "score": 0.25,
+            "verdict": "HONEST_MISS"
+          },
+          "patternType": {
+            "score": 0.25,
+            "verdict": "HONEST_MISS"
+          },
+          "symmetry": {
+            "score": 0.25,
+            "verdict": "HONEST_MISS"
+          },
+          "proportion": {
+            "score": 0.25,
+            "verdict": "HONEST_MISS"
+          }
+        },
+        "totalScore": 0.5,
+        "maxScore": 5,
+        "pct": 0.1
+      },
+      "error": null
+    },
+    {
+      "id": 14,
+      "description": "Metatron's Cube — 13 circles with all connecting lines",
+      "imageType": "clean-digital-diagram",
+      "groundTruth": {
+        "constructionMethod": "compass-and-straightedge",
+        "tradition": "syncretic",
+        "patternType": "Flower-of-Life-lineage",
+        "symmetry": "6-fold",
+        "proportion": [
+          "√3",
+          "vesica-piscis"
+        ],
+        "difficulty": "intermediate"
+      },
+      "claudeAnalysis": {
+        "analysis": {
+          "constructionMethod": {
+            "primary": "compass-and-straightedge",
+            "confidence": "high",
+            "rationale": "The pattern is built from equal circles arranged in the Fruit of Life configuration with all 13 centers connected by straight lines, requiring precise compass work for circle placement and a straightedge for the connecting lines."
+          },
+          "tradition": {
+            "primary": "Flower-of-Life-lineage",
+            "secondary": "uncertain",
+            "confidence": "high",
+            "rationale": "This is canonically Metatron's Cube, a modern sacred geometry construction derived from the Fruit of Life (13 circles of the Flower of Life), with no strong historical cultural lineage predating 20th-century esoteric traditions."
+          },
+          "patternType": {
+            "primary": "Flower-of-Life-lineage",
+            "secondary": "star-polygon",
+            "confidence": "high",
+            "rationale": "This is Metatron's Cube — formed by connecting all centers of the 13 circles of the Fruit of Life — which generates overlapping star polygons (Star of David / hexagram, and inner star patterns) as a byproduct of the line network."
+          },
+          "symmetry": {
+            "primary": "6-fold",
+            "confidence": "high",
+            "rationale": "The 13-circle Fruit of Life arrangement has 6-fold rotational symmetry, with one central circle surrounded by 6, then 6 more, producing a hexagonal lattice with 60° rotational repeats."
+          },
+          "proportion": {
+            "detected": [
+              "√3",
+              "vesica-piscis"
+            ],
+            "confidence": "high",
+            "rationale": "The hexagonal circle packing inherently encodes √3 (the ratio of a hexagon's height to its width) and vesica piscis relationships at every adjacent circle intersection, both visually confirmed by the circle overlaps."
+          }
+        },
+        "description": "This is Metatron's Cube, constructed by taking the 13 circles of the Fruit of Life (one central circle, one ring of 6, one ring of 6 outer) and drawing straight lines connecting every circle center to every other circle center. The resulting line network generates all five Platonic solid projections simultaneously, along with prominent Star of David (hexagram) and inner Flower of Life geometry. The outer 6 circles extend beyond the central cluster, and a bounding rectangle frames the composition.",
+        "suggestedDifficulty": "advanced",
+        "constructionNotes": "Begin with the Fruit of Life: place a central circle, then use its radius to step 6 circles around it at 60° intervals, then 6 more at the next ring — all circles share the same radius. Once all 13 centers are located, connect every center to every other center with a straightedge (78 line segments total); accuracy of the initial circle placement is critical, as all line intersections depend on it."
+      },
+      "scoring": {
+        "fields": {
+          "constructionMethod": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "tradition": {
+            "score": -0.5,
+            "verdict": "MISS_HIGH"
+          },
+          "patternType": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "symmetry": {
+            "score": 1,
+            "verdict": "MATCH"
+          },
+          "proportion": {
+            "score": 0.5,
+            "verdict": "PARTIAL"
+          }
+        },
+        "totalScore": 3,
+        "maxScore": 5,
+        "pct": 0.6
+      },
+      "error": null
+    }
+  ],
+  "fieldTotals": {
+    "constructionMethod": {
+      "total": 6,
+      "max": 10,
+      "pct": 0.6,
+      "verdicts": {
+        "MATCH": 7,
+        "PARTIAL": 0,
+        "HONEST_MISS": 0,
+        "MISS_HIGH": 2,
+        "MISS_LOW": 1
+      }
+    },
+    "tradition": {
+      "total": 5,
+      "max": 10,
+      "pct": 0.5,
+      "verdicts": {
+        "MATCH": 5,
+        "PARTIAL": 1,
+        "HONEST_MISS": 2,
+        "MISS_HIGH": 2,
+        "MISS_LOW": 0
+      }
+    },
+    "patternType": {
+      "total": 7.75,
+      "max": 10,
+      "pct": 0.775,
+      "verdicts": {
+        "MATCH": 8,
+        "PARTIAL": 0,
+        "HONEST_MISS": 1,
+        "MISS_HIGH": 1,
+        "MISS_LOW": 0
+      }
+    },
+    "symmetry": {
+      "total": 4.75,
+      "max": 10,
+      "pct": 0.475,
+      "verdicts": {
+        "MATCH": 5,
+        "PARTIAL": 0,
+        "HONEST_MISS": 1,
+        "MISS_HIGH": 1,
+        "MISS_LOW": 3
+      }
+    },
+    "proportion": {
+      "total": 4.25,
+      "max": 10,
+      "pct": 0.425,
+      "verdicts": {
+        "MATCH": 0,
+        "PARTIAL": 8,
+        "HONEST_MISS": 1,
+        "MISS_HIGH": 0,
+        "MISS_LOW": 1
+      }
+    }
+  },
+  "overallPct": 0.5549999999999999,
+  "decision": "ITERATE"
+}

@@ -17,7 +17,7 @@ const SCORECARD_PATH = path.resolve(__dirname, 'scorecard.md');
 const FINDINGS_PATH = path.resolve(__dirname, 'SPIKE-RESULTS.md');
 const DELAY_MS = 1000;
 
-const client = new Anthropic({ apiKey: process.env['radian-app-key'] });
+const client = new Anthropic({ apiKey: process.env['radian-app-api-key'] });
 
 // ---------------------------------------------------------------------------
 // System prompt (from radian-vision-spike.md Part 1)
@@ -174,7 +174,9 @@ function inNeighborhood(a, b) {
  */
 function scoreField(predicted, groundTruth, confidence, fieldName) {
   const gt = Array.isArray(groundTruth) ? groundTruth : [groundTruth];
-  const pred = predicted && predicted !== 'uncertain' ? predicted.trim() : null;
+  const pred = Array.isArray(predicted)
+    ? (predicted.length > 0 ? predicted : null)
+    : (predicted && predicted !== 'uncertain' ? predicted.trim() : null);
 
   // "none" symmetry / empty proportion handled specially
   const gtIsEmpty = gt.length === 0 || gt[0] === 'none' || gt[0] === '';
@@ -264,8 +266,22 @@ function scoreImage(imageRecord, claudeAnalysis) {
 // Image fetch → base64
 // ---------------------------------------------------------------------------
 
-async function fetchImageAsBase64(url) {
-  const response = await fetch(url);
+async function fetchImageAsBase64(url, attempt = 1) {
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'RadianSpikeBot/1.0 (https://github.com/fitore/radian-geometric-art; fitore@users) node-fetch/24',
+      'Accept': 'image/png,image/jpeg,image/gif,image/webp,image/*',
+    },
+  });
+
+  if (response.status === 429 || response.status === 503) {
+    if (attempt >= 4) throw new Error(`HTTP ${response.status} fetching ${url} after ${attempt} attempts`);
+    const backoff = attempt * 3000;
+    process.stdout.write(` [rate-limited, retrying in ${backoff / 1000}s]`);
+    await new Promise(r => setTimeout(r, backoff));
+    return fetchImageAsBase64(url, attempt + 1);
+  }
+
   if (!response.ok) throw new Error(`HTTP ${response.status} fetching ${url}`);
   const contentType = response.headers.get('content-type') || 'image/png';
   const buffer = await response.arrayBuffer();
@@ -424,7 +440,8 @@ async function main() {
 
   const scorecardRows = successful.map(r => {
     const cells = fieldNames.map(f => {
-      const { verdict, score } = r.scoring.fields[f];
+      const { verdict } = r.scoring.fields[f];
+      const score = r.scoring.fields[f].score;
       const icon = verdict === 'MATCH' ? '✓' : verdict === 'PARTIAL' ? '~' : verdict === 'HONEST_MISS' ? '?' : '✗';
       return `${icon} ${score.toFixed(1)}`;
     });

@@ -1,12 +1,13 @@
 {
   "description": "Radian v2 Vision Spike — Test Image Set",
   "generated": "2026-04-01",
-  "notes": "All images sourced from Wikimedia Commons or open-access references. Ground truth classifications are the tester's assessment BEFORE running Claude Vision. PNG render URLs use Wikimedia's thumb endpoint for consistent sizing.",
+  "updated": "2026-04-03",
+  "notes": "All images sourced from Wikimedia Commons. URLs verified via Wikimedia API on 2026-04-03 — 5 original images were no longer available and removed. 10 images remain.",
   "images": [
     {
       "id": 1,
       "description": "Flower of Life — 19 overlapping circles enclosed in outer circle",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Flower-of-Life-19circles36arcs-enclosed.svg/800px-Flower-of-Life-19circles36arcs-enclosed.svg.png",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Flower-of-Life-19circles36arcs-enclosed.svg/960px-Flower-of-Life-19circles36arcs-enclosed.svg.png",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Flower-of-Life-19circles36arcs-enclosed.svg",
       "license": "Public Domain",
       "imageType": "clean-digital-diagram",
@@ -23,7 +24,7 @@
     {
       "id": 2,
       "description": "Islamic 8-pointed star geometric pattern (star and cross / octagram)",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Islamic_geometric_pattern.svg/800px-Islamic_geometric_pattern.svg.png",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Islamic_geometric_pattern.svg/960px-Islamic_geometric_pattern.svg.png",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Islamic_geometric_pattern.svg",
       "license": "CC BY-SA 4.0",
       "imageType": "clean-digital-diagram",
@@ -40,7 +41,7 @@
     {
       "id": 3,
       "description": "Celtic triquetra (trinity knot) with interlaced circle",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Triquetra-circle-interlaced.svg/800px-Triquetra-circle-interlaced.svg.png",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Triquetra-circle-interlaced.svg/960px-Triquetra-circle-interlaced.svg.png",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Triquetra-circle-interlaced.svg",
       "license": "Public Domain",
       "imageType": "clean-digital-diagram",
@@ -57,7 +58,7 @@
     {
       "id": 4,
       "description": "Chartres Cathedral north rose window — Gothic tracery with 12-fold structure",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Chartres_-_cath%C3%A9drale_-_rosace_nord.jpg/800px-Chartres_-_cath%C3%A9drale_-_rosace_nord.jpg",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Chartres_-_cath%C3%A9drale_-_rosace_nord.jpg/960px-Chartres_-_cath%C3%A9drale_-_rosace_nord.jpg",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chartres_-_cath%C3%A9drale_-_rosace_nord.jpg",
       "license": "CC BY-SA 3.0",
       "imageType": "photograph-architecture",
@@ -72,26 +73,9 @@
       "notes": "Photograph of actual architecture. This tests Claude's ability with noisy real-world images. The 12-fold structure should be identifiable. Tradition should be obvious from Gothic pointed arches and tracery."
     },
     {
-      "id": 5,
-      "description": "Alhambra Nasrid palace wall tiling — zellige geometric mosaic",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Alhambra_-_Palacios_Nazaries_-_Patio_de_los_Arrayanes_-_Tiles.jpg/800px-Alhambra_-_Palacios_Nazaries_-_Patio_de_los_Arrayanes_-_Tiles.jpg",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Alhambra_-_Palacios_Nazaries_-_Patio_de_los_Arrayanes_-_Tiles.jpg",
-      "license": "CC BY-SA 3.0",
-      "imageType": "photograph-tilework",
-      "groundTruth": {
-        "constructionMethod": "compass-and-straightedge",
-        "tradition": "Moorish-Andalusian",
-        "patternType": "tessellation",
-        "symmetry": "8-fold",
-        "proportion": ["√2"],
-        "difficulty": "advanced"
-      },
-      "notes": "Photograph of actual Alhambra tilework. Tests both tradition identification (Moorish-Andalusian vs generic Islamic) and ability to classify from a photo with color, perspective, and material texture."
-    },
-    {
       "id": 6,
       "description": "Sri Yantra — Hindu sacred diagram with nine interlocking triangles",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Sri_Yantra.svg/800px-Sri_Yantra.svg.png",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Sri_Yantra.svg/960px-Sri_Yantra.svg.png",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sri_Yantra.svg",
       "license": "CC BY-SA 3.0",
       "imageType": "clean-digital-diagram",
@@ -108,7 +92,7 @@
     {
       "id": 7,
       "description": "Penrose tiling — P3 rhombus aperiodic tiling with 5-fold symmetry",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Penrose_Tiling_%28Rhombi%29.svg/800px-Penrose_Tiling_%28Rhombi%29.svg.png",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Penrose_Tiling_%28Rhombi%29.svg/960px-Penrose_Tiling_%28Rhombi%29.svg.png",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Penrose_Tiling_(Rhombi).svg",
       "license": "Public Domain",
       "imageType": "clean-digital-diagram",
@@ -125,7 +109,7 @@
     {
       "id": 8,
       "description": "Nautilus shell cross-section showing logarithmic spiral",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/NautilusCutawayLogarithmicSpiral.jpg/800px-NautilusCutawayLogarithmicSpiral.jpg",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/NautilusCutawayLogarithmicSpiral.jpg/960px-NautilusCutawayLogarithmicSpiral.jpg",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:NautilusCutawayLogarithmicSpiral.jpg",
       "license": "CC BY-SA 3.0",
       "imageType": "photograph-nature",
@@ -140,26 +124,9 @@
       "notes": "Nature photograph with logarithmic spiral overlay. No rotational symmetry — spirals are not rotationally symmetric. The golden ratio / Fibonacci connection is approximate (actual nautilus is not exactly golden). Accept medium confidence on proportions."
     },
     {
-      "id": 9,
-      "description": "String art parabolic curves — straight lines forming curved envelope",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Quadratic_b%C3%A9zier_curve_as_parabola_segment.svg/800px-Quadratic_b%C3%A9zier_curve_as_parabola_segment.svg.png",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Quadratic_bézier_curve_as_parabola_segment.svg",
-      "license": "Public Domain",
-      "imageType": "clean-digital-diagram",
-      "groundTruth": {
-        "constructionMethod": "string-art-parabolic",
-        "tradition": "syncretic",
-        "patternType": "parabolic-curve",
-        "symmetry": "none",
-        "proportion": [],
-        "difficulty": "beginner"
-      },
-      "notes": "Straight lines forming a parabolic envelope. This is the simplest string art form. No symmetry unless reflected. No specific proportional system. Tests whether Claude recognizes the parabolic-curve pattern type."
-    },
-    {
       "id": 10,
       "description": "Persian/Islamic 12-fold girih star pattern — geometric interlace",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Girih_tiles.svg/800px-Girih_tiles.svg.png",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Girih_tiles.svg/960px-Girih_tiles.svg.png",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Girih_tiles.svg",
       "license": "Public Domain",
       "imageType": "clean-digital-diagram",
@@ -176,7 +143,7 @@
     {
       "id": 11,
       "description": "Compass-and-straightedge hexagon construction diagram",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Regular_Hexagon_Inscribed_in_a_Circle.gif/800px-Regular_Hexagon_Inscribed_in_a_Circle.gif",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/89/Regular_Hexagon_Inscribed_in_a_Circle.gif",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Regular_Hexagon_Inscribed_in_a_Circle.gif",
       "license": "CC BY-SA 3.0",
       "imageType": "clean-digital-diagram",
@@ -191,43 +158,9 @@
       "notes": "Basic construction — circle with six equally spaced points connected. This is the foundation of 6-fold geometry. Tests whether Claude recognizes a construction diagram (process) vs. a finished pattern."
     },
     {
-      "id": 12,
-      "description": "Moroccan zellige tilework — geometric mosaic from Fez madrasa",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Meknes_Medersa_Bou_Inania_Zellij.jpg/800px-Meknes_Medersa_Bou_Inania_Zellij.jpg",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Meknes_Medersa_Bou_Inania_Zellij.jpg",
-      "license": "CC BY-SA 3.0",
-      "imageType": "photograph-tilework",
-      "groundTruth": {
-        "constructionMethod": "compass-and-straightedge",
-        "tradition": "Moroccan-Maghrebi",
-        "patternType": "tessellation",
-        "symmetry": "8-fold",
-        "proportion": ["√2"],
-        "difficulty": "advanced"
-      },
-      "notes": "Photograph of actual Moroccan zellige. Tests tradition discrimination: can Claude distinguish Moroccan-Maghrebi from Moorish-Andalusian? Accept either as PARTIAL. The photograph quality tests extraction from real-world conditions."
-    },
-    {
-      "id": 13,
-      "description": "Curve of pursuit — four lines converging from square vertices",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Pursuit_curve%2C_four_bugs.svg/800px-Pursuit_curve%2C_four_bugs.svg.png",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pursuit_curve,_four_bugs.svg",
-      "license": "CC BY-SA 3.0",
-      "imageType": "clean-digital-diagram",
-      "groundTruth": {
-        "constructionMethod": "ruler-only",
-        "tradition": "syncretic",
-        "patternType": "curve-of-pursuit",
-        "symmetry": "4-fold",
-        "proportion": [],
-        "difficulty": "intermediate"
-      },
-      "notes": "Classic four-bugs pursuit curve from a square. 4-fold rotational symmetry. No specific proportional system. Tests whether Claude recognizes this specific pattern type."
-    },
-    {
       "id": 14,
       "description": "Metatron's Cube — 13 circles with all connecting lines",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Metatrons_cube.svg/800px-Metatrons_cube.svg.png",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Metatrons_cube.svg/960px-Metatrons_cube.svg.png",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Metatrons_cube.svg",
       "license": "Public Domain",
       "imageType": "clean-digital-diagram",
@@ -240,33 +173,15 @@
         "difficulty": "intermediate"
       },
       "notes": "Metatron's Cube — derived from the Fruit of Life (13 circles from FOL), with all centers connected by straight lines. Contains all five Platonic solids in 2D projection. Tests whether Claude classifies this within FOL lineage."
-    },
-    {
-      "id": 15,
-      "description": "Octagonal star tessellation — repeating 8-fold pattern across a plane",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Khatam_Sulayman_tilework_-_Alhambra_-_Granada_-_Spain.jpg/800px-Khatam_Sulayman_tilework_-_Alhambra_-_Granada_-_Spain.jpg",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Khatam_Sulayman_tilework_-_Alhambra_-_Granada_-_Spain.jpg",
-      "license": "CC BY-SA 4.0",
-      "imageType": "photograph-tilework",
-      "groundTruth": {
-        "constructionMethod": "compass-and-straightedge",
-        "tradition": "Moorish-Andalusian",
-        "patternType": "tessellation",
-        "symmetry": "8-fold",
-        "proportion": ["√2"],
-        "difficulty": "advanced"
-      },
-      "notes": "Deliberately ambiguous: Alhambra tilework that overlaps Moorish-Andalusian and broader Islamic-geometric traditions. Tests whether Claude assigns the specific or generic tradition, and whether confidence is appropriately calibrated for the ambiguity."
     }
   ],
   "coverageMatrix": {
-    "traditions": ["syncretic", "Islamic-geometric", "Celtic-Insular", "Gothic-Medieval", "Moorish-Andalusian", "Hindu-Vedic", "Contemporary-Mathematical", "Nature-derived", "Persian-Iranian", "Moroccan-Maghrebi"],
-    "patternTypes": ["Flower-of-Life-lineage", "star-polygon", "knot-interlace", "rosette", "tessellation", "mandala", "spiral", "parabolic-curve", "curve-of-pursuit"],
-    "symmetries": ["3-fold", "4-fold", "5-fold", "6-fold", "8-fold", "10-fold", "12-fold", "none"],
+    "traditions": ["syncretic", "Islamic-geometric", "Celtic-Insular", "Gothic-Medieval", "Hindu-Vedic", "Contemporary-Mathematical", "Nature-derived", "Persian-Iranian"],
+    "patternTypes": ["Flower-of-Life-lineage", "star-polygon", "knot-interlace", "rosette", "tessellation", "mandala", "spiral"],
+    "symmetries": ["3-fold", "5-fold", "6-fold", "8-fold", "10-fold", "12-fold", "none"],
     "imageTypes": {
-      "clean-digital-diagram": [1, 2, 3, 6, 7, 9, 10, 11, 13, 14],
+      "clean-digital-diagram": [1, 2, 3, 6, 7, 10, 11, 14],
       "photograph-architecture": [4],
-      "photograph-tilework": [5, 12, 15],
       "photograph-nature": [8]
     }
   }
