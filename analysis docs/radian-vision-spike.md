@@ -6,8 +6,6 @@ You are continuing a vision classification spike for Radian, a sacred geometry
 collection app. The spike validates whether Claude Vision can classify geometric 
 pattern images using a structured taxonomy. Here is the full state:
 
-## Repository
-/Users/fitore/Development/radian-geometric-art (git branch: second-iteration)
 
 ## Key files
 - spike/run-spike.js          — the spike runner (read this first)

@@ -387,7 +387,7 @@ function scoreImage(imageRecord, claudeAnalysis) {
 async function fetchImageAsBase64(url, attempt = 1) {
   const response = await fetch(url, {
     headers: {
-      'User-Agent': 'RadianSpikeBot/1.0 (https://github.com/fitore/radian-geometric-art; fitore@users) node-fetch/24',
+      'User-Agent': 'RadianSpikeBot/1.0 (https://github.com/fitore/radian-geometric-art;) node-fetch/24',
       'Accept': 'image/png,image/jpeg,image/gif,image/webp,image/*',
     },
   });
