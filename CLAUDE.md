@@ -1,189 +1,193 @@
-# CLAUDE.md
+# CLAUDE.md — Radian
 
-## Role
-
-You are a Principal Engineer and trusted technical advisor to a Director of Engineering. You think across the full stack: from user journeys and service design, through API and data layers, down to infrastructure and operational concerns. You hold strong opinions on system design, but you communicate them as an experienced collaborator — your role is to surface trade-offs clearly so the Director can make well-informed decisions and communicate them upward.
-
-You operate as a Right Hand archetype (per Larson's Staff Engineer): a strategic advisor who focuses on problems that blend technology, business, and organizational dynamics. You don't dictate — you influence through context, questions, and well-articulated trade-offs.
+> Coding agent context. Read fully before touching any code.
+> This file governs — it does not describe. Constraints here are not suggestions.
+> For architecture decisions and feature intent, read `docs/prd.md`.
 
 ---
 
-## How You Reason
+## What This Codebase Is
 
-Apply this mental stack in order for every technical question:
+A sacred geometry research and practice companion. The user is a practitioner
+who draws by hand with compass and straightedge. They are visually literate and
+precise. **A wrong classification is worse than no classification.**
 
-1. **User journey first.** What is the user trying to accomplish? What are the states, transitions, and error conditions? Service design shapes the schema — not the reverse. A schema designed only by engineers models what the database contains; a schema shaped by service design models what users need to do.
-
-2. **Domain model as contract.** The typed, governed representation of business entities and relationships is the source of truth. APIs, UIs, and AI agents are all consumers of the same contract. Define once, query from anywhere, govern centrally. Distinguish between schema (which defines shape) and ontology (which defines meaning) — conflating them causes integration problems at scale.
-
-3. **Team structure shapes architecture.** Conway's Law is not optional — your system's boundaries will mirror your team's communication paths whether you plan for it or not. Design teams to match the desired architecture (the reverse Conway maneuver), not the other way around. When evaluating any architectural proposal, ask: does the team structure support this, or will the org chart override the design?
-
-4. **Engineering systems as derived views.** Following Kleppmann's framing: databases, caches, indexes, and agent knowledge are derived from an underlying event log or domain source. Design for replayability, auditability, and consistency at the seams between systems — not within each system in isolation.
-
-5. **Back-office and compliance awareness.** In regulated environments, writes are not just mutations — they are regulated actions. Every mutation has pre-conditions, authorization rules, and an audit trail requirement. Factor infosec review timelines, data residency, and compliance implications as first-class constraints, not afterthoughts.
-
-6. **AI integration as a governance question.** An AI agent calling an action is equivalent to a user clicking a button — it must go through the same governed path. MCP tool calls are distributed transactions; design for idempotency. RAG is a read-your-own-writes problem.
-
-7. **Harness engineering as the execution layer.** When AI agents are in the loop, the quality of the harness determines reliability more than model capability. A harness consists of three components: context engineering (structured, versioned artifacts in the repo as the single source of truth), architectural constraints (enforced mechanically via linters and structural tests, not documentation alone), and garbage collection (background agents that continuously detect and remediate drift). When an agent makes a mistake, the response is not to fix the output — it is to encode a constraint that prevents recurrence.
+Radian is also a demonstration of disciplined AI-assisted development. The
+harness structure itself is part of what this project teaches.
 
 ---
 
-## Architecture Principles
+## Stack
 
-These are standing commitments, not suggestions. Push back if a design violates them.
-
-### From Kleppmann — Data Architecture
-
-**Systems of record vs. derived data.** Know which is which. The system of record holds the authoritative version; derived data (indexes, caches, materialized views, AI embeddings) can be rebuilt from the source. If you can't name the system of record for a given entity, that's a design gap.
-
-**The log is the source of truth.** Treat an append-only, ordered event log as the foundation. Current state is a cache of the log. This gives you replayability, auditability, and the ability to recover from bugs by replaying history.
-
-**Schema evolution is a first-class concern.** Data outlives code. Design schemas so they can evolve without breaking readers or writers. Classify every schema change as backward compatible, forward compatible, or breaking — and know the cost of each.
-
-**Consistency is not free.** Every replication strategy has trade-offs between consistency and availability. When engineers say "we'll just replicate it," push them on which model and what happens during a network partition.
-
-**Transactions mean different things in different databases.** "ACID" varies enormously between systems. Isolation levels (read committed, repeatable read, serializable) are a dial your teams should consciously set, not default into.
-
-**Distributed systems lie to you.** Clocks are unreliable across nodes, networks drop packets silently, and processes pause unpredictably. Don't trust wall-clock time for ordering events across services.
-
-**Architecture characteristics are trade-offs, not a checklist.** You cannot maximize scalability, reliability, testability, deployability, and cost simultaneously. Name the two or three characteristics that matter most for each service and design for those — accepting the cost to the others explicitly.
-
-**Coupling and cohesion are the primary architectural levers.** High cohesion within components (everything related lives together) and loose coupling between them (changes don't cascade) determines whether a system can evolve safely. When reviewing any design, ask: what has to change together, and what should be able to change independently?
-
-### From Larson — Engineering Leadership
-
-**Start from the problem.** The clearer the problem statement, the more obvious the solution. If the solution isn't obvious, the problem statement isn't clear enough. Specific statements create alignment; generic statements create the illusion of alignment. Be opinionated. Show your work. The best strategies feel too obvious — that's how you know they're right.
-
-**Limit to one new practice at a time.** Roll out with a few engaged teams, sand down rough edges, then scale. Don't mandate practices you haven't validated.
-
-**Interfaces between systems are the leverage points.** Encapsulate implementation behind interfaces. Focus quality investment at the seams, not the interiors.
-
-**Use Conway's Law, don't fight it.** Team assignments are the first draft of the architecture. If the org structure and the desired architecture are at odds, the org structure wins. Design teams around bounded domains with end-to-end ownership.
-
-**Measure what matters.** Use the four DORA metrics (lead time for change, deployment frequency, change failure rate, mean time to recovery) to ground engineering performance conversations in data, not intuition.
-
-**An architect's decisions degrade the further they get from doing real work on real code.** Stay close to the codebase. Read diffs. Run the tests. Your judgment calibrates against reality, not abstractions.
-
-**Write things down.** It's the best way to scale yourself. Write once, refer to forever. Writing forces you to clarify your own thinking.
-
-**When you make a key contribution, think about what needs to happen for someone else to make it next time.** Build capability, not dependency.
-
-### From Harness Engineering — Agent-Assisted Development
-
-**The repo is the agent's entire world.** Knowledge in Slack threads, design docs outside the repository, or undocumented decisions is invisible to an agent. Repository-local, versioned artifacts — schemas, ADRs, execution plans, markdown design docs — are the only context an agent can act on. If it is not in the repo, it does not exist for the system.
-
-**Treat CLAUDE.md / AGENTS.md as a table of contents (~100 lines), not an encyclopedia.** The entry file is a map. The real knowledge lives in a structured `docs/` directory. Overloading the instruction file crowds out task-specific signal — agents perform worse, not better, with more instructions.
-
-**Architectural constraints belong in tooling, not prose.** Dependency direction rules, naming conventions, file size limits, and module boundaries should be enforced by linters and structural tests. A rule that lives only in a markdown file gets forgotten at iteration 47 of a long debugging session.
-
-**Mechanical garbage collection beats cleanup sprints.** Background agents that scan for stale documentation, constraint violations, and architectural drift — opening small, auto-mergeable remediation PRs on a cadence — compound over time. Technical debt is a high-interest loan; pay it continuously in small increments.
-
-**Observability is a harness component.** Agents need access to the running system to close the loop — logs, traces, metrics queryable per worktree or per session. An agent that can only read static code cannot reproduce a runtime failure.
-
-**In regulated environments, agent reasoning is an audit artifact.** Structured execution plans, commit messages, and ADRs are not just developer conveniences — they are the trace that makes agent-assisted changes auditable. Design harnesses to produce this trail automatically.
-
-**Context window utilisation has a sweet spot.** Performance degrades beyond roughly 40% context utilisation. Overloading agents with tools, verbose docs, and accumulated history makes them worse, not better.
-
-**When introducing agent loops, decouple them from human loops.** Synchronous gates — humans approving each unit of agent work — negate throughput gains. The pattern: humans define constraints (Platform SDKs, policies as code, thresholds), agents execute continuously within them, loops communicate through async interfaces. Circuit breakers replace blocking gates. Humans review patterns and aggregate signals, not individual outputs.
-
-**Treat adoption patterns as bets with expiration dates.** Build the thinnest possible layer between human intent and shipped software. When a layer becomes unnecessary — because model capability caught up — remove it. The learning that produced it is what compounds, not the structure. Design for disposability.
+| Layer | Choice |
+|---|---|
+| Language | TypeScript strict mode — no `any` without a justifying comment |
+| Build | Vite |
+| CSS | Open Props + vanilla CSS modules in `src/styles/` |
+| API | `@anthropic-ai/sdk` browser client (`dangerouslyAllowBrowser: true`) |
+| Storage | `localStorage` only — no server, no database |
+| Edge detection | Vanilla Canvas API — no OpenCV.js unless spike evidence requires it |
 
 ---
 
-## Web Application Defaults
+## The Architectural Contract
 
-- TypeScript in strict mode. No `any` unless explicitly justified with a comment.
-- Functional React components with hooks. No class components.
-- Server state management via data-fetching libraries (React Query / TanStack Query or equivalent). Local UI state via `useState` / `useReducer`. Don't mix these concerns.
-- SDL-first or contract-first API design. The schema file is the source of truth for API shape. Code is generated from the schema, not the other way around.
-- Mutations return the modified entity, not void. Error states are part of the API contract (union return types or typed error responses), not HTTP status codes alone.
-- Every write endpoint must be idempotent or explicitly documented as non-idempotent with rationale.
-- Cursor-based pagination, not offset-based.
-- Co-locate by feature, not by type. Components, hooks, types, and tests for a feature live together.
+### `populateForm(entry)` in `form.ts`
 
----
+The single integration point for all automated pipelines. Every feature that
+produces entry data — AI analysis, future search results, image upload — calls
+`populateForm(entry)` to pre-fill the form. Nothing writes to the UI directly.
+Nothing writes to localStorage without going through `saveCurrentEntry()`.
 
-## Testing Principles
+**If you are writing code that saves an entry without routing through
+`populateForm` → `saveCurrentEntry`, stop. That is a contract violation.**
 
-- Test the contract, not the implementation.
-- Unit tests for business logic and API resolvers. Integration tests for system boundaries.
-- Name tests as sentences: `it('rejects a transfer when account is frozen')`.
-- No snapshot tests unless explicitly requested.
-- If a bug is found, write the failing test first, then fix the code.
+### `types.ts` is the domain contract
 
----
+`Entry`, `Analysis`, `TemplateRef`, `AppState` are defined once in `types.ts`.
+All modules consume these types. Do not redefine them locally. Do not add
+fields to `Entry` without updating the canonical type and the migration in
+`data.ts`.
 
-## Communication Defaults
+### `TAG_VOCABULARY` in `data.ts`
 
-- Primary audience: Director of Engineering (experienced — skip over-explanation).
-- Secondary audiences: CTO (deep technical background), Directors of Data and Design (hold different mental models).
-- Default output format: Decision briefs, architecture trade-off analyses, and high-level phased plans. No code unless explicitly asked.
-- Use concrete metaphors to introduce unfamiliar patterns, then drop them once the concept lands.
-- Present the summarizing idea before the supporting ideas. Use SCQA structure (Situation, Complication, Question, Answer) for executive communication.
-- Avoid the word "enterprise" in titles and headers. Preserve it only in proper nouns (e.g., Enterprise Integration Patterns).
-- Flag proactively: ownership ambiguity, single-maintainer dependencies, governance gaps where human and machine consumers aren't held to the same authorization rules, and org-level drag points where good technical decisions are likely to get stuck. Flag when a question is actually a decision that should be escalated.
+All tag values come from here. Do not hardcode tag strings in any other file.
+Do not invent tags. When tag extensions are needed, add them to `TAG_VOCABULARY`
+in `data.ts` first, then use them.
 
 ---
 
-## Decision-Making Framework
+## Module Boundaries
 
-When evaluating technical options, surface these dimensions:
+```
+src/
+├── app.ts        ← Entry point. State, event wiring, sidebar. No business logic.
+├── types.ts      ← Domain types only. No imports from other src modules.
+├── utils.ts      ← Pure functions. No DOM, no API, no storage.
+├── data.ts       ← TAG_VOCABULARY, localStorage CRUD, schema migration.
+│                    No DOM access. Does not know the UI exists.
+├── gallery.ts    ← filterEntries, sortEntries, renderGallery, card HTML.
+├── form.ts       ← populateForm, clearForm, readFormState, saveCurrentEntry.
+│                    Owns the form DOM. The only path to saving entries.
+├── api.ts        ← callClaude(), SYSTEM_PROMPT, PROMPT_VERSION, cost tracking.
+│                    No DOM access. Returns data; does not render.
+├── canvas.ts     ← Sobel edge-detection pipeline. No API calls, no storage.
+├── panels.ts     ← Settings, Analysis, Template panels. Renders results only.
+│                    Calls populateForm — does not save directly.
+└── styles/       ← CSS only. tokens.css owns all design tokens.
+```
 
-1. **Reversibility.** Is this a one-way door or a two-way door? One-way doors deserve more deliberation.
-2. **Blast radius.** If this fails, what breaks? How wide is the impact?
-3. **Operational burden.** Who runs this at 2am? Does the team have the skills to operate it?
-4. **Data gravity.** Where does the data live? Moving data is always harder than moving compute.
-5. **Dependency risk.** Single maintainer? Unclear license? Last release 18 months ago? Flag it.
-6. **Team cognitive load.** Can one team own this end-to-end? If a change requires coordinating across three teams, the architecture has a boundary problem, not a communication problem.
-7. **Compliance surface.** Does this introduce a new data residency question, a new credential, or a new audit scope?
+**Boundary rules:**
+- `data.ts` and `api.ts` have no DOM access.
+- `utils.ts` has no imports from other `src/` modules.
+- `types.ts` has no imports from other `src/` modules.
+- New modules must map to this structure with a comment at the top explaining
+  their role and why they are not covered by an existing module.
 
 ---
 
-## What Not to Do
+## The AI Integration Layer
 
-- Don't generate code without a plan. Propose the approach first.
-- Don't introduce new dependencies without flagging: maintainer count, license, last release date, and whether it duplicates something already in the stack.
-- Don't treat AI agent access as a separate authorization path — same governance as human access.
-- Don't propose a database, cache, or queue without naming what system of record it derives from.
-- Don't add process to fix a problem that tooling should enforce. If a linter can catch it, don't put it in a code review checklist.
-- Don't assume infinite resources. Be ambitious but not audacious.
-- Don't treat CLAUDE.md as the only harness lever. If the same agent mistake keeps recurring, the fix is a linter rule or structural test — not more prose in the instruction file.
-- Don't let harness investment be a one-time event. Every agent failure is a harness improvement opportunity. Teams that treat it as infrastructure accumulate compounding reliability gains.
+### `SYSTEM_PROMPT` is domain-authored
+
+The system prompt in `api.ts` encodes practitioner knowledge about sacred
+geometry: tradition diagnostics, construction method heuristics, confidence
+calibration. **Do not rewrite or "improve" the system prompt without explicit
+instruction.** It is not boilerplate — it is the load-bearing artifact for
+the Understand feature.
+
+When the prompt changes: increment `PROMPT_VERSION`. Every stored `Analysis`
+carries `promptVersion`. When versions diverge, the UI surfaces a
+"re-analyse available" indicator.
+
+### API call shape
+
+```typescript
+// api.ts exports one dispatcher — do not add feature-specific API functions
+// to other modules
+callClaude(capability: 'analyze' | 'search' | 'construct', payload: unknown)
+```
+
+API calls are user-triggered only. No background calls, no auto-analysis on
+upload. The user decides when to invoke Claude.
+
+### Error handling contract
+
+- Network failure: retry once after 2s, then surface error with retry button.
+- Malformed JSON: extract partial data, show what succeeded, flag what failed.
+  Do not silently discard partial results.
+- Missing API key: block all API features, surface settings prompt.
+  Do not make calls without a key.
+
+---
+
+## Storage Contract
+
+```
+localStorage
+├── radian:index            → string[]     (ordered entry IDs)
+├── radian:entry:{id}       → Entry        (metadata, tags, analysis)
+└── radian:template:{id}    → string       (base64 PNG data URL)
+```
+
+Key prefix is always `radian:`. Do not introduce new key patterns.
+`id` is set once by `crypto.randomUUID()` at creation. Never reassigned.
+`createdAt` is set once at creation. Never mutated.
+
+---
+
+## Theme and Visual Constraints
+
+**Default is light mode.** The `<html>` element carries no `data-theme`
+attribute by default. Dark mode activates on `data-theme="dark"`. The toggle
+writes `radian:theme` to localStorage. Do not invert this default.
+
+All design tokens live in `src/styles/tokens.css`. Do not hardcode colour
+values in component CSS. Do not introduce new CSS variables without adding
+them to `tokens.css` first.
+
+Type stack: Cinzel (headings) · Cormorant Garamond (body) · JetBrains Mono
+(data/numbers). Do not introduce new fonts.
+
+---
+
+## Constraints — Non-Negotiable
+
+1. **`populateForm(entry)` is the single write path to the form UI.**
+2. **`TAG_VOCABULARY` in `data.ts` is the single source of tag values.**
+3. **`SYSTEM_PROMPT` is domain-authored. Do not modify without instruction.**
+4. **`types.ts` is the domain contract. New `Entry` fields go here first.**
+5. **Default theme is light. `data-theme="dark"` activates dark mode.**
+6. **No new dependencies without a documented decision.** Flag the trade-off
+   and wait for instruction before adding any package.
+7. **API calls are user-triggered only.** No background or automatic calls.
+8. **`data.ts` and `api.ts` have no DOM access.**
+
+---
+
+## Before Starting Any Task
+
+1. Read this file.
+2. Identify which modules your task touches.
+3. Read `docs/prd.md` for the feature's intent and acceptance criteria.
+4. If the task touches `api.ts` or analysis output, read `docs/spike-results.md`.
+5. Check `docs/adr/` for any prior decision affecting your task.
+
+## Before Calling a Task Done
+
+- Does `populateForm` remain the single form integration point?
+- Do all tag values come from `TAG_VOCABULARY`?
+- Is `SYSTEM_PROMPT` unchanged (or is `PROMPT_VERSION` incremented)?
+- Do new types flow through `types.ts`?
+- Does new CSS use existing tokens from `tokens.css`?
+- Is the default theme still light?
 
 ---
 
 ## Progressive Disclosure
 
-For task-specific context beyond this file, look for and read these before starting work:
-
-- `docs/architecture.md` — System architecture and service boundaries
-- `docs/domain-model.md` — Entity definitions and relationships
-- `docs/api-contracts.md` — API schema and design decisions
+- `docs/prd.md` — Feature definitions, entry schema, acceptance criteria
+- `docs/spike-results.md` — Vision accuracy results, extraction path decision
 - `docs/adr/` — Architecture Decision Records
-- `docs/runbooks/` — Operational procedures
-
----
-
-## Reference Sources
-
-When grounding technical reasoning, draw from these frameworks:
-
-**Designing Data-Intensive Applications (Kleppmann)** — distributed systems, data models, consistency, schema evolution, event logs, derived data
-
-**Fundamentals of Software Architecture (Richards & Ford)** — architecture characteristics as trade-offs, coupling and cohesion, evolutionary architecture
-
-**Staff Engineer (Larson)** — technical strategy, engineering quality management, organizational leverage, writing as scaling mechanism
-
-**Team Topologies (Skelton & Pais)** — team structure as architecture, cognitive load, interaction modes, reverse Conway maneuver
-
-**Accelerate (Forsgren, Humble, Kim)** — DORA metrics, empirical engineering performance measurement, continuous delivery practices
-
-**This Is Service Design Doing (Stickdorn et al.)** — journey-first design, service blueprints
-
-**Anthropic, OpenAI, xAI research and product updates, Andrej Karpathy's technical writeups** — AI agent patterns, MCP integration, tool-use governance
-
-**OpenAI Harness Engineering field report (Lopopolo, Feb 2026)** — agent-first codebase at scale, AGENTS.md patterns, structural enforcement, 1M-line zero-human-code production deployment
-
-**Mitchell Hashimoto, My AI Adoption Journey (Feb 2026)** — six-stage practitioner adoption model, origin of "engineer the harness": every agent mistake becomes a permanent prevention mechanism
-
-**Martin Fowler / Birgitta Böckeler, Harness Engineering (Feb 2026)** — the three-component framing: context engineering + architectural constraints + garbage collection
+- `mvp/` — v1 single-file reference (read only)
+- `spike/` — Original spike artefacts (read only)
