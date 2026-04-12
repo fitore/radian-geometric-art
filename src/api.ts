@@ -207,8 +207,12 @@ function resolveImageSource(imageUrl: string): ImageSource {
 }
 
 // ─── callClaude dispatcher ────────────────────────────────────────────────────
+// CLAUDE.md error contract: retry once on network failure, then reject.
+// The retry delay (2 s per spec) is honoured here; use vi.useFakeTimers in tests.
 
 export type ApiCapability = 'analyze';
+
+const RETRY_DELAY_MS = 2000;
 
 export async function callClaude(
   capability: ApiCapability,
@@ -224,7 +228,13 @@ export async function callClaude(
   });
 
   if (capability === 'analyze') {
-    return analyzePattern(client, payload.imageUrl);
+    try {
+      return await analyzePattern(client, payload.imageUrl);
+    } catch (firstErr) {
+      // Retry once after RETRY_DELAY_MS (per CLAUDE.md error handling contract)
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+      return analyzePattern(client, payload.imageUrl);
+    }
   }
 
   throw new Error(`Unknown capability: ${capability}`);
