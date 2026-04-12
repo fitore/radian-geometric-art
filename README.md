@@ -64,24 +64,44 @@ defined contract) is the core pattern this project demonstrates.
 
 ```
 src/
-├── app.ts        ← Entry point, state, event wiring
-├── types.ts      ← Domain contract: Entry, Analysis, TemplateRef, AppState
-├── data.ts       ← TAG_VOCABULARY, localStorage CRUD, schema migration
-├── gallery.ts    ← Filter, sort, render collection
-├── form.ts       ← populateForm() — the single integration point for all
-│                   automated pipelines
-├── api.ts        ← callClaude(), SYSTEM_PROMPT, PROMPT_VERSION
-├── canvas.ts     ← Sobel edge-detection pipeline (no external dependencies)
-├── panels.ts     ← Analysis, Template, Settings panels
+├── main.tsx              ← React entry point
+├── App.tsx               ← Root component — useReducer for session state,
+│                            sidebar, header, panel routing
+├── types.ts              ← Domain contract: Entry, Analysis, TemplateRef,
+│                            AppState, AppAction (discriminated union)
+├── data.ts               ← TAG_VOCABULARY, localStorage CRUD, schema migration
+├── gallery.ts            ← filterEntries(), sortEntries() — pure functions
+├── api.ts                ← callClaude(), SYSTEM_PROMPT, cost tracking
+├── canvas.ts             ← Sobel edge-detection pipeline (no external deps)
+├── utils.ts              ← Pure helpers: escapeHtml, formatDate, formatCost
+├── components/
+│   ├── Gallery.tsx       ← Card grid — receives filtered/sorted entries as props
+│   ├── EntryCard.tsx     ← Single collection card
+│   ├── EntryForm.tsx     ← Add/edit panel — owns all form field state
+│   ├── AnalysisPanel.tsx ← Analysis result display — accept/dismiss contract
+│   ├── TemplatePanel.tsx ← Edge extraction controls and preview
+│   └── SettingsPanel.tsx ← API key, session cost, theme
 └── styles/
-    ├── tokens.css ← All design tokens (light default / dark override)
+    ├── tokens.css        ← All design tokens (light default / dark override)
     └── ...
 ```
 
-**The central contract:** `populateForm(entry)` in `form.ts` is the single
-path through which all automated features — AI analysis, search results,
-image upload — pre-fill the form. Nothing writes to the UI or to localStorage
-without going through this function.
+**The central contract:** `populateForm(partial)` inside `EntryForm` is the
+single path through which all automated pipeline output — AI analysis results,
+image upload — updates the form UI. It is a `useCallback` handler passed
+down as `onAccept` to `AnalysisPanel`. Nothing calls `setState` on form fields
+directly from outside the form component.
+
+**State layer separation:**
+
+| State type | Where it lives | Example |
+|---|---|---|
+| Persistent | localStorage via `data.ts` only | Entry collection |
+| Session | `useReducer` at App root | Selected entry, active filters, open panel |
+| Transient | `useState` in the owning component | Analysis in-flight, form field values |
+
+Analysis results are transient — they live in `EntryForm` state and are never
+written to localStorage until the user saves the form.
 
 **Storage:**
 ```
@@ -98,14 +118,15 @@ localStorage
 | Layer | Choice | Rationale |
 |---|---|---|
 | Language | TypeScript strict | Domain model complex enough to justify type safety |
-| Build | Vite | Zero-config, fast HMR |
+| UI framework | React 19 + `useReducer` | Explicit state layer separation; no implicit DOM writes |
+| Build | Vite + `@vitejs/plugin-react` | Zero-config, fast HMR |
 | CSS | Open Props + vanilla CSS | Bespoke aesthetic; no utility-class constraints |
 | API | `@anthropic-ai/sdk` (browser) | Personal tool; no server required |
 | Storage | `localStorage` | No server dependency; metadata + URLs within limits |
 | Edge detection | Vanilla Canvas API | ~200 lines; spike showed sufficient for digital images |
+| Tests | Vitest + React Testing Library | Contract tests; jsdom environment |
 
-No framework. No backend. No database. The entire application runs in the
-browser.
+No backend. No database. The entire application runs in the browser.
 
 ---
 
@@ -156,12 +177,28 @@ npm install
 cp .env.example .env
 # VITE_ANTHROPIC_API_KEY=sk-ant-...
 
-npm run dev     # http://localhost:5173
-npm run build   # production → dist/
+npm run dev        # http://localhost:5173
+npm run build      # production → dist/
+npm test           # run contract test suite (vitest)
+npm run test:watch # watch mode
 ```
 
 Without an API key, Radian runs fully as a collection tool. Add a key in the
 Settings panel to unlock analysis. API key is never written to localStorage.
+
+---
+
+## Tests
+
+Five contract test suites, each documenting non-negotiable behaviour:
+
+| File | What it guards |
+|---|---|
+| `src/__tests__/data.test.ts` | localStorage schema contract, index ordering, v1→v2 migration |
+| `src/__tests__/gallery.test.ts` | Filter (OR within group, AND across groups) and sort logic |
+| `src/__tests__/EntryForm.test.tsx` | `populateForm` contract — single path from pipeline to form UI |
+| `src/__tests__/AnalysisPanel.test.tsx` | Accept/dismiss boundary — no direct localStorage write |
+| `src/__tests__/api.test.ts` | API key guard, response parsing, retry, cost accumulation |
 
 ---
 
