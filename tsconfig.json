@@ -12,7 +12,9 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "types": ["vite/client"]
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "types": ["vite/client", "vitest/globals"]
   },
   "include": ["src", "vite.config.ts"]
 }

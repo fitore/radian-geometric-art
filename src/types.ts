@@ -91,4 +91,26 @@ export interface AppState {
   activeFilters: ActiveFilters;
   sort: SortKey;
   search: string;
+  // Session state (React-only — not persisted to localStorage)
+  selectedEntryId: string | null;
+  openPanel: 'form' | 'settings' | null;
+  formMode: 'new' | 'edit';
 }
+
+// ─── Analysis result (transient — lives in component state until acceptance) ─
+
+export type AnalysisResult = Analysis;
+
+// ─── App action types (named for what happened, not what to do) ──────────────
+
+export type AppAction =
+  | { type: 'ENTRY_SELECTED'; id: string }
+  | { type: 'FORM_OPENED_NEW' }
+  | { type: 'FORM_CLOSED' }
+  | { type: 'SETTINGS_OPENED' }
+  | { type: 'SETTINGS_CLOSED' }
+  | { type: 'FILTER_TOGGLED'; filterType: keyof ActiveFilters; value: string }
+  | { type: 'FILTERS_CLEARED' }
+  | { type: 'SORT_CHANGED'; sort: SortKey }
+  | { type: 'SEARCH_CHANGED'; search: string }
+  | { type: 'ENTRIES_RELOADED'; entries: Entry[] };
