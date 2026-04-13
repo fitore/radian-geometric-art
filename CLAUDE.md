@@ -32,15 +32,19 @@ harness structure itself is part of what this project teaches.
 
 ## The Architectural Contract
 
-### `populateForm(entry)` in `form.ts`
+### `populateForm(partial)` in `EntryForm.tsx`
 
 The single integration point for all automated pipelines. Every feature that
 produces entry data — AI analysis, future search results, image upload — calls
-`populateForm(entry)` to pre-fill the form. Nothing writes to the UI directly.
-Nothing writes to localStorage without going through `saveCurrentEntry()`.
+`populateForm(partial)` via the `onAccept` prop passed to child panels.
+Nothing writes to form field state from outside the `EntryForm` component.
+Nothing writes to localStorage without going through the save handler in `EntryForm`.
+
+`populateForm` is a `useCallback` defined inside `EntryForm`. It is the only
+function that may call `setFields(...)` on form field state.
 
 **If you are writing code that saves an entry without routing through
-`populateForm` → `saveCurrentEntry`, stop. That is a contract violation.**
+`populateForm` → the EntryForm save handler, stop. That is a contract violation.**
 
 ### `types.ts` is the domain contract
 
@@ -61,26 +65,34 @@ in `data.ts` first, then use them.
 
 ```
 src/
-├── app.ts        ← Entry point. State, event wiring, sidebar. No business logic.
-├── types.ts      ← Domain types only. No imports from other src modules.
-├── utils.ts      ← Pure functions. No DOM, no API, no storage.
-├── data.ts       ← TAG_VOCABULARY, localStorage CRUD, schema migration.
-│                    No DOM access. Does not know the UI exists.
-├── gallery.ts    ← filterEntries, sortEntries, renderGallery, card HTML.
-├── form.ts       ← populateForm, clearForm, readFormState, saveCurrentEntry.
-│                    Owns the form DOM. The only path to saving entries.
-├── api.ts        ← callClaude(), SYSTEM_PROMPT, PROMPT_VERSION, cost tracking.
-│                    No DOM access. Returns data; does not render.
-├── canvas.ts     ← Sobel edge-detection pipeline. No API calls, no storage.
-├── panels.ts     ← Settings, Analysis, Template panels. Renders results only.
-│                    Calls populateForm — does not save directly.
-└── styles/       ← CSS only. tokens.css owns all design tokens.
+├── main.tsx              ← React entry point. Mounts <App />.
+├── App.tsx               ← Root component. useReducer for session state,
+│                            sidebar, header, panel routing. No business logic.
+├── types.ts              ← Domain types only. No imports from other src modules.
+├── utils.ts              ← Pure functions. No DOM, no API, no storage.
+├── data.ts               ← TAG_VOCABULARY, localStorage CRUD, schema migration.
+│                            No DOM access. Does not know the UI exists.
+├── gallery.ts            ← filterEntries(), sortEntries(). Pure functions.
+├── api.ts                ← callClaude(), SYSTEM_PROMPT, PROMPT_VERSION, cost tracking.
+│                            No DOM access. Returns data; does not render.
+├── canvas.ts             ← Sobel edge-detection pipeline. No API calls, no storage.
+├── components/
+│   ├── Gallery.tsx       ← Card grid. Receives filtered/sorted entries as props.
+│   ├── EntryCard.tsx     ← Single collection card.
+│   ├── EntryForm.tsx     ← Add/edit panel. Owns all form field state and
+│   │                        populateForm. The only path to saving entries.
+│   ├── AnalysisPanel.tsx ← Analysis result display. accept/dismiss contract.
+│   │                        Does NOT write to localStorage directly.
+│   ├── TemplatePanel.tsx ← Edge extraction controls and preview.
+│   └── SettingsPanel.tsx ← API key, session cost, theme.
+└── styles/               ← CSS only. tokens.css owns all design tokens.
 ```
 
 **Boundary rules:**
 - `data.ts` and `api.ts` have no DOM access.
 - `utils.ts` has no imports from other `src/` modules.
 - `types.ts` has no imports from other `src/` modules.
+- `AnalysisPanel` does not import or call `storage` — no localStorage writes.
 - New modules must map to this structure with a comment at the top explaining
   their role and why they are not covered by an existing module.
 
@@ -165,6 +177,21 @@ Type stack: Cinzel (headings) · Cormorant Garamond (body) · JetBrains Mono
 
 ---
 
+## Responsive Layout
+
+- Define the complete token scale (breakpoints, z-index, layout dimensions) in
+  `tokens.css` before writing any responsive CSS. A partial scale causes drift.
+- Grid columns push siblings — they cannot overlay. Elements that must slide
+  over content need `position: fixed` at mobile breakpoints and
+  `transform: translateX(...)` for show/hide (not `display: none` — that
+  breaks transitions and removes elements from the accessibility tree).
+- Use `@media (min-width: ...)` guards for large-viewport-only rules so they
+  don't bleed into mobile via specificity.
+- Viewport-dependent UI state (sidebar open, overlay visible) belongs in
+  `useReducer` as session state — not in `localStorage`, not persisted.
+
+---
+
 ## Before Starting Any Task
 
 1. Read this file.
@@ -181,6 +208,9 @@ Type stack: Cinzel (headings) · Cormorant Garamond (body) · JetBrains Mono
 - Do new types flow through `types.ts`?
 - Does new CSS use existing tokens from `tokens.css`?
 - Is the default theme still light?
+- **If the task changed architecture, module structure, stack, or observable
+  behaviour: update `README.md` and this file to match.** Stale docs are a
+  contract violation — a future agent reading them will make wrong assumptions.
 
 ---
 

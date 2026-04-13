@@ -205,8 +205,8 @@ body {
 .panel-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  z-index: 199;
+  background: var(--color-backdrop);
+  z-index: var(--z-backdrop);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s;

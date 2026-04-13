@@ -67,10 +67,17 @@
   --sidebar-width: 280px;
   --sidebar-collapsed-width: 0px;
 
+  /* Error color (analysis notice — not a status, not a theme color) */
+  --color-error:      #c0392b;
+
+  /* Overlay/backdrop colors */
+  --color-backdrop:   rgba(0, 0, 0, 0.35);
+
   /* Z-index scale */
-  --z-sidebar: 100;
-  --z-overlay: 90;
-  --z-panel: 50;
+  --z-panel:    200;  /* form-panel, settings-panel — slide-in modals */
+  --z-backdrop: 199;  /* panel-backdrop — behind panels */
+  --z-sidebar:  100;  /* sidebar (mobile fixed) + header */
+  --z-overlay:   90;  /* sidebar-overlay — behind sidebar, above gallery */
 }
 
 [data-theme="dark"] {
