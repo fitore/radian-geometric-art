@@ -95,6 +95,7 @@ export interface AppState {
   selectedEntryId: string | null;
   openPanel: 'form' | 'settings' | null;
   formMode: 'new' | 'edit';
+  sidebarOpen: boolean;
 }
 
 // ─── Analysis result (transient — lives in component state until acceptance) ─
@@ -109,6 +110,7 @@ export type AppAction =
   | { type: 'FORM_CLOSED' }
   | { type: 'SETTINGS_OPENED' }
   | { type: 'SETTINGS_CLOSED' }
+  | { type: 'SIDEBAR_TOGGLED' }
   | { type: 'FILTER_TOGGLED'; filterType: keyof ActiveFilters; value: string }
   | { type: 'FILTERS_CLEARED' }
   | { type: 'SORT_CHANGED'; sort: SortKey }
