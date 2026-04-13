@@ -58,6 +58,26 @@
   /* Transitions */
   --transition-theme: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
   --transition-panel: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Breakpoints */
+  --bp-mobile: 640px;
+  --bp-tablet: 1024px;
+
+  /* Sidebar (responsive) */
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 0px;
+
+  /* Error color (analysis notice — not a status, not a theme color) */
+  --color-error:      #c0392b;
+
+  /* Overlay/backdrop colors */
+  --color-backdrop:   rgba(0, 0, 0, 0.35);
+
+  /* Z-index scale */
+  --z-panel:    200;  /* form-panel, settings-panel — slide-in modals */
+  --z-backdrop: 199;  /* panel-backdrop — behind panels */
+  --z-sidebar:  100;  /* sidebar (mobile fixed) + header */
+  --z-overlay:   90;  /* sidebar-overlay — behind sidebar, above gallery */
 }
 
 [data-theme="dark"] {

@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useCallback } from 'react';
+import { useReducer, useEffect, useCallback, useState } from 'react';
 import type { AppState, AppAction, ActiveFilters, Entry, SortKey } from './types.js';
 import { storage } from './data.js';
 import { SIDEBAR_GROUPS, filterEntries, sortEntries } from './gallery.js';
@@ -20,6 +20,8 @@ function emptyFilters(): ActiveFilters {
   };
 }
 
+const initialSidebarOpen = window.innerWidth > 1024;
+
 const initialState: AppState = {
   entries:        [],
   activeFilters:  emptyFilters(),
@@ -28,6 +30,7 @@ const initialState: AppState = {
   selectedEntryId: null,
   openPanel:      null,
   formMode:       'new',
+  sidebarOpen:    initialSidebarOpen,
 };
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
@@ -51,6 +54,9 @@ function reducer(state: AppState, action: AppAction): AppState {
 
     case 'SETTINGS_CLOSED':
       return { ...state, openPanel: null };
+
+    case 'SIDEBAR_TOGGLED':
+      return { ...state, sidebarOpen: !state.sidebarOpen };
 
     case 'FILTER_TOGGLED': {
       const next = new Set(state.activeFilters[action.filterType]);
@@ -93,11 +99,19 @@ function toggleTheme(): void {
 
 export function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 1024);
 
   // Load entries on mount and init theme
   useEffect(() => {
     initTheme();
     dispatch({ type: 'ENTRIES_RELOADED', entries: storage.getAllEntries() });
+  }, []);
+
+  // Track viewport width for overlay visibility and toggle icon
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth <= 1024);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
   }, []);
 
   const reloadEntries = useCallback(() => {
@@ -173,10 +187,20 @@ export function App() {
 
         {/* Header */}
         <header className="header">
-          <div className="wordmark">
-            <div className="wordmark-title">RADIAN</div>
-            <div className="wordmark-sep"></div>
-            <div className="wordmark-sub">Where Art and Mathematics Unite</div>
+          <div className="header-left">
+            <button
+              className="sidebar-toggle"
+              aria-label={state.sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+              aria-expanded={state.sidebarOpen}
+              onClick={() => dispatch({ type: 'SIDEBAR_TOGGLED' })}
+            >
+              {state.sidebarOpen ? (isMobile ? '✕' : '◀') : '☰'}
+            </button>
+            <div className="wordmark">
+              <div className="wordmark-title">RADIAN</div>
+              <div className="wordmark-sep"></div>
+              <div className="wordmark-sub">Where Art and Mathematics Unite</div>
+            </div>
           </div>
           <div className="header-actions">
             <button
@@ -200,6 +224,7 @@ export function App() {
 
         {/* Sidebar */}
         <Sidebar
+          isOpen={state.sidebarOpen}
           activeFilters={state.activeFilters}
           search={state.search}
           filteredCount={filtered.length}
@@ -263,6 +288,15 @@ export function App() {
 
       </div>
 
+      {/* Sidebar overlay — mobile/tablet only, dismisses sidebar on tap */}
+      {state.sidebarOpen && isMobile && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => dispatch({ type: 'SIDEBAR_TOGGLED' })}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Form panel backdrop */}
       <div
         className={`panel-backdrop${state.openPanel === 'form' ? ' open' : ''}`}
@@ -318,6 +352,7 @@ export function App() {
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 interface SidebarProps {
+  isOpen: boolean;
   activeFilters: ActiveFilters;
   search: string;
   filteredCount: number;
@@ -326,9 +361,9 @@ interface SidebarProps {
   onClearFilters: () => void;
 }
 
-function Sidebar({ activeFilters, filteredCount, totalCount, onFilterToggle, onClearFilters }: SidebarProps) {
+function Sidebar({ isOpen, activeFilters, filteredCount, totalCount, onFilterToggle, onClearFilters }: SidebarProps) {
   return (
-    <aside className="sidebar" id="sidebar">
+    <aside className="sidebar" id="sidebar" data-open={String(isOpen)}>
       {SIDEBAR_GROUPS.map(group => (
         <div key={group.type} className="filter-section">
           <div className="filter-label">{group.label}</div>
