@@ -116,6 +116,11 @@ export function App() {
     dispatch({ type: 'FORM_CLOSED' });
   }, [reloadEntries]);
 
+  const handleDelete = useCallback((_id: string) => {
+    reloadEntries();
+    dispatch({ type: 'FORM_CLOSED' });
+  }, [reloadEntries]);
+
   const handleEntrySelect = useCallback((id: string) => {
     dispatch({ type: 'ENTRY_SELECTED', id });
   }, []);
@@ -283,6 +288,7 @@ export function App() {
         onSave={handleSave}
         onCancel={() => dispatch({ type: 'FORM_CLOSED' })}
         onEntryUpdated={reloadEntries}
+        onDelete={handleDelete}
       />
 
       {/* Settings panel */}

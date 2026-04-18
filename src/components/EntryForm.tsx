@@ -14,6 +14,7 @@ export interface EntryFormProps {
   onSave: (entry: Entry) => void;
   onCancel: () => void;
   onEntryUpdated: () => void; // called after external mutations (template save)
+  onDelete?: (id: string) => void;
 }
 
 // ─── Form field state ─────────────────────────────────────────────────────────
@@ -73,7 +74,7 @@ const TAG_GROUP_LABELS: Record<string, string> = {
 
 // ─── EntryForm ────────────────────────────────────────────────────────────────
 
-export function EntryForm({ entry, isOpen, onSave, onCancel, onEntryUpdated }: EntryFormProps) {
+export function EntryForm({ entry, isOpen, onSave, onCancel, onEntryUpdated, onDelete }: EntryFormProps) {
   const [fields, setFields] = useState<FormFields>(emptyFields);
   const [titleError, setTitleError] = useState(false);
 
@@ -121,6 +122,15 @@ export function EntryForm({ entry, isOpen, onSave, onCancel, onEntryUpdated }: E
       ...(partial.attemptNotes !== undefined && { attemptNotes: partial.attemptNotes }),
     }));
   }, []);
+
+  // ── Delete ────────────────────────────────────────────────────────────────────
+
+  function handleDelete() {
+    if (!entry?.id) return;
+    if (!confirm('Delete this entry? This cannot be undone.')) return;
+    storage.deleteEntry(entry.id);
+    onDelete?.(entry.id);
+  }
 
   // ── Save ──────────────────────────────────────────────────────────────────────
 
@@ -470,6 +480,11 @@ export function EntryForm({ entry, isOpen, onSave, onCancel, onEntryUpdated }: E
         </div>
 
         <div className="form-panel-footer">
+          {entry && (
+            <button className="btn btn--cancel" onClick={handleDelete} style={{ marginRight: 'auto' }}>
+              × Delete
+            </button>
+          )}
           <button className="btn btn--cancel" onClick={onCancel}>Cancel</button>
           <button className="btn btn--save" onClick={handleSave}>Save piece</button>
         </div>
