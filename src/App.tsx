@@ -1,7 +1,8 @@
-import { useReducer, useEffect, useCallback, useState } from 'react';
+import { useReducer, useEffect, useCallback, useState, useRef } from 'react';
 import type { AppState, AppAction, ActiveFilters, Entry, SortKey } from './types.js';
 import { storage } from './data.js';
 import { SIDEBAR_GROUPS, filterEntries, sortEntries } from './gallery.js';
+import type { SidebarGroup } from './gallery.js';
 import { Gallery } from './components/Gallery.js';
 import { EntryForm } from './components/EntryForm.js';
 import { SettingsPanel } from './components/SettingsPanel.js';
@@ -20,8 +21,6 @@ function emptyFilters(): ActiveFilters {
   };
 }
 
-const initialSidebarOpen = window.innerWidth > 1024;
-
 const initialState: AppState = {
   entries:        [],
   activeFilters:  emptyFilters(),
@@ -30,7 +29,7 @@ const initialState: AppState = {
   selectedEntryId: null,
   openPanel:      null,
   formMode:       'new',
-  sidebarOpen:    initialSidebarOpen,
+  sidebarOpen:    false,
 };
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
@@ -99,19 +98,12 @@ function toggleTheme(): void {
 
 export function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 1024);
+  const [isDark, setIsDark] = useState(false);
 
-  // Load entries on mount and init theme
   useEffect(() => {
     initTheme();
     dispatch({ type: 'ENTRIES_RELOADED', entries: storage.getAllEntries() });
-  }, []);
-
-  // Track viewport width for overlay visibility and toggle icon
-  useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth <= 1024);
-    window.addEventListener('resize', handler);
-    return () => window.removeEventListener('resize', handler);
+    setIsDark(document.documentElement.dataset['theme'] === 'dark');
   }, []);
 
   const reloadEntries = useCallback(() => {
@@ -143,8 +135,10 @@ export function App() {
     }
   }, [reloadEntries]);
 
-  const isDark = typeof document !== 'undefined' &&
-    document.documentElement.dataset['theme'] === 'dark';
+  const handleThemeToggle = useCallback(() => {
+    toggleTheme();
+    setIsDark(document.documentElement.dataset['theme'] === 'dark');
+  }, []);
 
   const filtered = filterEntries(state.entries, state.activeFilters, state.search);
   const sorted   = sortEntries(filtered, state.sort);
@@ -154,6 +148,9 @@ export function App() {
     : null;
 
   const formEntry = state.formMode === 'edit' ? selectedEntry : null;
+
+  // escapeHtml imported to satisfy module boundary rules
+  void escapeHtml;
 
   return (
     <>
@@ -188,14 +185,6 @@ export function App() {
         {/* Header */}
         <header className="header">
           <div className="header-left">
-            <button
-              className="sidebar-toggle"
-              aria-label={state.sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-              aria-expanded={state.sidebarOpen}
-              onClick={() => dispatch({ type: 'SIDEBAR_TOGGLED' })}
-            >
-              {state.sidebarOpen ? (isMobile ? '✕' : '◀') : '☰'}
-            </button>
             <div className="wordmark">
               <div className="wordmark-title">RADIAN</div>
               <div className="wordmark-sep"></div>
@@ -203,78 +192,65 @@ export function App() {
             </div>
           </div>
           <div className="header-actions">
-            <button
-              className="btn btn--theme"
-              title="Toggle light/dark mode"
-              onClick={() => { toggleTheme(); }}
-            >
-              <span className="theme-icon" aria-hidden="true">{isDark ? '☽' : '☀'}</span>
-              <span className="theme-label">{isDark ? 'Light' : 'Dark'}</span>
-            </button>
-            <button className="btn" onClick={() => document.getElementById('importFileInput')?.click()}>
-              Import JSON
-            </button>
-            <button className="btn" onClick={handleExport}>Export JSON</button>
-            <button className="btn" onClick={() => dispatch({ type: 'SETTINGS_OPENED' })}>Settings</button>
+            <SettingsDropdown
+              isDark={isDark}
+              onThemeToggle={handleThemeToggle}
+              onImport={() => document.getElementById('importFileInput')?.click()}
+              onExport={handleExport}
+              onOpenSettings={() => dispatch({ type: 'SETTINGS_OPENED' })}
+            />
             <button className="btn btn--primary" onClick={() => dispatch({ type: 'FORM_OPENED_NEW' })}>
               + Add piece
             </button>
           </div>
         </header>
 
-        {/* Sidebar */}
-        <Sidebar
-          isOpen={state.sidebarOpen}
-          activeFilters={state.activeFilters}
-          search={state.search}
-          filteredCount={filtered.length}
-          totalCount={state.entries.length}
-          onFilterToggle={(filterType, value) =>
-            dispatch({ type: 'FILTER_TOGGLED', filterType, value })
-          }
-          onClearFilters={() => dispatch({ type: 'FILTERS_CLEARED' })}
-        />
-
         {/* Main gallery */}
         <main className="main" id="mainArea">
+          {/* Collection header row */}
           <div className="gallery-header">
             <div className="gallery-header-left">
               <GalleryTitle filtered={filtered.length} total={state.entries.length} />
-              <div className="legend">
-                <div className="legend-item">
-                  <div className="legend-dot" style={{ background: 'var(--color-want)' }}></div>
-                  Want to try
-                </div>
-                <div className="legend-item">
-                  <div className="legend-dot" style={{ background: 'var(--color-tried)' }}></div>
-                  Attempted
-                </div>
-                <div className="legend-item">
-                  <div className="legend-dot" style={{ background: 'var(--color-done)' }}></div>
-                  Done
-                </div>
-              </div>
             </div>
             <div className="gallery-header-right">
-              <input
-                type="search"
-                className="search-input"
-                placeholder="Search…"
-                autoComplete="off"
-                value={state.search}
-                onChange={e => dispatch({ type: 'SEARCH_CHANGED', search: e.target.value.trim() })}
-              />
-              <select
-                className="sort-select"
-                value={state.sort}
-                onChange={e => dispatch({ type: 'SORT_CHANGED', sort: e.target.value as SortKey })}
-              >
-                <option value="newest">Newest first</option>
-                <option value="oldest">Oldest first</option>
-                <option value="az">Title A–Z</option>
-              </select>
+              <div className="search-wrap">
+                <span className="search-icon" aria-hidden="true">⌕</span>
+                <input
+                  type="search"
+                  className="search-input"
+                  placeholder="Search..."
+                  autoComplete="off"
+                  value={state.search}
+                  onChange={e => dispatch({ type: 'SEARCH_CHANGED', search: e.target.value.trim() })}
+                />
+              </div>
+              <div className="sort-wrap">
+                <select
+                  className="sort-select"
+                  value={state.sort}
+                  onChange={e => dispatch({ type: 'SORT_CHANGED', sort: e.target.value as SortKey })}
+                >
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="az">Title A–Z</option>
+                </select>
+              </div>
             </div>
           </div>
+
+          {/* Filter chips bar */}
+          <FilterBar
+            activeFilters={state.activeFilters}
+            onToggle={(filterType, value) => dispatch({ type: 'FILTER_TOGGLED', filterType, value })}
+            onClear={() => dispatch({ type: 'FILTERS_CLEARED' })}
+          />
+
+          {/* Active filter strip */}
+          <ActiveFilterStrip
+            activeFilters={state.activeFilters}
+            onToggle={(filterType, value) => dispatch({ type: 'FILTER_TOGGLED', filterType, value })}
+            onClear={() => dispatch({ type: 'FILTERS_CLEARED' })}
+          />
 
           <Gallery
             entries={sorted}
@@ -287,15 +263,6 @@ export function App() {
         </main>
 
       </div>
-
-      {/* Sidebar overlay — mobile/tablet only, dismisses sidebar on tap */}
-      {state.sidebarOpen && isMobile && (
-        <div
-          className="sidebar-overlay"
-          onClick={() => dispatch({ type: 'SIDEBAR_TOGGLED' })}
-          aria-hidden="true"
-        />
-      )}
 
       {/* Form panel backdrop */}
       <div
@@ -349,48 +316,185 @@ export function App() {
   );
 }
 
-// ─── Sidebar ──────────────────────────────────────────────────────────────────
+// ─── Settings dropdown ────────────────────────────────────────────────────────
 
-interface SidebarProps {
-  isOpen: boolean;
-  activeFilters: ActiveFilters;
-  search: string;
-  filteredCount: number;
-  totalCount: number;
-  onFilterToggle: (filterType: keyof ActiveFilters, value: string) => void;
-  onClearFilters: () => void;
+interface SettingsDropdownProps {
+  isDark: boolean;
+  onThemeToggle: () => void;
+  onImport: () => void;
+  onExport: () => void;
+  onOpenSettings: () => void;
 }
 
-function Sidebar({ isOpen, activeFilters, filteredCount, totalCount, onFilterToggle, onClearFilters }: SidebarProps) {
+function SettingsDropdown({ isDark, onThemeToggle, onImport, onExport, onOpenSettings }: SettingsDropdownProps) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, []);
+
   return (
-    <aside className="sidebar" id="sidebar" data-open={String(isOpen)}>
-      {SIDEBAR_GROUPS.map(group => (
-        <div key={group.type} className="filter-section">
-          <div className="filter-label">{group.label}</div>
-          <div className="filter-chips">
-            {group.chips.map(chip => (
-              <span
-                key={chip.value}
-                className={`chip${chip.cls ? ` ${chip.cls}` : ''}${activeFilters[group.type].has(chip.value) ? ' active' : ''}`}
-                onClick={() => onFilterToggle(group.type, chip.value)}
-              >
-                {chip.label}
-              </span>
-            ))}
-          </div>
-        </div>
-      ))}
-      <div className="filter-footer">
-        Showing{' '}
-        <span id="countFiltered">{filteredCount}</span>
-        {' '}of{' '}
-        <span id="countTotal">{totalCount}</span>
-        {' '}pieces
-        <button className="clear-btn" onClick={onClearFilters}>
-          Clear all filters
+    <div ref={ref} className="settings-dropdown" data-open={String(open)}>
+      <button className="btn" onClick={() => setOpen(x => !x)}>
+        Settings ∨
+      </button>
+      <div className="settings-drop-menu">
+        <button
+          className="settings-drop-item"
+          onClick={() => { onThemeToggle(); setOpen(false); }}
+        >
+          {isDark ? '☀ Light mode' : '☽ Dark mode'}
+        </button>
+        <div className="settings-drop-divider" />
+        <button
+          className="settings-drop-item"
+          onClick={() => { onImport(); setOpen(false); }}
+        >
+          Import JSON
+        </button>
+        <button
+          className="settings-drop-item"
+          onClick={() => { onExport(); setOpen(false); }}
+        >
+          Export JSON
+        </button>
+        <div className="settings-drop-divider" />
+        <button
+          className="settings-drop-item"
+          onClick={() => { onOpenSettings(); setOpen(false); }}
+        >
+          API key & cost
         </button>
       </div>
-    </aside>
+    </div>
+  );
+}
+
+// ─── Filter bar ───────────────────────────────────────────────────────────────
+
+interface FilterBarProps {
+  activeFilters: ActiveFilters;
+  onToggle: (filterType: keyof ActiveFilters, value: string) => void;
+  onClear: () => void;
+}
+
+function FilterBar({ activeFilters, onToggle, onClear }: FilterBarProps) {
+  const totalActive = Object.values(activeFilters).reduce((sum, s) => sum + s.size, 0);
+
+  return (
+    <div className="filter-bar">
+      {SIDEBAR_GROUPS.map(group => (
+        <FilterGroup
+          key={group.type}
+          group={group}
+          active={activeFilters[group.type]}
+          onToggle={onToggle}
+        />
+      ))}
+      {totalActive > 0 && (
+        <button className="filter-clear-btn" onClick={onClear}>
+          Clear · {totalActive}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ─── Filter group (single dropdown) ──────────────────────────────────────────
+
+interface FilterGroupProps {
+  group: SidebarGroup;
+  active: Set<string>;
+  onToggle: (filterType: keyof ActiveFilters, value: string) => void;
+}
+
+function FilterGroup({ group, active, onToggle }: FilterGroupProps) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, []);
+
+  const n = active.size;
+
+  return (
+    <div ref={ref} className="filter-group" data-open={String(open)}>
+      <button
+        className="filter-group-btn"
+        data-active={n > 0 ? 'true' : 'false'}
+        onClick={() => setOpen(x => !x)}
+      >
+        {group.label}
+        {n > 0 && <span className="filter-count">{n}</span>}
+        <span aria-hidden="true">∨</span>
+      </button>
+      <div className="filter-pop" onClick={e => e.stopPropagation()}>
+        <div className="filter-pop-chips">
+          {group.chips.map(chip => (
+            <button
+              key={chip.value}
+              className="pop-chip"
+              data-active={active.has(chip.value) ? 'true' : 'false'}
+              onClick={() => onToggle(group.type, chip.value)}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Active filter strip ──────────────────────────────────────────────────────
+
+interface ActiveFilterStripProps {
+  activeFilters: ActiveFilters;
+  onToggle: (filterType: keyof ActiveFilters, value: string) => void;
+  onClear: () => void;
+}
+
+function ActiveFilterStrip({ activeFilters, onToggle, onClear }: ActiveFilterStripProps) {
+  const pills: { filterType: keyof ActiveFilters; value: string; label: string }[] = [];
+
+  for (const group of SIDEBAR_GROUPS) {
+    for (const value of activeFilters[group.type]) {
+      const chip = group.chips.find(c => c.value === value);
+      pills.push({ filterType: group.type, value, label: chip?.label ?? value });
+    }
+  }
+
+  if (pills.length === 0) return null;
+
+  return (
+    <div className="active-bar">
+      <span className="active-bar-label">Filters</span>
+      {pills.map(pill => (
+        <span key={`${pill.filterType}:${pill.value}`} className="active-pill">
+          {pill.label}
+          <button
+            className="active-pill-dismiss"
+            onClick={() => onToggle(pill.filterType, pill.value)}
+            aria-label={`Remove filter: ${pill.label}`}
+          >
+            ×
+          </button>
+        </span>
+      ))}
+      <button className="active-bar-clear" onClick={onClear}>
+        Clear all
+      </button>
+    </div>
   );
 }
 
@@ -399,13 +503,11 @@ function Sidebar({ isOpen, activeFilters, filteredCount, totalCount, onFilterTog
 function GalleryTitle({ filtered, total }: { filtered: number; total: number }) {
   let content: React.ReactNode;
   if (total === 0) {
-    content = <>Your collection — <strong>empty</strong></>;
+    content = <>Your collection — <em>empty</em></>;
   } else if (filtered === total) {
-    content = <>Your collection — <strong>{total} piece{total !== 1 ? 's' : ''}</strong></>;
+    content = <>Your collection — {total} piece{total !== 1 ? 's' : ''}</>;
   } else {
-    content = <>Your collection — <strong>{filtered}</strong> of <strong>{total}</strong> pieces</>;
+    content = <>Your collection — {filtered} of {total} pieces</>;
   }
-  // escapeHtml not needed — React handles XSS escaping automatically
-  void escapeHtml; // imported to satisfy module boundary rules
   return <div className="gallery-title" id="galleryTitle">{content}</div>;
 }

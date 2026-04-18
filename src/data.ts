@@ -1,4 +1,4 @@
-import type { Entry, Tags } from './types.js';
+import type { Entry, PlaceholderEntry, Tags } from './types.js';
 
 // ─── Tag vocabulary (v2 — adds syncretic + Contemporary-Mathematical) ─────────
 
@@ -47,6 +47,51 @@ export const TAG_VOCABULARY = {
 } as const;
 
 export type TagGroup = keyof typeof TAG_VOCABULARY;
+
+// ─── Placeholder entries (display-only — never written to localStorage) ───────
+
+const EMPTY_TAGS: Entry['tags'] = {
+  constructionMethod: [],
+  tradition: [],
+  patternType: [],
+  symmetry: [],
+  proportion: [],
+};
+
+export const PLACEHOLDER_ENTRIES: PlaceholderEntry[] = [
+  {
+    id: 'placeholder-1',
+    title: 'Clarissa Grandi - Geometric Floor Study',
+    imageUrl: '/images/inspiration/ClarissaGrandi_geometric_floor.jpg',
+    artist: { name: 'Clarissa Grandi', url: 'https://www.artfulmaths.com/' },
+    tags: { ...EMPTY_TAGS },
+    isPlaceholder: true,
+  },
+  {
+    id: 'placeholder-2',
+    title: 'Sandy Kurt - Weaving',
+    imageUrl: '/images/inspiration/SandyKurt_islamic_geometry_weaving_3.jpg',
+    artist: { name: 'Sandy Kurt', url: 'https://sandykurt.com/' },
+    tags: { ...EMPTY_TAGS },
+    isPlaceholder: true,
+  },
+  {
+    id: 'placeholder-3',
+    title: 'Lucie Rose Galvani - Celtic Water Shield',
+    imageUrl: '/images/inspiration/LucieRose_Water.png',
+    artist: { name: 'Lucie Rose', url: 'https://www.lucierosegalvani.com/' },
+    tags: { ...EMPTY_TAGS },
+    isPlaceholder: true,
+  },
+  {
+    id: 'placeholder-4',
+    title: 'Adam Williamson - Profound Patterns',
+    imageUrl: '/images/inspiration/AdamWilliamson_profound_patterns.png',
+    artist: { name: 'Adam Williamson', url: 'https://adamwilliamsonart.com/' },
+    tags: { ...EMPTY_TAGS },
+    isPlaceholder: true,
+  },
+];
 
 // ─── Schema migration ─────────────────────────────────────────────────────────
 
