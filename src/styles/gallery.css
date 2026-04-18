@@ -7,7 +7,7 @@
 
 /* ─── Card ────────────────────────────────────────────────────────────────── */
 .card {
-  background: transparent;
+  background: var(--color-surface);
   border: none;
   cursor: pointer;
   position: relative;
@@ -31,10 +31,9 @@
 
 .card-img-wrap img {
   position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  width: calc(100% - 1.5rem);
-  height: calc(100% - 1.5rem);
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 
@@ -114,16 +113,6 @@
   color: var(--color-text-dim);
 }
 
-/* Placeholder cards — not interactive */
-.card--placeholder {
-  cursor: default;
-}
-
-.card--placeholder:hover {
-  transform: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
 /* Artist credit on placeholder cards */
 .card-artist-credit {
   display: block;
@@ -154,7 +143,7 @@
   justify-content: space-between;
   gap: var(--space-m);
   padding: 1.25rem 1.5rem;
-  background: var(--color-surface);
+  background: transparent;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-s);
 }

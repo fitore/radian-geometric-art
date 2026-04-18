@@ -71,8 +71,7 @@ export function Gallery({ entries, activeFilters: _activeFilters, selectedId, to
       <div className="gallery-outer" id="gallery">
         <div className="placeholder-banner">
           <div className="placeholder-banner-text">
-            <p className="placeholder-banner-heading">Your collection is empty.</p>
-            <p className="placeholder-banner-sub">Add your first piece to get started.</p>
+            <p className="placeholder-banner-heading">Welcome! Show Radian any geometric pattern and extract what's inside it: the construction method, the symmetry, the proportions, and a print-ready template you can take straight to your drawing board.</p>
             <p className="placeholder-banner-sub">Showing work from our practitioner community.</p>
           </div>
           <button className="btn btn--primary" onClick={onAddNew}>+ Add Entry</button>
