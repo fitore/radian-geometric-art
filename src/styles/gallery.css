@@ -139,6 +139,72 @@
   border-color: color-mix(in srgb, var(--color-gold-dim) 40%, transparent);
 }
 
+/* ─── Placeholder gallery wrapper ────────────────────────────────────────── */
+.gallery-outer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ─── Empty-state banner (shown when collection is empty) ─────────────────── */
+.placeholder-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.placeholder-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.placeholder-banner-heading {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-style: italic;
+  color: var(--color-text-dim);
+  margin: 0;
+}
+
+.placeholder-banner-sub {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  color: var(--color-text-faint);
+  margin: 0;
+}
+
+/* ─── Artist credit on placeholder cards ──────────────────────────────────── */
+.card-artist-credit {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-serif);
+  font-size: 11px;
+  font-style: italic;
+  color: var(--color-text-faint);
+  text-decoration: none;
+}
+
+.card-artist-credit:hover {
+  color: var(--color-text-dim);
+  text-decoration: underline;
+}
+
+/* Placeholder cards are not interactive */
+.card--placeholder {
+  cursor: default;
+}
+
+.card--placeholder:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--color-border);
+}
+
 /* ─── Empty states ────────────────────────────────────────────────────────── */
 .empty-state {
   grid-column: 1 / -1;

@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Radian — Menu redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>
+/* ======== Host / stage ======== */
+html, body { background: oklch(0.92 0.008 82); }
+.stage{
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+.stage-head{
+  padding: 22px 28px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  color: oklch(0.40 0.02 70);
+}
+.stage-head h1{
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500; font-size: 28px; letter-spacing: .02em;
+  color: oklch(0.28 0.02 60);
+  margin: 0 0 4px;
+}
+.stage-head .meta{
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+}
+.stage-body{ flex: 1; padding: 0 28px 120px; }
+
+/* The simulated viewport frame */
+.viewport-frame{
+  margin: 0 auto;
+  background: oklch(0.965 0.012 82);
+  border: 1px solid oklch(0.82 0.01 75);
+  border-radius: 10px;
+  box-shadow: 0 30px 60px -30px rgba(40,20,0,.25);
+  overflow: hidden;
+  position: relative;
+  transition: max-width .3s ease;
+}
+.viewport-frame .chrome{
+  height: 28px;
+  background: oklch(0.93 0.01 80);
+  border-bottom: 1px solid oklch(0.85 0.01 75);
+  display: flex; align-items: center; gap: 6px; padding: 0 12px;
+}
+.viewport-frame .chrome .dot{
+  width: 9px; height: 9px; border-radius: 50%;
+  background: oklch(0.82 0.015 75);
+}
+.viewport-frame .chrome .addr{
+  margin-left: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; color: oklch(0.48 0.015 70);
+  letter-spacing: .06em;
+}
+.viewport-inner{
+  height: 720px;
+  overflow: auto;
+  /* normalize sticky inside scroll area */
+  position: relative;
+}
+.viewport-inner .topbar{ position: sticky; top: 0; }
+
+/* ============ Tweaks panel ============ */
+.tweaks{
+  position: fixed; right: 18px; bottom: 18px; z-index: 200;
+  width: 280px;
+  background: oklch(0.98 0.008 82);
+  border: 1px solid oklch(0.82 0.01 75);
+  border-radius: 10px;
+  box-shadow: 0 20px 50px -20px rgba(30,15,0,.35);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: oklch(0.28 0.02 60);
+  overflow: hidden;
+  display: none;
+}
+.tweaks.open{ display: block; }
+.tweaks h4{
+  margin: 0; padding: 10px 14px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px; font-weight: 500; letter-spacing: .04em;
+  border-bottom: 1px solid oklch(0.90 0.01 75);
+  display: flex; align-items: center;
+}
+.tweaks h4 .close{
+  margin-left: auto; background: transparent; border: 0;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: oklch(0.45 0.02 70); cursor: pointer;
+}
+.tweaks .row{
+  padding: 10px 14px;
+  border-bottom: 1px solid oklch(0.93 0.008 80);
+}
+.tweaks .row:last-child{ border: 0; }
+.tweaks .row .lbl{
+  font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+  color: oklch(0.48 0.015 70);
+  margin-bottom: 7px;
+}
+.tweaks .seg{
+  display: flex; border: 1px solid oklch(0.85 0.01 75);
+  border-radius: 4px; overflow: hidden;
+}
+.tweaks .seg button{
+  flex: 1; background: transparent; border: 0;
+  padding: 7px 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; letter-spacing: .08em;
+  color: oklch(0.38 0.02 65); cursor: pointer;
+  border-right: 1px solid oklch(0.90 0.01 75);
+}
+.tweaks .seg button:last-child{ border-right: 0; }
+.tweaks .seg button[aria-pressed="true"]{
+  background: oklch(0.36 0.055 70);
+  color: oklch(0.98 0.010 85);
+}
+.tweaks-fab{
+  position: fixed; right: 18px; bottom: 18px; z-index: 199;
+  background: oklch(0.28 0.02 60); color: oklch(0.98 0.010 85);
+  border: 0; border-radius: 999px;
+  padding: 10px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 30px -10px rgba(30,15,0,.35);
+}
+
+/* Labels over each variation */
+.split{
+  display: grid; gap: 32px;
+  grid-template-columns: 1fr;
+}
+.split .variant-label{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+  color: oklch(0.48 0.015 70);
+  margin: 0 0 10px;
+  display: flex; align-items: baseline; gap: 12px;
+}
+.split .variant-label b{
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: .02em;
+  color: oklch(0.28 0.02 60);
+  text-transform: none;
+}
+.split .variant-label span{
+  color: oklch(0.55 0.015 70); font-size: 10.5px;
+}
+
+.notes{
+  max-width: 780px;
+  margin: 0 auto 28px;
+  padding: 16px 20px;
+  background: oklch(0.97 0.012 82);
+  border: 1px solid oklch(0.88 0.01 75);
+  border-left: 3px solid oklch(0.58 0.075 75);
+  border-radius: 6px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  color: oklch(0.35 0.02 65);
+  line-height: 1.6;
+}
+.notes h2{
+  margin: 0 0 8px;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500; font-size: 22px;
+  color: oklch(0.28 0.02 60);
+}
+.notes ul{ margin: 6px 0 0; padding-left: 18px; }
+.notes li{ margin: 2px 0; }
+.notes b{ color: oklch(0.28 0.02 60); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="stage-head">
+    <h1>Radian — menu improvements</h1>
+    <div class="meta">Two directions · responsive · same palette</div>
+  </div>
+
+  <div class="stage-body">
+    <div class="notes">
+      <h2>What's wrong with today's menu, and what changed</h2>
+      <ul>
+        <li><b>Too many chips at once.</b> 8 groups with ~45 chips compete visually with the art. Groups now <b>collapse</b>, each with an active-count badge.</li>
+        <li><b>No active-state summary.</b> A compact <b>Filters</b> bar sits above the grid so you always see what's applied — one-click remove per pill.</li>
+        <li><b>Weak hierarchy.</b> Small sets (Status, Difficulty) become <b>segmented controls</b>; symmetry becomes a <b>numeric grid</b>; long lists stay as chips. Kebab-case labels → sentence case.</li>
+        <li><b>No responsive story.</b> Rail narrows at 1200, collapses at 760 behind a <b>Filters</b> bottom-sheet. Header condenses secondary actions into an overflow.</li>
+        <li><b>Variation B</b> replaces the rail with a <b>popover toolbar</b> above the grid — returns ~280px of canvas for the art.</li>
+      </ul>
+    </div>
+
+    <div class="split" id="split">
+      <!-- Variant A -->
+      <div>
+        <div class="variant-label">
+          <span>A</span><b>Refined rail</b>
+          <span>· collapsible groups · active-filter summary · drawer on mobile</span>
+        </div>
+        <div class="viewport-frame" id="frameA">
+          <div class="chrome">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="addr">radian-geometric-art.vercel.app</span>
+          </div>
+          <div class="viewport-inner" id="appA"></div>
+        </div>
+      </div>
+
+      <!-- Variant B -->
+      <div>
+        <div class="variant-label">
+          <span>B</span><b>Editorial toolbar</b>
+          <span>· popover filters · frees canvas for the art · same palette</span>
+        </div>
+        <div class="viewport-frame" id="frameB">
+          <div class="chrome">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="addr">radian-geometric-art.vercel.app</span>
+          </div>
+          <div class="viewport-inner" id="appB"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tweaks panel -->
+<button class="tweaks-fab" id="tweaksFab">Tweaks</button>
+<div class="tweaks" id="tweaks">
+  <h4>Tweaks <button class="close" id="tweaksClose">close</button></h4>
+
+  <div class="row">
+    <div class="lbl">Viewport</div>
+    <div class="seg" id="vpSeg">
+      <button data-w="1440">1440</button>
+      <button data-w="1200" aria-pressed="true">1200</button>
+      <button data-w="900">900</button>
+      <button data-w="540">540</button>
+      <button data-w="390">390</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="lbl">Filter groups</div>
+    <div class="seg" id="grpSeg">
+      <button data-v="expanded" aria-pressed="true">Expanded</button>
+      <button data-v="collapsed">Collapsed</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="lbl">Show</div>
+    <div class="seg" id="showSeg">
+      <button data-v="both" aria-pressed="true">Both</button>
+      <button data-v="A">Only A</button>
+      <button data-v="B">Only B</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="data.js"></script>
+<script type="text/babel" src="filters.jsx"></script>
+<script type="text/babel" src="toolbar.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+
+<script type="text/babel">
+  const stateA = { variation: 'A', allExpanded: true };
+  const stateB = { variation: 'B', allExpanded: true };
+  let rootA, rootB;
+
+  function mount() {
+    const ea = document.getElementById('appA');
+    const eb = document.getElementById('appB');
+    if (ea && !rootA) rootA = ReactDOM.createRoot(ea);
+    if (eb && !rootB) rootB = ReactDOM.createRoot(eb);
+    if (rootA) rootA.render(<window.App {...stateA} />);
+    if (rootB) rootB.render(<window.App {...stateB} />);
+  }
+
+  mount();
+
+  // ---- Tweaks wiring ----
+  const tweaks = document.getElementById('tweaks');
+  const fab = document.getElementById('tweaksFab');
+  document.getElementById('tweaksClose').onclick = () => { tweaks.classList.remove('open'); fab.style.display = ''; };
+  fab.onclick = () => { tweaks.classList.add('open'); fab.style.display = 'none'; };
+
+  function setSeg(container, value, attr='data-w') {
+    container.querySelectorAll('button').forEach(b => {
+      b.setAttribute('aria-pressed', b.getAttribute(attr) === String(value) ? 'true' : 'false');
+    });
+  }
+
+  function applyViewport(w) {
+    const frames = document.querySelectorAll('.viewport-frame');
+    frames.forEach(f => {
+      f.style.maxWidth = w + 'px';
+    });
+  }
+
+  // Viewport tweak
+  document.getElementById('vpSeg').addEventListener('click', (e) => {
+    const btn = e.target.closest('button'); if (!btn) return;
+    const w = btn.getAttribute('data-w');
+    setSeg(document.getElementById('vpSeg'), w, 'data-w');
+    applyViewport(+w);
+  });
+
+  // Groups expanded/collapsed
+  document.getElementById('grpSeg').addEventListener('click', (e) => {
+    const btn = e.target.closest('button'); if (!btn) return;
+    const v = btn.getAttribute('data-v');
+    setSeg(document.getElementById('grpSeg'), v, 'data-v');
+    stateA.allExpanded = v === 'expanded';
+    stateB.allExpanded = v === 'expanded';
+    mount();
+  });
+
+  // Show variation
+  document.getElementById('showSeg').addEventListener('click', (e) => {
+    const btn = e.target.closest('button'); if (!btn) return;
+    const v = btn.getAttribute('data-v');
+    setSeg(document.getElementById('showSeg'), v, 'data-v');
+    const fa = document.getElementById('frameA').parentElement;
+    const fb = document.getElementById('frameB').parentElement;
+    fa.style.display = (v === 'both' || v === 'A') ? '' : 'none';
+    fb.style.display = (v === 'both' || v === 'B') ? '' : 'none';
+  });
+
+  // initial: show Only B (user preferred direction), at 1200
+  (function initShow(){
+    const seg = document.getElementById('showSeg');
+    seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.getAttribute('data-v') === 'B' ? 'true' : 'false'));
+    document.getElementById('frameA').parentElement.style.display = 'none';
+  })();
+  applyViewport(1200);
+</script>
+
+</body>
+</html>

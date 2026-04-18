@@ -1,4 +1,5 @@
-import type { Entry, ActiveFilters } from '../types.js';
+import type { Entry, ActiveFilters, PlaceholderEntry } from '../types.js';
+import { PLACEHOLDER_ENTRIES } from '../data.js';
 import { EntryCard } from './EntryCard.js';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -12,22 +13,73 @@ export interface GalleryProps {
   onAddNew: () => void;
 }
 
+// ─── PlaceholderCard ──────────────────────────────────────────────────────────
+
+function PlaceholderCard({ entry }: { entry: PlaceholderEntry }) {
+  const symTags  = entry.tags?.symmetry?.slice(0, 1) ?? [];
+  const tradTags = entry.tags?.tradition?.slice(0, 2) ?? [];
+  const patTags  = entry.tags?.patternType?.slice(0, 1) ?? [];
+
+  return (
+    <div
+      className="card card--placeholder"
+      aria-label={`Example entry: ${entry.title} by ${entry.artist.name}`}
+    >
+      <div className="card-img-wrap">
+        {entry.imageUrl ? (
+          <img
+            src={entry.imageUrl}
+            alt={entry.title}
+            loading="lazy"
+            onError={e => { (e.target as HTMLImageElement).style.opacity = '0'; }}
+          />
+        ) : (
+          <div className="card-no-image">◈</div>
+        )}
+        <div className="card-overlay"></div>
+      </div>
+      <div className="card-body">
+        <div className="card-title">{entry.title}</div>
+        {(symTags.length > 0 || tradTags.length > 0 || patTags.length > 0) && (
+          <div className="card-tags">
+            {symTags.map(t => <span key={t} className="card-tag card-tag--sym">{t}</span>)}
+            {tradTags.map(t => <span key={t} className="card-tag">{t}</span>)}
+            {patTags.map(t => <span key={t} className="card-tag">{t}</span>)}
+          </div>
+        )}
+        <a
+          className="card-artist-credit"
+          href={entry.artist.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Visit ${entry.artist.name}'s website (opens in new tab)`}
+          onClick={e => e.stopPropagation()}
+        >
+          Photo: {entry.artist.name} ↗
+        </a>
+      </div>
+    </div>
+  );
+}
+
 // ─── Gallery ──────────────────────────────────────────────────────────────────
 
 export function Gallery({ entries, activeFilters: _activeFilters, selectedId, totalCount, onSelect, onAddNew }: GalleryProps) {
   if (totalCount === 0) {
     return (
-      <div className="gallery-grid" id="gallery">
-        <div className="empty-state">
-          <div className="empty-icon">◈</div>
-          <div className="empty-title">Your collection is empty</div>
-          <div className="empty-sub">Add your first sacred geometry piece to begin</div>
-        </div>
-        <div className="card-placeholder" onClick={onAddNew}>
-          <div className="card-placeholder-inner">
-            <div className="card-placeholder-icon">◈</div>
-            <div className="card-placeholder-text">Add a piece</div>
+      <div className="gallery-outer" id="gallery">
+        <div className="placeholder-banner">
+          <div className="placeholder-banner-text">
+            <p className="placeholder-banner-heading">Your collection is empty.</p>
+            <p className="placeholder-banner-sub">Add your first piece to get started.</p>
+            <p className="placeholder-banner-sub">Showing work from our practitioner community.</p>
           </div>
+          <button className="btn btn--primary" onClick={onAddNew}>+ Add Entry</button>
+        </div>
+        <div className="gallery-grid">
+          {PLACEHOLDER_ENTRIES.map(entry => (
+            <PlaceholderCard key={entry.id} entry={entry} />
+          ))}
         </div>
       </div>
     );
