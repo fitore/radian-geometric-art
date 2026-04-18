@@ -176,9 +176,13 @@ export const storage = {
 
   deleteEntry(id: string): void {
     try {
+      const entry = this.getEntry(id);
       const ids = JSON.parse(localStorage.getItem(KEY_INDEX) ?? '[]') as string[];
       localStorage.setItem(KEY_INDEX, JSON.stringify(ids.filter(i => i !== id)));
       localStorage.removeItem(KEY_ENTRY(id));
+      if (entry?.template?.storageKey) {
+        this.deleteTemplate(entry.template.storageKey);
+      }
     } catch (e) {
       console.error('radian: failed to delete entry', e);
     }
