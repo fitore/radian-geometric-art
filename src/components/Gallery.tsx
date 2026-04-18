@@ -15,17 +15,27 @@ export interface GalleryProps {
 
 // ─── PlaceholderCard ──────────────────────────────────────────────────────────
 
-function PlaceholderCard({ entry }: { entry: PlaceholderEntry }) {
+function PlaceholderCard({ entry, index }: { entry: PlaceholderEntry; index: number }) {
+  const cardBg = `var(--card-bg-${index % 6})`;
+
   const symTags  = entry.tags?.symmetry?.slice(0, 1) ?? [];
-  const tradTags = entry.tags?.tradition?.slice(0, 2) ?? [];
-  const patTags  = entry.tags?.patternType?.slice(0, 1) ?? [];
+  const tradTags = entry.tags?.tradition?.slice(0, 1) ?? [];
+
+  let subtitle: string | null = null;
+  if (tradTags.length > 0 && symTags.length > 0) {
+    subtitle = `${tradTags[0]} · ${symTags[0]}`;
+  } else if (tradTags.length > 0) {
+    subtitle = tradTags[0];
+  } else if (symTags.length > 0) {
+    subtitle = symTags[0];
+  }
 
   return (
     <div
       className="card card--placeholder"
       aria-label={`Example entry: ${entry.title} by ${entry.artist.name}`}
     >
-      <div className="card-img-wrap">
+      <div className="card-img-wrap" style={{ background: cardBg }}>
         {entry.imageUrl ? (
           <img
             src={entry.imageUrl}
@@ -33,20 +43,11 @@ function PlaceholderCard({ entry }: { entry: PlaceholderEntry }) {
             loading="lazy"
             onError={e => { (e.target as HTMLImageElement).style.opacity = '0'; }}
           />
-        ) : (
-          <div className="card-no-image">◈</div>
-        )}
-        <div className="card-overlay"></div>
+        ) : null}
       </div>
       <div className="card-body">
         <div className="card-title">{entry.title}</div>
-        {(symTags.length > 0 || tradTags.length > 0 || patTags.length > 0) && (
-          <div className="card-tags">
-            {symTags.map(t => <span key={t} className="card-tag card-tag--sym">{t}</span>)}
-            {tradTags.map(t => <span key={t} className="card-tag">{t}</span>)}
-            {patTags.map(t => <span key={t} className="card-tag">{t}</span>)}
-          </div>
-        )}
+        {subtitle && <div className="card-subtitle">{subtitle}</div>}
         <a
           className="card-artist-credit"
           href={entry.artist.url}
@@ -77,8 +78,8 @@ export function Gallery({ entries, activeFilters: _activeFilters, selectedId, to
           <button className="btn btn--primary" onClick={onAddNew}>+ Add Entry</button>
         </div>
         <div className="gallery-grid">
-          {PLACEHOLDER_ENTRIES.map(entry => (
-            <PlaceholderCard key={entry.id} entry={entry} />
+          {PLACEHOLDER_ENTRIES.map((entry, i) => (
+            <PlaceholderCard key={entry.id} entry={entry} index={i} />
           ))}
         </div>
       </div>
@@ -99,10 +100,11 @@ export function Gallery({ entries, activeFilters: _activeFilters, selectedId, to
 
   return (
     <div className="gallery-grid" id="gallery">
-      {entries.map(entry => (
+      {entries.map((entry, i) => (
         <EntryCard
           key={entry.id}
           entry={entry}
+          index={i}
           isSelected={entry.id === selectedId}
           onSelect={onSelect}
         />

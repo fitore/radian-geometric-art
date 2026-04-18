@@ -4,8 +4,8 @@ import { TAG_VOCABULARY } from './data.js';
 // ─── Sidebar group definitions ────────────────────────────────────────────────
 // Consumed by App.tsx to render filter chips. Kept here alongside filter logic.
 
-interface ChipDef { value: string; label: string; cls?: string; }
-interface SidebarGroup { label: string; type: keyof ActiveFilters; chips: ChipDef[]; }
+export interface ChipDef { value: string; label: string; cls?: string; }
+export interface SidebarGroup { label: string; type: keyof ActiveFilters; chips: ChipDef[]; }
 
 export const SIDEBAR_GROUPS: SidebarGroup[] = [
   {

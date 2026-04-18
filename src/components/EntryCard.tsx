@@ -6,23 +6,33 @@ export interface EntryCardProps {
   entry: Entry;
   isSelected: boolean;
   onSelect: (id: string) => void;
+  index: number;
 }
 
-// ─── Status class map ─────────────────────────────────────────────────────────
+// ─── Status → dot color ───────────────────────────────────────────────────────
 
-const STATUS_CLASS: Record<string, string> = {
-  'want-to-try': 'want',
-  'attempted':   'tried',
-  'done':        'done',
+const STATUS_DOT: Record<string, string> = {
+  'want-to-try': 'var(--color-dot-blue)',
+  'attempted':   'var(--color-dot-gold)',
+  'done':        'var(--color-dot-green)',
 };
 
 // ─── EntryCard ────────────────────────────────────────────────────────────────
 
-export function EntryCard({ entry, isSelected, onSelect }: EntryCardProps) {
-  const statusClass = STATUS_CLASS[entry.status] ?? 'want';
-  const symTags  = entry.tags?.symmetry?.slice(0, 1) ?? [];
-  const tradTags = entry.tags?.tradition?.slice(0, 2) ?? [];
-  const patTags  = entry.tags?.patternType?.slice(0, 1) ?? [];
+export function EntryCard({ entry, isSelected, onSelect, index }: EntryCardProps) {
+  const dotColor = STATUS_DOT[entry.status] ?? 'var(--color-dot-grey)';
+  const cardBg   = `var(--card-bg-${index % 6})`;
+
+  const constructionTag = entry.tags?.constructionMethod?.[0];
+  const symmetryTag     = entry.tags?.symmetry?.[0];
+  const traditionTag    = entry.tags?.tradition?.[0];
+
+  let subtitle: string | null = null;
+  if (constructionTag || symmetryTag) {
+    subtitle = [constructionTag, symmetryTag].filter(Boolean).join(' · ');
+  } else if (traditionTag) {
+    subtitle = traditionTag;
+  }
 
   return (
     <div
@@ -30,7 +40,7 @@ export function EntryCard({ entry, isSelected, onSelect }: EntryCardProps) {
       data-id={entry.id}
       onClick={() => onSelect(entry.id)}
     >
-      <div className="card-img-wrap">
+      <div className="card-img-wrap" style={{ background: cardBg }}>
         {entry.imageUrl ? (
           <img
             src={entry.imageUrl}
@@ -38,11 +48,8 @@ export function EntryCard({ entry, isSelected, onSelect }: EntryCardProps) {
             loading="lazy"
             onError={e => { (e.target as HTMLImageElement).style.opacity = '0'; }}
           />
-        ) : (
-          <div className="card-no-image">◈</div>
-        )}
-        <div className="card-overlay"></div>
-        <div className={`status-dot status-dot--${statusClass}`}></div>
+        ) : null}
+        <div className="status-dot" style={{ background: dotColor }}></div>
         <div className="diff-badge">{entry.difficulty}</div>
         {entry.analysis && (
           <div className="analyzed-badge" title="Analyzed with Claude">✦</div>
@@ -50,11 +57,7 @@ export function EntryCard({ entry, isSelected, onSelect }: EntryCardProps) {
       </div>
       <div className="card-body">
         <div className="card-title">{entry.title}</div>
-        <div className="card-tags">
-          {symTags.map(t => <span key={t} className="card-tag card-tag--sym">{t}</span>)}
-          {tradTags.map(t => <span key={t} className="card-tag">{t}</span>)}
-          {patTags.map(t => <span key={t} className="card-tag">{t}</span>)}
-        </div>
+        {subtitle && <div className="card-subtitle">{subtitle}</div>}
       </div>
     </div>
   );

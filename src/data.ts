@@ -61,7 +61,7 @@ const EMPTY_TAGS: Entry['tags'] = {
 export const PLACEHOLDER_ENTRIES: PlaceholderEntry[] = [
   {
     id: 'placeholder-1',
-    title: 'Geometric Floor Study',
+    title: 'Clarissa Grandi - Geometric Floor Study',
     imageUrl: '/images/inspiration/ClarissaGrandi_geometric_floor.jpg',
     artist: { name: 'Clarissa Grandi', url: 'https://www.artfulmaths.com/' },
     tags: { ...EMPTY_TAGS },
@@ -69,15 +69,15 @@ export const PLACEHOLDER_ENTRIES: PlaceholderEntry[] = [
   },
   {
     id: 'placeholder-2',
-    title: 'Islamic Geometry Weaving',
+    title: 'Sandy Kurt - Weaving',
     imageUrl: '/images/inspiration/SandyKurt_islamic_geometry_weaving_3.jpg',
     artist: { name: 'Sandy Kurt', url: 'https://sandykurt.com/' },
-    tags: { ...EMPTY_TAGS, tradition: ['Islamic-geometric'] },
+    tags: { ...EMPTY_TAGS },
     isPlaceholder: true,
   },
   {
     id: 'placeholder-3',
-    title: 'Water',
+    title: 'Lucie Rose Galvani - Celtic Water Shield',
     imageUrl: '/images/inspiration/LucieRose_Water.png',
     artist: { name: 'Lucie Rose', url: 'https://www.lucierosegalvani.com/' },
     tags: { ...EMPTY_TAGS },
@@ -85,7 +85,7 @@ export const PLACEHOLDER_ENTRIES: PlaceholderEntry[] = [
   },
   {
     id: 'placeholder-4',
-    title: 'Profound Patterns',
+    title: 'Adam Williamson - Profound Patterns',
     imageUrl: '/images/inspiration/AdamWilliamson_profound_patterns.png',
     artist: { name: 'Adam Williamson', url: 'https://adamwilliamsonart.com/' },
     tags: { ...EMPTY_TAGS },

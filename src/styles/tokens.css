@@ -6,27 +6,50 @@
 :root {
   /* Surfaces */
   --color-bg:         #f5f0e8;
-  --color-surface:    #ede7d9;
+  --color-surface:    #ffffff;
   --color-card:       #e4ddd0;
   --color-header-bg:  rgba(245, 240, 232, 0.95);
 
   /* Borders */
-  --color-border:     #cec4ae;
-  --color-border-hi:  #b8ad96;
+  --color-border:     #e0d9cc;
+  --color-border-hi:  #c8bfb0;
 
   /* Accent — warm gold */
   --color-gold:       #8a6520;
   --color-gold-dim:   #a07830;
 
   /* Text */
-  --color-text:       #1e1a14;
-  --color-text-dim:   #5a5040;
-  --color-text-faint: #9a8e78;
+  --color-text:         #2c2416;
+  --color-text-dim:     #8c7e6a;
+  --color-text-faint:   #9a8e78;
+  --color-text-inverse: #f5f0e8;
 
   /* Status */
   --color-want:       #2a5f95;
   --color-tried:      #8a6520;
   --color-done:       #3a6a3a;
+
+  /* Status dots — card top-right corner */
+  --color-dot-blue:   #5b8db8;
+  --color-dot-gold:   #c9a84c;
+  --color-dot-green:  #6a9e72;
+  --color-dot-grey:   #c0b8aa;
+
+  /* Filter chips */
+  --color-chip-bg:          #f5f0e8;
+  --color-chip-border:      #c8bfb0;
+  --color-chip-active-bg:   #2c2416;
+  --color-chip-active-text: #f5f0e8;
+  --color-chip-count-bg:    #2c2416;
+  --color-chip-count-text:  #f5f0e8;
+
+  /* Card background palette — muted tones, assigned by index mod 6 */
+  --card-bg-0: #d4a898;
+  --card-bg-1: #b5aa7e;
+  --card-bg-2: #8aab90;
+  --card-bg-3: #7aadb0;
+  --card-bg-4: #8898c4;
+  --card-bg-5: #b0a8c8;
 
   /* Shadows */
   --shadow-panel:     rgba(0, 0, 0, 0.15);
@@ -50,10 +73,23 @@
   --settings-panel-w: 400px;
   --radius-card:      0px; /* sharp-edged by design */
 
+  /* Border radius */
+  --radius-s:    0.25rem;
+  --radius-m:    0.5rem;
+  --radius-pill: 999px; /* intentionally px — proportional scaling not desired */
+
+  /* Spacing */
+  --space-xs:  0.25rem;   /* 4px */
+  --space-s:   0.5rem;    /* 8px */
+  --space-m:   1rem;      /* 16px */
+  --space-l:   1.5rem;    /* 24px */
+  --space-xl:  2.5rem;    /* 40px */
+  --space-2xl: 4rem;      /* 64px */
+
   /* Typography */
-  --font-serif:       'Cormorant Garamond', Georgia, serif;
-  --font-mono:        'JetBrains Mono', monospace;
-  --font-display:     'Cinzel', serif;
+  --font-serif:   'Cormorant Garamond', Georgia, serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  --font-display: 'Cinzel', serif;
 
   /* Transitions */
   --transition-theme: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
@@ -92,13 +128,21 @@
   --color-gold:       #c8a96e;
   --color-gold-dim:   #7a6540;
 
-  --color-text:       #e2d9c8;
-  --color-text-dim:   #8a8070;
-  --color-text-faint: #4a4438;
+  --color-text:         #e2d9c8;
+  --color-text-dim:     #8a8070;
+  --color-text-faint:   #4a4438;
+  --color-text-inverse: #0d0c0a;
 
   --color-want:       #4a7fb5;
   --color-tried:      #c8a96e;
   --color-done:       #5a8a5a;
+
+  --color-chip-bg:          #1a1816;
+  --color-chip-border:      #3d3830;
+  --color-chip-active-bg:   #e2d9c8;
+  --color-chip-active-text: #0d0c0a;
+  --color-chip-count-bg:    #e2d9c8;
+  --color-chip-count-text:  #0d0c0a;
 
   --shadow-panel:     rgba(0, 0, 0, 0.5);
   --shadow-card:      rgba(0, 0, 0, 0.3);
