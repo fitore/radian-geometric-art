@@ -23,28 +23,27 @@ harness structure itself is part of what this project teaches.
 |---|---|
 | Language | TypeScript strict mode — no `any` without a justifying comment |
 | Build | Vite |
+| Framework | React — functional components and hooks only |
 | CSS | Open Props + vanilla CSS modules in `src/styles/` |
 | API | `@anthropic-ai/sdk` browser client (`dangerouslyAllowBrowser: true`) |
 | Storage | `localStorage` only — no server, no database |
 | Edge detection | Vanilla Canvas API — no OpenCV.js unless spike evidence requires it |
+| Vectorisation | `imagetracerjs` — raster to SVG paths, browser-native, MIT |
+| Spatial index | `kd-tree-javascript` — nearest-neighbour for symmetry detection, MIT |
 
 ---
 
 ## The Architectural Contract
 
-### `populateForm(partial)` in `EntryForm.tsx`
+### `populateForm(entry)` in `form.ts`
 
 The single integration point for all automated pipelines. Every feature that
 produces entry data — AI analysis, future search results, image upload — calls
-`populateForm(partial)` via the `onAccept` prop passed to child panels.
-Nothing writes to form field state from outside the `EntryForm` component.
-Nothing writes to localStorage without going through the save handler in `EntryForm`.
-
-`populateForm` is a `useCallback` defined inside `EntryForm`. It is the only
-function that may call `setFields(...)` on form field state.
+`populateForm(entry)` to pre-fill the form. Nothing writes to the UI directly.
+Nothing writes to localStorage without going through `saveCurrentEntry()`.
 
 **If you are writing code that saves an entry without routing through
-`populateForm` → the EntryForm save handler, stop. That is a contract violation.**
+`populateForm` → `saveCurrentEntry`, stop. That is a contract violation.**
 
 ### `types.ts` is the domain contract
 
@@ -65,40 +64,67 @@ in `data.ts` first, then use them.
 
 ```
 src/
-├── main.tsx              ← React entry point. Mounts <App />.
-├── App.tsx               ← Root component. useReducer for session state,
-│                            sidebar, header, panel routing. No business logic.
-├── types.ts              ← Domain types only. No imports from other src modules.
-├── utils.ts              ← Pure functions. No DOM, no API, no storage.
-├── data.ts               ← TAG_VOCABULARY, localStorage CRUD, schema migration.
-│                            No DOM access. Does not know the UI exists.
-├── gallery.ts            ← filterEntries(), sortEntries(). Pure functions.
-├── api.ts                ← callClaude(), SYSTEM_PROMPT, PROMPT_VERSION, cost tracking.
-│                            No DOM access. Returns data; does not render.
-├── canvas.ts             ← Sobel edge-detection pipeline. No API calls, no storage.
+├── app.ts / App.tsx     ← Entry point. State (useReducer), event wiring. No business logic.
+├── types.ts             ← Domain types only. No imports from other src modules.
+├── utils.ts             ← Pure functions. No DOM, no API, no storage.
+├── data.ts              ← TAG_VOCABULARY, localStorage CRUD, schema migration.
+│                           No DOM access. Does not know the UI exists.
+├── gallery.ts           ← filterEntries, sortEntries, renderGallery, card HTML.
+├── form.ts              ← populateForm, clearForm, readFormState, saveCurrentEntry.
+│                           Owns the form DOM. The only path to saving entries.
+├── api.ts               ← callClaude(), SYSTEM_PROMPT, PROMPT_VERSION, cost tracking.
+│                           No DOM access. Returns data; does not render.
+├── canvas.ts            ← Sobel edge-detection pipeline. No API calls, no storage.
+├── symmetry.ts          ← Client-side symmetry detection pipeline.
+│                           Exports: extractPoints, detectSymmetry, mapToTag.
+│                           No DOM access. No API calls. No storage writes.
 ├── components/
-│   ├── Gallery.tsx       ← Card grid. Receives filtered/sorted entries as props.
-│   ├── EntryCard.tsx     ← Single collection card.
-│   ├── EntryForm.tsx     ← Add/edit panel. Owns all form field state and
-│   │                        populateForm. The only path to saving entries.
-│   ├── AnalysisPanel.tsx ← Analysis result display. accept/dismiss contract.
-│   │                        Does NOT write to localStorage directly.
-│   ├── TemplatePanel.tsx ← Edge extraction controls and preview.
-│   └── SettingsPanel.tsx ← API key, session cost, theme.
-└── styles/               ← CSS only. tokens.css owns all design tokens.
+│   └── FundamentalDomainView.tsx  ← Wedge overlay, tile extraction, tessellation.
+│                                     Reads SymmetryResult. No storage writes.
+├── panels.ts            ← Settings, Analysis, Template panels. Renders results only.
+│                           Calls populateForm — does not save directly.
+└── styles/              ← CSS only. tokens.css owns all design tokens.
 ```
 
 **Boundary rules:**
-- `data.ts` and `api.ts` have no DOM access.
+- `data.ts`, `api.ts`, and `symmetry.ts` have no DOM access.
 - `utils.ts` has no imports from other `src/` modules.
 - `types.ts` has no imports from other `src/` modules.
-- `AnalysisPanel` does not import or call `storage` — no localStorage writes.
+- `symmetry.ts` has no API calls and no localStorage writes.
+- `FundamentalDomainView.tsx` has no storage writes — visualisation only.
 - New modules must map to this structure with a comment at the top explaining
   their role and why they are not covered by an existing module.
 
 ---
 
-## The AI Integration Layer
+## The Symmetry Detection Layer
+
+### `symmetry.ts` is mathematics, not UI
+
+`symmetry.ts` implements the client-side fold detection pipeline:
+vectorisation (imagetracerjs) → point normalisation → KD-tree nearest-
+neighbour scoring → symmetry group classification → TAG_VOCABULARY mapping.
+
+It is pure computation. No DOM. No API. No storage.
+
+The raw `SymmetryResult` (including `fundamentalDomain`) is held in
+component state after detection runs. It is never persisted to localStorage.
+
+### `FundamentalDomainView.tsx` is visualisation, not detection
+
+The wedge overlay, extracted tile, and tessellation preview all live in
+`FundamentalDomainView.tsx`. Do not add rendering logic to `symmetry.ts`.
+
+### SymmetryResult maps to Analysis
+
+Detection output populates `Analysis.classifications.symmetry` via
+`populateForm` — the same path as Claude Vision analysis. The
+`promptVersion` field uses `'symmetry-v1'` (not a Claude prompt version)
+to distinguish client-side results from model results.
+
+---
+
+
 
 ### `SYSTEM_PROMPT` is domain-authored
 
@@ -173,22 +199,10 @@ Type stack: Cinzel (headings) · Cormorant Garamond (body) · JetBrains Mono
 6. **No new dependencies without a documented decision.** Flag the trade-off
    and wait for instruction before adding any package.
 7. **API calls are user-triggered only.** No background or automatic calls.
-8. **`data.ts` and `api.ts` have no DOM access.**
-
----
-
-## Responsive Layout
-
-- Define the complete token scale (breakpoints, z-index, layout dimensions) in
-  `tokens.css` before writing any responsive CSS. A partial scale causes drift.
-- Grid columns push siblings — they cannot overlay. Elements that must slide
-  over content need `position: fixed` at mobile breakpoints and
-  `transform: translateX(...)` for show/hide (not `display: none` — that
-  breaks transitions and removes elements from the accessibility tree).
-- Use `@media (min-width: ...)` guards for large-viewport-only rules so they
-  don't bleed into mobile via specificity.
-- Viewport-dependent UI state (sidebar open, overlay visible) belongs in
-  `useReducer` as session state — not in `localStorage`, not persisted.
+8. **`data.ts`, `api.ts`, and `symmetry.ts` have no DOM access.**
+9. **`SymmetryResult` is transient.** Never write it to localStorage.
+10. **Symmetry detection results are suggestions.** Never apply tags
+    automatically — always route through `populateForm` for user review.
 
 ---
 
@@ -198,7 +212,11 @@ Type stack: Cinzel (headings) · Cormorant Garamond (body) · JetBrains Mono
 2. Identify which modules your task touches.
 3. Read `docs/prd.md` for the feature's intent and acceptance criteria.
 4. If the task touches `api.ts` or analysis output, read `docs/spike-results.md`.
-5. Check `docs/adr/` for any prior decision affecting your task.
+5. If the task touches `symmetry.ts` or `FundamentalDomainView`, read
+   `architect.md` — it contains the mathematics domain knowledge
+   (symmetry groups, proportion systems, tradition geometric signatures)
+   needed to implement these features correctly.
+6. Check `docs/adr/` for any prior decision affecting your task.
 
 ## Before Calling a Task Done
 
@@ -208,9 +226,7 @@ Type stack: Cinzel (headings) · Cormorant Garamond (body) · JetBrains Mono
 - Do new types flow through `types.ts`?
 - Does new CSS use existing tokens from `tokens.css`?
 - Is the default theme still light?
-- **If the task changed architecture, module structure, stack, or observable
-  behaviour: update `README.md` and this file to match.** Stale docs are a
-  contract violation — a future agent reading them will make wrong assumptions.
+- Is `SymmetryResult` held in component state only (not persisted)?
 
 ---
 
@@ -219,5 +235,7 @@ Type stack: Cinzel (headings) · Cormorant Garamond (body) · JetBrains Mono
 - `docs/prd.md` — Feature definitions, entry schema, acceptance criteria
 - `docs/spike-results.md` — Vision accuracy results, extraction path decision
 - `docs/adr/` — Architecture Decision Records
+- `architect.md` — Domain mathematics and symmetry pipeline spec.
+  Read before working on `symmetry.ts` or `FundamentalDomainView.tsx`.
 - `mvp/` — v1 single-file reference (read only)
 - `spike/` — Original spike artefacts (read only)
