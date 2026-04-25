@@ -1,4 +1,4 @@
-import type { Entry, PlaceholderEntry, Tags } from './types.js';
+import type { Entry, Tags } from './types.js';
 
 // ─── Tag vocabulary (v2 — adds syncretic + Contemporary-Mathematical) ─────────
 
@@ -48,7 +48,7 @@ export const TAG_VOCABULARY = {
 
 export type TagGroup = keyof typeof TAG_VOCABULARY;
 
-// ─── Placeholder entries (display-only — never written to localStorage) ───────
+// ─── Seed entries (real Entry objects, seeded into localStorage on first load) ──
 
 const EMPTY_TAGS: Entry['tags'] = {
   constructionMethod: [],
@@ -58,38 +58,58 @@ const EMPTY_TAGS: Entry['tags'] = {
   proportion: [],
 };
 
-export const PLACEHOLDER_ENTRIES: PlaceholderEntry[] = [
+export const SEED_ENTRIES: Entry[] = [
   {
-    id: 'placeholder-1',
+    id: '6548a4a3-63fc-4ebc-b6d4-0249e78a2e50',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    schemaVersion: 2,
     title: 'Clarissa Grandi - Geometric Floor Study',
     imageUrl: '/images/inspiration/ClarissaGrandi_geometric_floor.jpg',
-    artist: { name: 'Clarissa Grandi', url: 'https://www.artfulmaths.com/' },
-    tags: { ...EMPTY_TAGS },
-    isPlaceholder: true,
+    sourceUrl: 'https://www.artfulmaths.com/',
+    status: 'want-to-try',
+    difficulty: 'intermediate',
+    tags: { ...EMPTY_TAGS, tradition: ['Contemporary-Mathematical'] },
+    description: 'Work by Clarissa Grandi — artfulmaths.com',
+    attemptNotes: '',
   },
   {
-    id: 'placeholder-2',
-    title: 'Sandy Kurt - Weaving',
+    id: '5c796c90-bf09-4311-974a-ee6fa787a3fb',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    schemaVersion: 2,
+    title: 'Sandy Kurt - Islamic Geometry Weaving',
     imageUrl: '/images/inspiration/SandyKurt_islamic_geometry_weaving_3.jpg',
-    artist: { name: 'Sandy Kurt', url: 'https://sandykurt.com/' },
-    tags: { ...EMPTY_TAGS },
-    isPlaceholder: true,
+    sourceUrl: 'https://sandykurt.com/',
+    status: 'want-to-try',
+    difficulty: 'intermediate',
+    tags: { ...EMPTY_TAGS, tradition: ['Islamic-geometric'], constructionMethod: ['compass-and-straightedge'] },
+    description: 'Work by Sandy Kurt — sandykurt.com',
+    attemptNotes: '',
   },
   {
-    id: 'placeholder-3',
+    id: 'fd13d52c-d32b-45b8-b807-cde5b75d8443',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    schemaVersion: 2,
     title: 'Lucie Rose Galvani - Celtic Water Shield',
     imageUrl: '/images/inspiration/LucieRose_Water.png',
-    artist: { name: 'Lucie Rose', url: 'https://www.lucierosegalvani.com/' },
-    tags: { ...EMPTY_TAGS },
-    isPlaceholder: true,
+    sourceUrl: 'https://www.lucierosegalvani.com/',
+    status: 'want-to-try',
+    difficulty: 'beginner',
+    tags: { ...EMPTY_TAGS, tradition: ['Celtic-Insular'] },
+    description: 'Work by Lucie Rose Galvani — lucierosegalvani.com',
+    attemptNotes: '',
   },
   {
-    id: 'placeholder-4',
+    id: 'bfe7e053-cbda-4e9f-9cc4-85d541bf533f',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    schemaVersion: 2,
     title: 'Adam Williamson - Profound Patterns',
     imageUrl: '/images/inspiration/AdamWilliamson_profound_patterns.png',
-    artist: { name: 'Adam Williamson', url: 'https://adamwilliamsonart.com/' },
-    tags: { ...EMPTY_TAGS },
-    isPlaceholder: true,
+    sourceUrl: 'https://adamwilliamsonart.com/',
+    status: 'want-to-try',
+    difficulty: 'advanced',
+    tags: { ...EMPTY_TAGS, tradition: ['Islamic-geometric'], constructionMethod: ['compass-and-straightedge'] },
+    description: 'Work by Adam Williamson — adamwilliamsonart.com',
+    attemptNotes: '',
   },
 ];
 
@@ -121,6 +141,7 @@ function migrateToV2(raw: Record<string, unknown>): Entry {
 // ─── Storage ──────────────────────────────────────────────────────────────────
 
 const KEY_INDEX = 'radian:index';
+const KEY_SEEDED = 'radian:seeded';
 const KEY_ENTRY = (id: string) => `radian:entry:${id}`;
 // Template PNGs stored separately to keep entry objects lean
 const KEY_TEMPLATE = (key: string) => `radian:template:${key}`;
@@ -238,3 +259,28 @@ export const storage = {
     return { ok: true, count: imported };
   },
 };
+
+// ─── Seed initial entries ─────────────────────────────────────────────────────
+
+function loadIndex(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(KEY_INDEX) ?? '[]') as string[];
+  } catch { return []; }
+}
+
+export function seedInitialEntries(): boolean {
+  if (localStorage.getItem(KEY_SEEDED)) return false;
+
+  const index = loadIndex();
+  if (index.length > 0) {
+    // Collection already exists but seed flag missing — mark and skip
+    localStorage.setItem(KEY_SEEDED, 'true');
+    return false;
+  }
+
+  for (const entry of SEED_ENTRIES) {
+    storage.saveEntry(entry);
+  }
+  localStorage.setItem(KEY_SEEDED, 'true');
+  return true;
+}

@@ -79,7 +79,8 @@ src/
 ├── app.ts / App.tsx     ← Entry point. State (useReducer), event wiring. No business logic.
 ├── types.ts             ← Domain types only. No imports from other src modules.
 ├── utils.ts             ← Pure functions. No DOM, no API, no storage.
-├── data.ts              ← TAG_VOCABULARY, localStorage CRUD, schema migration.
+├── data.ts              ← TAG_VOCABULARY, SEED_ENTRIES, localStorage CRUD,
+│                           schema migration, seedInitialEntries().
 │                           No DOM access. Does not know the UI exists.
 ├── gallery.ts           ← filterEntries, sortEntries, renderGallery, card HTML.
 ├── form.ts              ← populateForm, clearForm, readFormState, saveCurrentEntry.
@@ -175,14 +176,27 @@ upload. The user decides when to invoke Claude.
 
 ```
 localStorage
-├── radian:index            → string[]     (ordered entry IDs)
-├── radian:entry:{id}       → Entry        (metadata, tags, analysis)
-└── radian:template:{id}    → string       (base64 PNG data URL)
+├── radian:index              → string[]     (ordered entry IDs)
+├── radian:entry:{id}         → Entry        (metadata, tags, analysis)
+├── radian:template:{id}      → string       (base64 PNG data URL)
+├── radian:theme              → 'dark'       (absent = light mode default)
+├── radian:seeded             → 'true'       (set once after initial seed — never re-seed)
+└── radian:welcome-dismissed  → 'true'       (set when user dismisses welcome banner)
 ```
 
 Key prefix is always `radian:`. Do not introduce new key patterns.
 `id` is set once by `crypto.randomUUID()` at creation. Never reassigned.
 `createdAt` is set once at creation. Never mutated.
+
+**Seeding rules:**
+- `seedInitialEntries()` in `data.ts` runs once on app init in `App.tsx`
+- If `radian:seeded` exists, seeding is skipped — regardless of index length
+- Seeded entries use hardcoded UUID string literals — not `crypto.randomUUID()`
+  at runtime, to ensure stability across hot reloads
+- Seeded entries have `createdAt: '2024-01-01T00:00:00.000Z'` so they
+  sort below user-created entries
+- `SEED_ENTRIES` in `data.ts` is the source — `PlaceholderEntry` type
+  does not exist
 
 ---
 
