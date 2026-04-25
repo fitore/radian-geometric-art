@@ -18,6 +18,8 @@
   "license": "ISC",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",
+    "imagetracerjs": "^1.2.6",
+    "kd-tree-javascript": "^1.0.3",
     "open-props": "^1.7.7",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
@@ -26,6 +28,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/kd-tree-javascript": "^1.0.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
