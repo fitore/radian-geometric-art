@@ -329,17 +329,12 @@ export function EntryForm({ entry, isOpen, onSave, onCancel, onEntryUpdated, onD
 
   return (
     <>
-      <div className={`form-panel${isOpen ? ' open' : ''}`} role="dialog" aria-label="Add or edit piece">
-        <div className="form-panel-header">
-          <div className="form-panel-title" id="formTitle">
+      <div className={`form-panel${isOpen ? ' open' : ''}`} role="main" aria-label="Add or edit piece">
+        {/* Title rendered as body content; nav bar handles navigation back */}
+        <div className="form-panel-body" id="formBody">
+          <div className="form-panel-title" id="formTitle" style={{ marginBottom: '0.5rem' }}>
             {entry ? 'EDIT PIECE' : 'NEW PIECE'}
           </div>
-          <button className="icon-btn" title="Close" aria-label="Close panel" onClick={onCancel}>
-            ✕
-          </button>
-        </div>
-
-        <div className="form-panel-body" id="formBody">
 
           {/* Image */}
           <div className="form-field">

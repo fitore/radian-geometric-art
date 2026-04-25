@@ -1,16 +1,12 @@
-// Footer — rendered at the bottom of both the gallery view and the About page.
-// Not sticky — scrolls with content.
+// Footer — always mounted in App shell. Renders on all views.
 
-interface FooterProps {
-  onAbout: () => void;
-}
-
-export function Footer({ onAbout }: FooterProps) {
+export function Footer() {
   return (
     <footer style={{
       borderTop: '1px solid var(--color-border)',
       padding: 'var(--space-l) var(--space-m)',
       textAlign: 'center',
+      background: 'var(--color-bg)',
       color: 'var(--color-text-dim)',
     }}>
       <span style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
@@ -24,25 +20,23 @@ export function Footer({ onAbout }: FooterProps) {
       }}>
         · Built with compass, straightedge, and Claude ·
       </span>
-      <button
-        type="button"
-        onClick={onAbout}
+      <a
+        href="https://github.com/fitore/radian-geometric-art"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="View Radian source on GitHub (opens in new tab)"
         style={{
           fontFamily: 'var(--font-display)',
           fontSize: 'inherit',
           color: 'var(--color-text)',
-          background: 'none',
-          border: 'none',
-          padding: 0,
-          cursor: 'pointer',
           textDecoration: 'none',
           letterSpacing: '0.05em',
         }}
-        onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
-        onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
+        onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline')}
+        onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none')}
       >
-        About
-      </button>
+        GitHub ↗
+      </a>
     </footer>
   );
 }

@@ -45,12 +45,24 @@ Nothing writes to localStorage without going through `saveCurrentEntry()`.
 **If you are writing code that saves an entry without routing through
 `populateForm` → `saveCurrentEntry`, stop. That is a contract violation.**
 
+**Known callers — do not trace beyond these:**
+- `form.ts` — definition
+- `panels.ts` — analysis results
+- `app.ts` — edit action
+
+Any new caller must be added to this list before the task is done.
+
 ### `types.ts` is the domain contract
 
 `Entry`, `Analysis`, `TemplateRef`, `AppState` are defined once in `types.ts`.
 All modules consume these types. Do not redefine them locally. Do not add
 fields to `Entry` without updating the canonical type and the migration in
 `data.ts`.
+
+**AppState ground truth:** Read `src/types.ts` and report the exact current
+`AppState` shape before any task that touches navigation, view state, or
+session state. Do not infer shape from usage in other files. If a view
+navigation field already exists, extend it — do not add a parallel field.
 
 ### `TAG_VOCABULARY` in `data.ts`
 
@@ -209,7 +221,7 @@ Type stack: Cinzel (headings) · Cormorant Garamond (body) · JetBrains Mono
 ## Before Starting Any Task
 
 1. Read this file.
-2. Identify which modules your task touches.
+2. Identify which modules your task touches — read only those modules.
 3. Read `docs/prd.md` for the feature's intent and acceptance criteria.
 4. If the task touches `api.ts` or analysis output, read `docs/spike-results.md`.
 5. If the task touches `symmetry.ts` or `FundamentalDomainView`, read
@@ -217,6 +229,22 @@ Type stack: Cinzel (headings) · Cormorant Garamond (body) · JetBrains Mono
    (symmetry groups, proportion systems, tradition geometric signatures)
    needed to implement these features correctly.
 6. Check `docs/adr/` for any prior decision affecting your task.
+
+**Token discipline — apply these rules on every task:**
+
+- **Bound discovery with grep before reading.** If you need to find where
+  something is used, run `grep -r "term" src/ --include="*.tsx" --include="*.ts" -l`
+  first. Read only the files grep returns. Do not open files speculatively.
+- **Read only what the task touches.** If the task is in `symmetry.ts`,
+  do not open `gallery.ts` or `panels.ts` unless grep shows they are
+  directly relevant.
+- **Read-and-report before writing.** For any task that changes shared
+  contracts (AppState, Entry, populateForm callers), read the relevant
+  type or function first and report what you find. Do not assume shape
+  from usage.
+- **Targeted edits over full rewrites.** Change the minimum lines needed.
+  Do not reformat, reorganise, or "clean up" code outside the task scope.
+- **Do not re-read files you have already read in this session.**
 
 ## Before Calling a Task Done
 
