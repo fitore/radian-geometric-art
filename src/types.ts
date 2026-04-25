@@ -4,6 +4,7 @@ export type Status = 'want-to-try' | 'attempted' | 'done';
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 export type Confidence = 'high' | 'medium' | 'low';
 export type SortKey = 'newest' | 'oldest' | 'az';
+export type AppView = 'gallery' | 'form' | 'about';
 
 export interface Tags {
   constructionMethod: string[];
@@ -93,9 +94,10 @@ export interface AppState {
   search: string;
   // Session state (React-only — not persisted to localStorage)
   selectedEntryId: string | null;
-  openPanel: 'form' | 'settings' | null;
+  openPanel: 'settings' | null;
   formMode: 'new' | 'edit';
   sidebarOpen: boolean;
+  currentView: AppView;
 }
 
 // ─── Analysis result (transient — lives in component state until acceptance) ─
@@ -125,6 +127,9 @@ export type AppAction =
   | { type: 'SETTINGS_OPENED' }
   | { type: 'SETTINGS_CLOSED' }
   | { type: 'SIDEBAR_TOGGLED' }
+  | { type: 'NAVIGATE_TO_FORM' }
+  | { type: 'NAVIGATE_TO_GALLERY' }
+  | { type: 'NAVIGATE_TO_ABOUT' }
   | { type: 'FILTER_TOGGLED'; filterType: keyof ActiveFilters; value: string }
   | { type: 'FILTERS_CLEARED' }
   | { type: 'SORT_CHANGED'; sort: SortKey }

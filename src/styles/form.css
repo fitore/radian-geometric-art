@@ -322,3 +322,22 @@ textarea.field-input {
   border-top: 1px solid var(--color-border);
   flex-wrap: wrap;
 }
+
+/* ─── Form panel as full page (rendered inside .app-content, not as overlay) ─ */
+.app-content > .form-panel.open {
+  position: static;
+  width: 100%;
+  height: auto;
+  transform: none;
+  box-shadow: none;
+  border-left: none;
+  overflow-y: visible;
+}
+
+.app-content > .form-panel.open .form-panel-footer {
+  position: static;
+}
+
+.app-content > .form-panel.open .form-panel-body {
+  overflow-y: visible;
+}

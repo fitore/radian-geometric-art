@@ -71,6 +71,38 @@ Based on the spike results and Part 4 of the spike document:
 
 ---
 
+## Symmetry Detection Calibration
+
+**Test image:** compass-and-straightedge construction drawing,
+clean digital, D4 pattern (square/octagon with circular scaffold)
+
+**Pipeline parameters (calibrated):**
+- imagetracerjs: ltres=2, qtres=1, pathomit=16, numberofcolors=4
+- MAX_POINTS: 8000
+- EPSILON: 0.05
+- ROTATION_THRESHOLD: 0.82
+- REFLECTION_THRESHOLD: 0.75
+- GAP_THRESHOLD: 0.05
+- Selection: highest rotation score among all passing candidates
+
+**Results:**
+- 4-fold: rotation 1.000, reflection 1.000 ✓ winner
+- Score gap: 0.085 (above 0.05 threshold — unambiguous)
+- All other fold counts passed threshold due to circular scaffold
+  contamination — gap check correctly identified 4-fold as dominant
+
+**Known limitation:**
+Circular scaffold lines (construction arcs) cause all fold counts
+to score above threshold on clean line drawings. The gap check
+mitigates this — a gap below 0.05 downgrades confidence to low
+and sets ambiguous: true on SymmetryResult. Pre-filtering circular
+arc segments before point sampling is the next improvement (see ADR).
+
+**Status:** detection working on clean digital images.
+Photographs and hand-drawn images not yet validated.
+
+---
+
 ## Go/no-go recommendation
 
 **Conditional go.** The 55.5% accuracy is in the iterate band (50-70%). Before committing to build, invest in: (1) few-shot examples for the weakest fields, (2) chain-of-thought prefix before JSON. Re-spike on the same 15 images. If accuracy crosses 70%, greenlight. If not, present analysis as "suggested tags" (the fallback UX from Part 3).

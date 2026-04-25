@@ -1,12 +1,16 @@
-import { useReducer, useEffect, useCallback, useState, useRef } from 'react';
+import { useReducer, useEffect, useCallback, useState } from 'react';
 import type { AppState, AppAction, ActiveFilters, Entry, SortKey } from './types.js';
 import { storage } from './data.js';
 import { SIDEBAR_GROUPS, filterEntries, sortEntries } from './gallery.js';
 import type { SidebarGroup } from './gallery.js';
+import { Header } from './components/Header.js';
+import { Footer } from './components/Footer.js';
 import { Gallery } from './components/Gallery.js';
 import { EntryForm } from './components/EntryForm.js';
+import { AboutPage } from './components/AboutPage.js';
 import { SettingsPanel } from './components/SettingsPanel.js';
 import { escapeHtml } from './utils.js';
+import { useRef } from 'react';
 
 // ─── Initial state ────────────────────────────────────────────────────────────
 
@@ -22,14 +26,15 @@ function emptyFilters(): ActiveFilters {
 }
 
 const initialState: AppState = {
-  entries:        [],
-  activeFilters:  emptyFilters(),
-  sort:           'newest',
-  search:         '',
+  entries:         [],
+  activeFilters:   emptyFilters(),
+  sort:            'newest',
+  search:          '',
   selectedEntryId: null,
-  openPanel:      null,
-  formMode:       'new',
-  sidebarOpen:    false,
+  openPanel:       null,
+  formMode:        'new',
+  sidebarOpen:     false,
+  currentView:     'gallery',
 };
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
@@ -40,13 +45,13 @@ function reducer(state: AppState, action: AppAction): AppState {
       return { ...state, entries: action.entries };
 
     case 'ENTRY_SELECTED':
-      return { ...state, selectedEntryId: action.id, openPanel: 'form', formMode: 'edit' };
+      return { ...state, selectedEntryId: action.id, currentView: 'form', formMode: 'edit', openPanel: null };
 
     case 'FORM_OPENED_NEW':
-      return { ...state, selectedEntryId: null, openPanel: 'form', formMode: 'new' };
+      return { ...state, selectedEntryId: null, currentView: 'form', formMode: 'new', openPanel: null };
 
     case 'FORM_CLOSED':
-      return { ...state, openPanel: null, selectedEntryId: null };
+      return { ...state, currentView: 'gallery', selectedEntryId: null, openPanel: null };
 
     case 'SETTINGS_OPENED':
       return { ...state, openPanel: 'settings' };
@@ -56,6 +61,15 @@ function reducer(state: AppState, action: AppAction): AppState {
 
     case 'SIDEBAR_TOGGLED':
       return { ...state, sidebarOpen: !state.sidebarOpen };
+
+    case 'NAVIGATE_TO_FORM':
+      return { ...state, selectedEntryId: null, currentView: 'form', formMode: 'new', openPanel: null };
+
+    case 'NAVIGATE_TO_GALLERY':
+      return { ...state, currentView: 'gallery', openPanel: null };
+
+    case 'NAVIGATE_TO_ABOUT':
+      return { ...state, currentView: 'about', openPanel: null };
 
     case 'FILTER_TOGGLED': {
       const next = new Set(state.activeFilters[action.filterType]);
@@ -157,7 +171,7 @@ export function App() {
   // escapeHtml imported to satisfy module boundary rules
   void escapeHtml;
 
-  return (
+  const bgDecorations = (
     <>
       {/* Background hex grid */}
       <svg className="bg-geometry" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -184,111 +198,110 @@ export function App() {
         <polygon points="10,200 45,192 35,200 45,208"    fill="var(--color-gold)" opacity="0.5"/>
         <polygon points="390,200 355,192 365,200 355,208" fill="var(--color-gold)" opacity="0.5"/>
       </svg>
+    </>
+  );
 
-      <div className="app">
+  return (
+    <>
+      {bgDecorations}
 
-        {/* Header */}
-        <header className="header">
-          <div className="header-left">
-            <div className="wordmark">
-              <div className="wordmark-title">RADIAN</div>
-              <div className="wordmark-sep"></div>
-              <div className="wordmark-sub">Where Art and Mathematics Unite</div>
+      <div className="app-shell">
+
+        <Header
+          currentView={state.currentView}
+          dispatch={dispatch}
+          isDark={isDark}
+          onThemeToggle={handleThemeToggle}
+          onImport={() => document.getElementById('importFileInput')?.click()}
+          onExport={handleExport}
+        />
+
+        <main className="app-content">
+
+          {/* Gallery view */}
+          {state.currentView === 'gallery' && (
+            <div className="main" id="mainArea">
+              {/* Collection header row */}
+              <div className="gallery-header">
+                <div className="gallery-header-left">
+                  <GalleryTitle filtered={filtered.length} total={state.entries.length} />
+                </div>
+                <div className="gallery-header-right">
+                  <div className="search-wrap">
+                    <span className="search-icon" aria-hidden="true">⌕</span>
+                    <input
+                      type="search"
+                      className="search-input"
+                      placeholder="Search..."
+                      autoComplete="off"
+                      value={state.search}
+                      onChange={e => dispatch({ type: 'SEARCH_CHANGED', search: e.target.value.trim() })}
+                    />
+                  </div>
+                  <div className="sort-wrap">
+                    <select
+                      className="sort-select"
+                      value={state.sort}
+                      onChange={e => dispatch({ type: 'SORT_CHANGED', sort: e.target.value as SortKey })}
+                    >
+                      <option value="newest">Newest first</option>
+                      <option value="oldest">Oldest first</option>
+                      <option value="az">Title A–Z</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Filter chips bar */}
+              <FilterBar
+                activeFilters={state.activeFilters}
+                onToggle={(filterType, value) => dispatch({ type: 'FILTER_TOGGLED', filterType, value })}
+                onClear={() => dispatch({ type: 'FILTERS_CLEARED' })}
+              />
+
+              {/* Active filter strip */}
+              <ActiveFilterStrip
+                activeFilters={state.activeFilters}
+                onToggle={(filterType, value) => dispatch({ type: 'FILTER_TOGGLED', filterType, value })}
+                onClear={() => dispatch({ type: 'FILTERS_CLEARED' })}
+              />
+
+              <Gallery
+                entries={sorted}
+                activeFilters={state.activeFilters}
+                selectedId={state.selectedEntryId}
+                totalCount={state.entries.length}
+                onSelect={handleEntrySelect}
+                onAddNew={() => dispatch({ type: 'FORM_OPENED_NEW' })}
+              />
             </div>
-          </div>
-          <div className="header-actions">
-            <SettingsDropdown
-              isDark={isDark}
-              onThemeToggle={handleThemeToggle}
-              onImport={() => document.getElementById('importFileInput')?.click()}
-              onExport={handleExport}
-              onOpenSettings={() => dispatch({ type: 'SETTINGS_OPENED' })}
+          )}
+
+          {/* Form view */}
+          {state.currentView === 'form' && (
+            <EntryForm
+              entry={formEntry}
+              isOpen={true}
+              onSave={handleSave}
+              onCancel={() => dispatch({ type: 'FORM_CLOSED' })}
+              onEntryUpdated={reloadEntries}
+              onDelete={handleDelete}
             />
-            <button className="btn btn--primary" onClick={() => dispatch({ type: 'FORM_OPENED_NEW' })}>
-              + Add piece
-            </button>
-          </div>
-        </header>
+          )}
 
-        {/* Main gallery */}
-        <main className="main" id="mainArea">
-          {/* Collection header row */}
-          <div className="gallery-header">
-            <div className="gallery-header-left">
-              <GalleryTitle filtered={filtered.length} total={state.entries.length} />
-            </div>
-            <div className="gallery-header-right">
-              <div className="search-wrap">
-                <span className="search-icon" aria-hidden="true">⌕</span>
-                <input
-                  type="search"
-                  className="search-input"
-                  placeholder="Search..."
-                  autoComplete="off"
-                  value={state.search}
-                  onChange={e => dispatch({ type: 'SEARCH_CHANGED', search: e.target.value.trim() })}
-                />
-              </div>
-              <div className="sort-wrap">
-                <select
-                  className="sort-select"
-                  value={state.sort}
-                  onChange={e => dispatch({ type: 'SORT_CHANGED', sort: e.target.value as SortKey })}
-                >
-                  <option value="newest">Newest first</option>
-                  <option value="oldest">Oldest first</option>
-                  <option value="az">Title A–Z</option>
-                </select>
-              </div>
-            </div>
-          </div>
+          {/* About view */}
+          {state.currentView === 'about' && <AboutPage />}
 
-          {/* Filter chips bar */}
-          <FilterBar
-            activeFilters={state.activeFilters}
-            onToggle={(filterType, value) => dispatch({ type: 'FILTER_TOGGLED', filterType, value })}
-            onClear={() => dispatch({ type: 'FILTERS_CLEARED' })}
-          />
-
-          {/* Active filter strip */}
-          <ActiveFilterStrip
-            activeFilters={state.activeFilters}
-            onToggle={(filterType, value) => dispatch({ type: 'FILTER_TOGGLED', filterType, value })}
-            onClear={() => dispatch({ type: 'FILTERS_CLEARED' })}
-          />
-
-          <Gallery
-            entries={sorted}
-            activeFilters={state.activeFilters}
-            selectedId={state.selectedEntryId}
-            totalCount={state.entries.length}
-            onSelect={handleEntrySelect}
-            onAddNew={() => dispatch({ type: 'FORM_OPENED_NEW' })}
-          />
         </main>
 
-      </div>
+        <Footer />
 
-      {/* Form panel backdrop */}
-      <div
-        className={`panel-backdrop${state.openPanel === 'form' ? ' open' : ''}`}
-        onClick={() => dispatch({ type: 'FORM_CLOSED' })}
-      />
+      </div>
 
       {/* Settings panel backdrop */}
       <div
         className={`panel-backdrop${state.openPanel === 'settings' ? ' open' : ''}`}
         onClick={() => dispatch({ type: 'SETTINGS_CLOSED' })}
-      />
-
-      {/* Entry form panel */}
-      <EntryForm
-        entry={formEntry}
-        isOpen={state.openPanel === 'form'}
-        onSave={handleSave}
-        onCancel={() => dispatch({ type: 'FORM_CLOSED' })}
-        onEntryUpdated={reloadEntries}
-        onDelete={handleDelete}
       />
 
       {/* Settings panel */}
@@ -319,65 +332,6 @@ export function App() {
         }}
       />
     </>
-  );
-}
-
-// ─── Settings dropdown ────────────────────────────────────────────────────────
-
-interface SettingsDropdownProps {
-  isDark: boolean;
-  onThemeToggle: () => void;
-  onImport: () => void;
-  onExport: () => void;
-  onOpenSettings: () => void;
-}
-
-function SettingsDropdown({ isDark, onThemeToggle, onImport, onExport, onOpenSettings }: SettingsDropdownProps) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function onDoc(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, []);
-
-  return (
-    <div ref={ref} className="settings-dropdown" data-open={String(open)}>
-      <button className="btn" onClick={() => setOpen(x => !x)}>
-        Settings ∨
-      </button>
-      <div className="settings-drop-menu">
-        <button
-          className="settings-drop-item"
-          onClick={() => { onThemeToggle(); setOpen(false); }}
-        >
-          {isDark ? '☀ Light mode' : '☽ Dark mode'}
-        </button>
-        <div className="settings-drop-divider" />
-        <button
-          className="settings-drop-item"
-          onClick={() => { onImport(); setOpen(false); }}
-        >
-          Import JSON
-        </button>
-        <button
-          className="settings-drop-item"
-          onClick={() => { onExport(); setOpen(false); }}
-        >
-          Export JSON
-        </button>
-        <div className="settings-drop-divider" />
-        <button
-          className="settings-drop-item"
-          onClick={() => { onOpenSettings(); setOpen(false); }}
-        >
-          API key & cost
-        </button>
-      </div>
-    </div>
   );
 }
 
