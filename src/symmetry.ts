@@ -37,6 +37,7 @@ export interface SymmetryResult {
   rotationScore: number
   reflectionScore: number
   epsilon: number
+  ambiguous?: boolean
   fundamentalDomain?: FundamentalDomain
 }
 
@@ -193,6 +194,22 @@ export function detectSymmetry(points: Point[]): SymmetryResult {
     return { foldCount: 0, groupType: 'none', rotationScore: 0, reflectionScore: 0, epsilon: EPSILON };
   }
 
+  // If multiple fold counts pass, require the winner to lead by a meaningful margin —
+  // a flat distribution indicates circles dominating rather than genuine pattern signal
+  const GAP_THRESHOLD = 0.05;
+  let ambiguous = false;
+
+  if (results.length > 1) {
+    const sorted = [...results].sort((a, b) => b.rotationScore - a.rotationScore);
+    const gap = sorted[0].rotationScore - sorted[1].rotationScore;
+    console.log('[radian:symmetry] score gap:', gap.toFixed(3),
+      '— winner:', sorted[0].n, 'second:', sorted[1].n);
+
+    if (gap < GAP_THRESHOLD) {
+      ambiguous = true;
+    }
+  }
+
   // Pick the highest rotation score among passing candidates
   const best = results.reduce((a, b) => a.rotationScore > b.rotationScore ? a : b);
 
@@ -204,6 +221,7 @@ export function detectSymmetry(points: Point[]): SymmetryResult {
     rotationScore: best.rotationScore,
     reflectionScore: best.reflectionScore,
     epsilon: EPSILON,
+    ambiguous,
     fundamentalDomain: {
       angleStart: 0,
       angleSweep,
@@ -273,9 +291,14 @@ export function mapToTag(result: SymmetryResult): SymmetryTag {
     confidence = 'low';
   }
 
-  const rationale = result.groupType === 'D'
+  let rationale = result.groupType === 'D'
     ? `${result.foldCount}-fold dihedral symmetry (rotation ${result.rotationScore.toFixed(2)}, reflection ${result.reflectionScore.toFixed(2)}).`
     : `${result.foldCount}-fold rotational symmetry only — reflection axes weak, pattern may be cyclic not dihedral.`;
+
+  if (result.ambiguous) {
+    confidence = 'low';
+    rationale += ' Multiple fold counts detected — pattern may contain circular scaffolding.';
+  }
 
   return { value: tagValue, confidence, rationale };
 }
