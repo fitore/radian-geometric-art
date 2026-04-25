@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useCallback, useState } from 'react';
 import type { AppState, AppAction, ActiveFilters, Entry, SortKey } from './types.js';
-import { storage } from './data.js';
+import { storage, seedInitialEntries } from './data.js';
 import { SIDEBAR_GROUPS, filterEntries, sortEntries } from './gallery.js';
 import type { SidebarGroup } from './gallery.js';
 import { Header } from './components/Header.js';
@@ -113,11 +113,16 @@ function toggleTheme(): void {
 export function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [isDark, setIsDark] = useState(false);
+  const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
 
   useEffect(() => {
     initTheme();
+    const seeded = seedInitialEntries();
     dispatch({ type: 'ENTRIES_RELOADED', entries: storage.getAllEntries() });
     setIsDark(document.documentElement.dataset['theme'] === 'dark');
+    if (seeded && !localStorage.getItem('radian:welcome-dismissed')) {
+      setShowWelcomeBanner(true);
+    }
   }, []);
 
   const reloadEntries = useCallback(() => {
@@ -221,6 +226,15 @@ export function App() {
           {/* Gallery view */}
           {state.currentView === 'gallery' && (
             <div className="main" id="mainArea">
+
+              {/* Welcome banner — shown once after seed, dismissed by user */}
+              {showWelcomeBanner && (
+                <WelcomeBanner onDismiss={() => {
+                  setShowWelcomeBanner(false);
+                  localStorage.setItem('radian:welcome-dismissed', 'true');
+                }} />
+              )}
+
               {/* Collection header row */}
               <div className="gallery-header">
                 <div className="gallery-header-left">
@@ -332,6 +346,47 @@ export function App() {
         }}
       />
     </>
+  );
+}
+
+// ─── Welcome banner ───────────────────────────────────────────────────────────
+
+function WelcomeBanner({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <div style={{
+      background: 'rgba(212, 175, 55, 0.08)',
+      border: '1px solid var(--color-border)',
+      borderRadius: 'var(--radius-m)',
+      padding: 'var(--space-m) var(--space-l)',
+      marginBottom: 'var(--space-l)',
+      display: 'flex',
+      alignItems: 'baseline',
+      justifyContent: 'space-between',
+      gap: 'var(--space-l)',
+      flexWrap: 'wrap',
+    }}>
+      <span style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-text)', fontSize: '1rem', lineHeight: 1.6 }}>
+        We've added some pieces from our practitioner community to get you started. Delete any you don't want, or edit them to make them yours.
+      </span>
+      <button
+        type="button"
+        onClick={onDismiss}
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: '0.6875rem',
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          color: 'var(--color-text)',
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          cursor: 'pointer',
+          flexShrink: 0,
+        }}
+      >
+        Got it
+      </button>
+    </div>
   );
 }
 

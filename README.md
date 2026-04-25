@@ -66,19 +66,27 @@ defined contract) is the core pattern this project demonstrates.
 src/
 ├── main.tsx              ← React entry point
 ├── App.tsx               ← Root component — useReducer for session state,
-│                            sidebar, header, panel routing
+│                            AppView routing (gallery | form | about)
 ├── types.ts              ← Domain contract: Entry, Analysis, TemplateRef,
 │                            AppState, AppAction (discriminated union)
-├── data.ts               ← TAG_VOCABULARY, localStorage CRUD, schema migration
+├── data.ts               ← TAG_VOCABULARY, localStorage CRUD, schema migration,
+│                            SEED_ENTRIES, seedInitialEntries()
 ├── gallery.ts            ← filterEntries(), sortEntries() — pure functions
 ├── api.ts                ← callClaude(), SYSTEM_PROMPT, cost tracking
 ├── canvas.ts             ← Sobel edge-detection pipeline (no external deps)
+├── symmetry.ts           ← Client-side fold detection pipeline — imagetracerjs
+│                            vectorisation, KD-tree scoring, symmetry group detection
 ├── utils.ts              ← Pure helpers: escapeHtml, formatDate, formatCost
 ├── components/
+│   ├── Header.tsx        ← Persistent header — wordmark, nav, settings dropdown
+│   ├── Footer.tsx        ← Persistent footer — GitHub link
 │   ├── Gallery.tsx       ← Card grid — receives filtered/sorted entries as props
 │   ├── EntryCard.tsx     ← Single collection card
-│   ├── EntryForm.tsx     ← Add/edit panel — owns all form field state
+│   ├── EntryForm.tsx     ← Add/edit page — owns all form field state
+│   ├── AboutPage.tsx     ← About page body content
 │   ├── AnalysisPanel.tsx ← Analysis result display — accept/dismiss contract
+│   ├── FundamentalDomainView.tsx ← Symmetry wedge overlay, tile extraction,
+│   │                                tessellation preview
 │   ├── TemplatePanel.tsx ← Edge extraction controls and preview
 │   └── SettingsPanel.tsx ← API key, session cost, theme
 └── styles/
@@ -106,9 +114,12 @@ written to localStorage until the user saves the form.
 **Storage:**
 ```
 localStorage
-├── radian:index          → string[]   (ordered entry IDs)
-├── radian:entry:{id}     → Entry      (metadata, tags, analysis)
-└── radian:template:{id}  → string     (base64 PNG, print-ready template)
+├── radian:index              → string[]   (ordered entry IDs)
+├── radian:entry:{id}         → Entry      (metadata, tags, analysis)
+├── radian:template:{id}      → string     (base64 PNG, print-ready template)
+├── radian:theme              → 'dark'     (absent = light mode default)
+├── radian:seeded             → 'true'     (set once after initial seed — never re-seeds)
+└── radian:welcome-dismissed  → 'true'     (set when user dismisses welcome banner)
 ```
 
 ---

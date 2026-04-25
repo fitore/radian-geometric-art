@@ -104,20 +104,6 @@ export interface AppState {
 
 export type AnalysisResult = Analysis;
 
-// ─── Placeholder entry (display-only, never written to localStorage) ─────────
-
-export interface PlaceholderEntry {
-  id: string;               // 'placeholder-{n}' — never a UUID
-  title: string;
-  imageUrl: string;
-  artist: {
-    name: string;
-    url: string;
-  };
-  tags: Entry['tags'];
-  isPlaceholder: true;      // discriminant — never false on this type
-}
-
 // ─── App action types (named for what happened, not what to do) ──────────────
 
 export type AppAction =
