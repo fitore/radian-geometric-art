@@ -1,6 +1,7 @@
 import type { Entry, Analysis, AnalysisResult } from '../types.js';
 import type { SymmetryResult } from '../symmetry.js';
 import { formatDate } from '../utils.js';
+import { FundamentalDomainView } from './FundamentalDomainView.js';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -16,7 +17,7 @@ export interface AnalysisPanelProps {
 // Renders analysis results and surfaces the accept/dismiss contract.
 // Does NOT write to localStorage — acceptance is the caller's responsibility.
 
-export function AnalysisPanel({ entry, result, symmetryResult: _symmetryResult, onAccept, onDismiss }: AnalysisPanelProps) {
+export function AnalysisPanel({ entry, result, symmetryResult, onAccept, onDismiss }: AnalysisPanelProps) {
   if (!result) return null;
 
   const a = result;
@@ -40,6 +41,10 @@ export function AnalysisPanel({ entry, result, symmetryResult: _symmetryResult, 
         <AnalysisFieldRow label="Symmetry" field={a.symmetry} />
         <ProportionRow proportion={a.proportion} />
       </div>
+
+      {symmetryResult && symmetryResult.foldCount > 0 && entry.imageUrl && (
+        <FundamentalDomainView imageUrl={entry.imageUrl} symmetryResult={symmetryResult} />
+      )}
 
       {a.constructionNotes && (
         <div className="analysis-notes">{a.constructionNotes}</div>
