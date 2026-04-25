@@ -55,6 +55,7 @@ const SYMMETRY_VOCAB = new Set([
 // ─── extractPoints ────────────────────────────────────────────────────────────
 
 export async function extractPoints(imageSource: HTMLImageElement | string): Promise<Point[]> {
+  console.log('[radian:symmetry] extractPoints called, source type:', typeof imageSource);
   const img = typeof imageSource === 'string' ? await loadImage(imageSource) : imageSource;
 
   // Draw to canvas, cap longest side at 800px
@@ -73,18 +74,21 @@ export async function extractPoints(imageSource: HTMLImageElement | string): Pro
 
   // Vectorise with imagetracerjs
   const svgString = ImageTracer.imagedataToSVG(imgData, {
-    ltres: 1, qtres: 1, pathomit: 8, numberofcolors: 2,
+    ltres: 2, qtres: 1, pathomit: 16, numberofcolors: 4,
   });
+  console.log('[radian:symmetry] svg length:', svgString?.length ?? 0);
 
   // Extract points from SVG path data
   const parser = new DOMParser();
   const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
   const pathEls = Array.from(svgDoc.querySelectorAll('path'));
+  console.log('[radian:symmetry] paths found:', pathEls.length);
 
   const raw: Point[] = [];
   for (const el of pathEls) {
     samplePath(el.getAttribute('d') ?? '', raw);
   }
+  console.log('[radian:symmetry] points before normalise:', raw.length);
 
   if (raw.length === 0) {
     // No paths — return empty cloud (foldCount will be 0)
@@ -98,14 +102,18 @@ export async function extractPoints(imageSource: HTMLImageElement | string): Pro
   // Normalise: translate to centroid, scale by median distance
   const cx = raw.reduce((s, p) => s + p.x, 0) / raw.length;
   const cy = raw.reduce((s, p) => s + p.y, 0) / raw.length;
+  console.log('[radian:symmetry] centroid:', cx.toFixed(3), cy.toFixed(3));
   const translated = raw.map(p => ({ x: p.x - cx, y: p.y - cy }));
 
   const dists = translated.map(p => Math.sqrt(p.x * p.x + p.y * p.y)).sort((a, b) => a - b);
   const medianDist = dists[Math.floor(dists.length / 2)] || 1;
   const normalized = translated.map(p => ({ x: p.x / medianDist, y: p.y / medianDist }));
+  console.log('[radian:symmetry] points after normalise:', normalized.length);
 
-  // Downsample to ≤800 points
-  const sample = normalized.length > 800 ? uniformSample(normalized, 800) : normalized;
+  // Downsample to ≤8000 points
+  const sample = normalized.length > 8000 ? uniformSample(normalized, 8000) : normalized;
+  console.log('[radian:symmetry] points after downsample:', sample.length);
+  console.log('[radian:symmetry] sample[0..4]:', sample.slice(0, 5));
 
   return Object.assign(sample, {
     centreX: cx / scaleFactor,
@@ -149,7 +157,7 @@ export function detectSymmetry(points: Point[]): SymmetryResult {
   const FOLD_COUNTS = [6, 4, 8, 3, 12, 5, 10, 16, 7] as const;
   const ROTATION_THRESHOLD = 0.82;
   const REFLECTION_THRESHOLD = 0.75;
-  const EPSILON = 0.025;
+  const EPSILON = 0.05;
 
   if (points.length === 0) {
     return { foldCount: 0, groupType: 'none', rotationScore: 0, reflectionScore: 0, epsilon: EPSILON };
@@ -161,29 +169,49 @@ export function detectSymmetry(points: Point[]): SymmetryResult {
     ['x', 'y']
   );
 
+  const results: Array<{
+    n: number
+    rotationScore: number
+    reflectionScore: number
+    groupType: 'D' | 'C'
+  }> = [];
+
   for (const n of FOLD_COUNTS) {
     const angle = (2 * Math.PI) / n;
     const rotationScore = scoreRotation(points, tree, angle, EPSILON);
+    console.log(`[radian:symmetry] testing ${n}-fold, rotation score:`, rotationScore.toFixed(3));
 
     if (rotationScore >= ROTATION_THRESHOLD) {
       const reflectionScore = scoreReflections(points, tree, n, EPSILON);
       const groupType: 'D' | 'C' = reflectionScore >= REFLECTION_THRESHOLD ? 'D' : 'C';
-
-      const angleSweep = groupType === 'D' ? Math.PI / n : (2 * Math.PI) / n;
-
-      const fundamentalDomain: FundamentalDomain = {
-        angleStart: 0,
-        angleSweep,
-        centreX: cloud.centreX ?? 0,
-        centreY: cloud.centreY ?? 0,
-        radius: cloud.imageRadius ?? 200,
-      };
-
-      return { foldCount: n, groupType, rotationScore, reflectionScore, epsilon: EPSILON, fundamentalDomain };
+      console.log(`[radian:symmetry] ${n}-fold passed — reflection:`, reflectionScore.toFixed(3));
+      results.push({ n, rotationScore, reflectionScore, groupType });
     }
   }
 
-  return { foldCount: 0, groupType: 'none', rotationScore: 0, reflectionScore: 0, epsilon: EPSILON };
+  if (results.length === 0) {
+    return { foldCount: 0, groupType: 'none', rotationScore: 0, reflectionScore: 0, epsilon: EPSILON };
+  }
+
+  // Pick the highest rotation score among passing candidates
+  const best = results.reduce((a, b) => a.rotationScore > b.rotationScore ? a : b);
+
+  const angleSweep = best.groupType === 'D' ? Math.PI / best.n : (2 * Math.PI) / best.n;
+
+  return {
+    foldCount: best.n,
+    groupType: best.groupType,
+    rotationScore: best.rotationScore,
+    reflectionScore: best.reflectionScore,
+    epsilon: EPSILON,
+    fundamentalDomain: {
+      angleStart: 0,
+      angleSweep,
+      centreX: cloud.centreX ?? 0,
+      centreY: cloud.centreY ?? 0,
+      radius: cloud.imageRadius ?? 200,
+    },
+  };
 }
 
 function scoreRotation(points: Point[], tree: kdTree<Point>, angle: number, epsilon: number): number {
