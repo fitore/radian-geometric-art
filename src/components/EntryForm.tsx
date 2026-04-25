@@ -3,6 +3,8 @@ import type { Entry, Tags, Status, Difficulty, Analysis, AnalysisResult } from '
 import { TAG_VOCABULARY } from '../data.js';
 import { storage } from '../data.js';
 import { callClaude, hasApiKey } from '../api.js';
+import { extractPoints, detectSymmetry, mapToTag } from '../symmetry.js';
+import type { SymmetryResult } from '../symmetry.js';
 import { AnalysisPanel } from './AnalysisPanel.js';
 import { TemplatePanel } from './TemplatePanel.js';
 
@@ -83,6 +85,10 @@ export function EntryForm({ entry, isOpen, onSave, onCancel, onEntryUpdated, onD
   const [isAnalyzing,    setIsAnalyzing]    = useState(false);
   const [analysisError,  setAnalysisError]  = useState<string | null>(null);
 
+  // Transient symmetry detection state — never persisted to localStorage
+  const [symmetryResult,       setSymmetryResult]       = useState<SymmetryResult | null>(null);
+  const [isSymmetryAnalyzing,  setIsSymmetryAnalyzing]  = useState(false);
+
   // Transient template state
   const [showTemplatePanel, setShowTemplatePanel] = useState(false);
 
@@ -96,6 +102,8 @@ export function EntryForm({ entry, isOpen, onSave, onCancel, onEntryUpdated, onD
       setAnalysisResult(entry?.analysis ?? null);
       setAnalysisError(null);
       setIsAnalyzing(false);
+      setSymmetryResult(null);
+      setIsSymmetryAnalyzing(false);
       setShowTemplatePanel(false);
     }
   }, [entry, isOpen]);
@@ -201,6 +209,80 @@ export function EntryForm({ entry, isOpen, onSave, onCancel, onEntryUpdated, onD
       setAnalysisError(err instanceof Error ? err.message : String(err));
     } finally {
       setIsAnalyzing(false);
+    }
+  }
+
+  // ── Symmetry detection (user-triggered only — no useEffect) ─────────────────
+  // Runs entirely client-side via imagetracerjs + KD-tree. No API call.
+
+  async function handleSymmetryAnalyze() {
+    if (!fields.imageUrl) {
+      setAnalysisError('Save the entry with an image before analyzing.');
+      return;
+    }
+
+    setIsSymmetryAnalyzing(true);
+    setAnalysisError(null);
+
+    try {
+      const points = await extractPoints(fields.imageUrl);
+
+      if (points.length === 0) {
+        setAnalysisError('Could not extract pattern from this image');
+        return;
+      }
+
+      const symResult = detectSymmetry(points);
+      const tag = mapToTag(symResult);
+
+      // Build Analysis merging symmetry into existing analysis or a minimal shell.
+      // Analysis type has symmetry at the top level — no `classifications` wrapper.
+      const existingAnalysis = entry?.analysis;
+      const mergedAnalysis: Analysis = existingAnalysis
+        ? {
+            ...existingAnalysis,
+            symmetry: {
+              primary: tag.value ?? 'none',
+              confidence: tag.confidence,
+              rationale: tag.rationale,
+            },
+            promptVersion: 'symmetry-v1',
+            analyzedAt: new Date().toISOString(),
+          }
+        : {
+            constructionMethod: { primary: 'uncertain', confidence: 'low', rationale: '' },
+            tradition:          { primary: 'uncertain', confidence: 'low', rationale: '' },
+            patternType:        { primary: 'uncertain', confidence: 'low', rationale: '' },
+            symmetry: {
+              primary: tag.value ?? 'none',
+              confidence: tag.confidence,
+              rationale: tag.rationale,
+            },
+            proportion:         { detected: [], confidence: 'low', rationale: '' },
+            description:        '',
+            suggestedDifficulty: 'beginner',
+            constructionNotes:  '',
+            promptVersion:      'symmetry-v1',
+            analyzedAt:         new Date().toISOString(),
+          };
+
+      // Store raw SymmetryResult in state — Session B uses it for the overlay.
+      // Never persisted to localStorage.
+      setSymmetryResult(symResult);
+      setAnalysisResult(mergedAnalysis);
+
+      // populateForm is the single path to writing form state — pre-fills
+      // the symmetry tag for user review (suggestion only, not auto-applied).
+      if (tag.value) {
+        populateForm({
+          tags: { ...fields.tags, symmetry: [tag.value] },
+        });
+      }
+    } catch (err) {
+      console.error('[symmetry]', err);
+      setAnalysisError('Analysis failed — try a cleaner image');
+    } finally {
+      setIsSymmetryAnalyzing(false);
     }
   }
 
@@ -393,8 +475,9 @@ export function EntryForm({ entry, isOpen, onSave, onCancel, onEntryUpdated, onD
                 <AnalysisPanel
                   entry={entry ?? { ...fields, id: '', createdAt: '', schemaVersion: 2 } as unknown as Entry}
                   result={analysisResult ?? entry?.analysis ?? null}
+                  symmetryResult={symmetryResult}
                   onAccept={handleAnalysisAccept}
-                  onDismiss={() => { setAnalysisResult(null); setAnalysisError(null); }}
+                  onDismiss={() => { setAnalysisResult(null); setAnalysisError(null); setSymmetryResult(null); }}
                 />
               )}
             </div>
@@ -463,6 +546,14 @@ export function EntryForm({ entry, isOpen, onSave, onCancel, onEntryUpdated, onD
                 onClick={() => { void handleAnalyze(); }}
               >
                 ✦ Analyze with Claude
+              </button>
+              <button
+                type="button"
+                className="btn btn--action"
+                disabled={isSymmetryAnalyzing}
+                onClick={() => { void handleSymmetryAnalyze(); }}
+              >
+                {isSymmetryAnalyzing ? '◈ Analyzing…' : '◈ Detect symmetry'}
               </button>
               <button
                 type="button"
