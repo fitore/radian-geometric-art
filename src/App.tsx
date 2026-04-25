@@ -6,6 +6,8 @@ import type { SidebarGroup } from './gallery.js';
 import { Gallery } from './components/Gallery.js';
 import { EntryForm } from './components/EntryForm.js';
 import { SettingsPanel } from './components/SettingsPanel.js';
+import { Footer } from './components/Footer.js';
+import { AboutPage } from './components/AboutPage.js';
 import { escapeHtml } from './utils.js';
 
 // ─── Initial state ────────────────────────────────────────────────────────────
@@ -99,6 +101,7 @@ function toggleTheme(): void {
 export function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [isDark, setIsDark] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   useEffect(() => {
     initTheme();
@@ -157,7 +160,7 @@ export function App() {
   // escapeHtml imported to satisfy module boundary rules
   void escapeHtml;
 
-  return (
+  const bgDecorations = (
     <>
       {/* Background hex grid */}
       <svg className="bg-geometry" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -184,6 +187,21 @@ export function App() {
         <polygon points="10,200 45,192 35,200 45,208"    fill="var(--color-gold)" opacity="0.5"/>
         <polygon points="390,200 355,192 365,200 355,208" fill="var(--color-gold)" opacity="0.5"/>
       </svg>
+    </>
+  );
+
+  if (showAbout) {
+    return (
+      <>
+        {bgDecorations}
+        <AboutPage onBack={() => setShowAbout(false)} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      {bgDecorations}
 
       <div className="app">
 
@@ -266,6 +284,8 @@ export function App() {
             onAddNew={() => dispatch({ type: 'FORM_OPENED_NEW' })}
           />
         </main>
+
+        <Footer onAbout={() => setShowAbout(true)} />
 
       </div>
 
