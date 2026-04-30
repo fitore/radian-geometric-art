@@ -216,10 +216,17 @@ Five contract test suites, each documenting non-negotiable behaviour:
 ## Docs
 
 - `docs/prd.md` — Full product spec and feature definitions
+- `docs/ontology.md` — Ontology layer: every entity defined by meaning (not
+  just shape), with state machines, link types, action types, and TypeScript
+  mapping. The schema/ontology distinction governs this codebase: `types.ts`
+  defines shape; `docs/ontology.md` defines meaning.
 - `docs/spike-results.md` — Classification accuracy, prompt iterations
 - `docs/adr/` — Architecture Decision Records
 - `CLAUDE.md` — Coding agent harness context
 - `architect.md` — Thinking partner context for planning sessions
+- `.github/agents/dataarchitect.md` — Principal Data Architect context:
+  systems of record, derived data, schema evolution, regulated environments.
+  Loaded for ontology and data architecture sessions.
 - `mvp/` — v1 single-file reference (preserved)
 - `spike/` — Original spike artefacts (preserved)
 

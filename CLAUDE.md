@@ -237,12 +237,15 @@ Type stack: Cinzel (headings) · Cormorant Garamond (body) · JetBrains Mono
 1. Read this file.
 2. Identify which modules your task touches — read only those modules.
 3. Read `docs/prd.md` for the feature's intent and acceptance criteria.
-4. If the task touches `api.ts` or analysis output, read `docs/spike-results.md`.
-5. If the task touches `symmetry.ts` or `FundamentalDomainView`, read
+4. If the task touches `types.ts`, `data.ts`, `TAG_VOCABULARY`, entity
+   relationships, or `src/ontology.ts`, read `docs/ontology.md` first —
+   it defines what every entity means and how they relate.
+5. If the task touches `api.ts` or analysis output, read `docs/spike-results.md`.
+6. If the task touches `symmetry.ts` or `FundamentalDomainView`, read
    `architect.md` — it contains the mathematics domain knowledge
    (symmetry groups, proportion systems, tradition geometric signatures)
    needed to implement these features correctly.
-6. Check `docs/adr/` for any prior decision affecting your task.
+7. Check `docs/adr/` for any prior decision affecting your task.
 
 **Token discipline — apply these rules on every task:**
 
@@ -275,6 +278,12 @@ Type stack: Cinzel (headings) · Cormorant Garamond (body) · JetBrains Mono
 ## Progressive Disclosure
 
 - `docs/prd.md` — Feature definitions, entry schema, acceptance criteria
+- `docs/ontology.md` — **Ontology layer.** What every entity means, how
+  they relate, state machines, governed mutations, and how ontology concepts
+  map to TypeScript code. Read before any task that touches `types.ts`,
+  `data.ts`, `TAG_VOCABULARY`, entity relationships, or `src/ontology.ts`.
+  The governing frame: `types.ts` defines shape; `docs/ontology.md` defines
+  meaning.
 - `docs/spike-results.md` — Vision accuracy results, extraction path decision
 - `docs/adr/` — Architecture Decision Records
 - `architect.md` — Domain mathematics and symmetry pipeline spec.
