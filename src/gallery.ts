@@ -1,5 +1,5 @@
 import type { Entry, ActiveFilters, SortKey } from './types.js';
-import { TAG_VOCABULARY } from './data.js';
+import { Ontology } from './ontology.js';
 
 // ─── Sidebar group definitions ────────────────────────────────────────────────
 // Consumed by App.tsx to render filter chips. Kept here alongside filter logic.
@@ -20,22 +20,22 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
   {
     label: 'Construction',
     type: 'constructionMethod',
-    chips: TAG_VOCABULARY.constructionMethod.map(v => ({ value: v, label: v })),
+    chips: Ontology.vocabulary.methods().map(m => ({ value: m.id, label: m.label })),
   },
   {
     label: 'Tradition',
     type: 'tradition',
-    chips: TAG_VOCABULARY.tradition.map(v => ({ value: v, label: v })),
+    chips: Ontology.vocabulary.traditions().map(t => ({ value: t.id, label: t.label })),
   },
   {
     label: 'Pattern Type',
     type: 'patternType',
-    chips: TAG_VOCABULARY.patternType.map(v => ({ value: v, label: v })),
+    chips: Ontology.vocabulary.patternTypes().map(p => ({ value: p.id, label: p.label })),
   },
   {
     label: 'Symmetry',
     type: 'symmetry',
-    chips: TAG_VOCABULARY.symmetry.map(v => ({ value: v, label: v })),
+    chips: Ontology.vocabulary.symmetryGroups().map(s => ({ value: s.id, label: s.label })),
   },
   {
     label: 'Difficulty',
