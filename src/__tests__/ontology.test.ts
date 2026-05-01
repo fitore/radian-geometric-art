@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Ontology } from '../ontology.js';
+import { Ontology, ContextGraph } from '../ontology.js';
 import { storage } from '../data.js';
 import type { Entry } from '../types.js';
 
@@ -81,5 +81,55 @@ describe('Ontology SDK', () => {
   it('returns null from forEntry when entry does not exist', () => {
     const result = Ontology.links.forEntry('nonexistent-id');
     expect(result).toBeNull();
+  });
+});
+
+describe('ContextGraph', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('returns only entries matching all where conditions (AND semantics)', () => {
+    storage.saveEntry(makeEntry({
+      id: 'a',
+      tags: { tradition: ['Islamic-geometric'], constructionMethod: ['compass-and-straightedge'], patternType: [], symmetry: ['6-fold'], proportion: [] },
+    }));
+    storage.saveEntry(makeEntry({
+      id: 'b',
+      tags: { tradition: ['Islamic-geometric'], constructionMethod: ['ruler-only'], patternType: [], symmetry: ['8-fold'], proportion: [] },
+    }));
+    storage.saveEntry(makeEntry({
+      id: 'c',
+      tags: { tradition: ['Celtic-Insular'], constructionMethod: ['compass-and-straightedge'], patternType: [], symmetry: ['6-fold'], proportion: [] },
+    }));
+
+    // tradition AND symmetry — only entry 'a' satisfies both
+    const results = ContextGraph.query({
+      type: 'Entry',
+      where: { tradition: 'Islamic-geometric', symmetry: '6-fold' },
+    });
+
+    expect(results).toHaveLength(1);
+    expect(results[0]!.entry.id).toBe('a');
+  });
+
+  it('attaches resolved links when include contains links', () => {
+    storage.saveEntry(makeEntry({
+      id: 'link-test',
+      tags: { tradition: ['Gothic-Medieval'], constructionMethod: [], patternType: [], symmetry: ['4-fold'], proportion: ['vesica-piscis'] },
+    }));
+
+    const results = ContextGraph.query({
+      type: 'Entry',
+      where: { tradition: 'Gothic-Medieval' },
+      include: ['links'],
+    });
+
+    expect(results).toHaveLength(1);
+    const { links } = results[0]!;
+    expect(links).toBeDefined();
+    expect(links!.traditions[0].label).toBe('Gothic / Medieval');
+    expect(links!.symmetryGroups[0].fullSymmetry).toBe('D4');
+    expect(links!.proportionSystems[0].id).toBe('vesica-piscis');
   });
 });

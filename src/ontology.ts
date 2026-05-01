@@ -5,7 +5,7 @@
 // No DOM access. No React. No localStorage writes — all writes delegate to data.ts.
 // data.ts must NOT import this module. Dependency is one-way: ontology.ts → data.ts.
 
-import type { Entry, ActiveFilters } from './types.js';
+import type { Entry, ActiveFilters, Status, Difficulty, Analysis } from './types.js';
 import { storage } from './data.js';
 
 // ─── Vocabulary object type interfaces ───────────────────────────────────────
@@ -394,5 +394,68 @@ export const Ontology = {
       return Ontology.objects.Entry.list()
         .filter(e => e.tags.constructionMethod.includes(methodId));
     },
+  },
+};
+
+// ─── Context Graph ────────────────────────────────────────────────────────────
+// Compound queries across ontology link types.
+// The query vocabulary is governed by the ontology — where keys map directly
+// to defined link types. You cannot query for a relationship not defined above.
+// This is the same query shape an AI agent would use via an MCP tool call,
+// or a BFF would use to assemble a rich response.
+
+export interface EntryQueryWhere {
+  tradition?:   string;      // entry must have this Tradition id in tags.tradition
+  method?:      string;      // entry must have this ConstructionMethod id
+  patternType?: string;      // entry must have this PatternType id
+  symmetry?:    string;      // entry must have this SymmetryGroup id
+  proportion?:  string;      // entry must have this ProportionSystem id
+  status?:      Status;      // exact match on entry.status
+  difficulty?:  Difficulty;  // exact match on entry.difficulty
+  search?:      string;      // case-insensitive substring match on entry.title
+}
+
+// Multiple where conditions are AND'd — entry must satisfy all of them.
+
+export type EntryQueryInclude = 'analysis' | 'links';
+
+export interface EntryQueryResult {
+  entry:     Entry;
+  analysis?: Analysis;         // present only when include contains 'analysis' and entry has one
+  links?:    ResolvedEntryLinks; // present only when include contains 'links'
+}
+
+export interface EntryQuery {
+  type:     'Entry';
+  where?:   EntryQueryWhere;
+  include?: EntryQueryInclude[];
+}
+
+export const ContextGraph = {
+  query(q: EntryQuery): EntryQueryResult[] {
+    let entries = storage.getAllEntries();
+
+    if (q.where) {
+      const w = q.where;
+      if (w.tradition)   entries = entries.filter(e => e.tags.tradition.includes(w.tradition!));
+      if (w.method)      entries = entries.filter(e => e.tags.constructionMethod.includes(w.method!));
+      if (w.patternType) entries = entries.filter(e => e.tags.patternType.includes(w.patternType!));
+      if (w.symmetry)    entries = entries.filter(e => e.tags.symmetry.includes(w.symmetry!));
+      if (w.proportion)  entries = entries.filter(e => e.tags.proportion.includes(w.proportion!));
+      if (w.status)      entries = entries.filter(e => e.status === w.status);
+      if (w.difficulty)  entries = entries.filter(e => e.difficulty === w.difficulty);
+      if (w.search)      entries = entries.filter(e => e.title.toLowerCase().includes(w.search!.toLowerCase()));
+    }
+
+    return entries.map(entry => {
+      const result: EntryQueryResult = { entry };
+      if (q.include?.includes('analysis') && entry.analysis) {
+        result.analysis = entry.analysis;
+      }
+      if (q.include?.includes('links')) {
+        result.links = Ontology.links.forEntry(entry.id)!;
+      }
+      return result;
+    });
   },
 };
